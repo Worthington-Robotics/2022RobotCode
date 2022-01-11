@@ -1,6 +1,7 @@
 #pragma once
 #include <rclcpp/rclcpp.hpp>
 #include <frc/DriverStation.h>
+#include <frc/Errors.h>
 
 namespace robot {
 
@@ -41,7 +42,7 @@ namespace robot {
          * Overide this function to recieve information on when debug mode is enabled
          **/ 
         virtual void enableDebug(bool debugEnable){
-            frc::DriverStation::ReportWarning("At least one subsystem does not override enableDebug");
+            frc::ReportError(frc::warn::Warning, "Subsystem X", 666, "enableDebug", "At least one subsystem does not override enableDebug");
         }
 
     };
