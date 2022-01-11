@@ -3,6 +3,7 @@
 #include <frc/DriverStation.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include "subsystems/userinput.h"
+#include <frc/Errors.h>
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -209,7 +210,7 @@ namespace robot
         case OPEN_LOOP_FIELD_REL:
         {
             // if we are safe, set motor demands,
-            if (lastStickTime + DRIVE_TIMEOUT > frc::Timer::GetFPGATimestamp())
+            if (lastStickTime + DRIVE_TIMEOUT > frc::Timer::GetFPGATimestamp().to<double>())
             {
 
                 // convert to demands
@@ -224,7 +225,7 @@ namespace robot
         case OPEN_LOOP_ROBOT_REL:
         {
             // if we are safe, set motor demands,
-            if (lastStickTime + DRIVE_TIMEOUT > frc::Timer::GetFPGATimestamp())
+            if (lastStickTime + DRIVE_TIMEOUT > frc::Timer::GetFPGATimestamp().to<double>())
             {
                 // convert to demands
                 speed = twistDrive(stickTwist);
@@ -237,7 +238,7 @@ namespace robot
         }
         case VELOCITY_TWIST:
             // if we are safe, set motor demands,
-            if (lastTwistTime + DRIVE_TIMEOUT > frc::Timer::GetFPGATimestamp())
+            if (lastTwistTime + DRIVE_TIMEOUT > frc::Timer::GetFPGATimestamp().to<double>())
             {
                 speed = twistDrive(lastTwist);
             }
@@ -252,7 +253,7 @@ namespace robot
             break;
 
         default:
-            frc::DriverStation::ReportError("Drivetrain attempted to enter an illegal mode");
+            frc::ReportError(frc::err::InvalidParameter, "drivetrain.cpp", 208, "onLoop()", "Invalid drive state, fuck you");
             speed = frc::ChassisSpeeds{0_mps, 0_mps, 0_rad_per_s};
         }
 
@@ -303,7 +304,7 @@ namespace robot
 
     frc::ChassisSpeeds Drivetrain::updateTrajectory(trajectory_msgs::msg::JointTrajectoryPoint::SharedPtr nPose)
     {
-        nPose
+        nPose.get();
         sOdom.GetPose();
     }
 
@@ -317,13 +318,13 @@ namespace robot
      **/
     void Drivetrain::twistCallback(const geometry_msgs::msg::Twist msg)
     {
-        lastTwistTime = frc::Timer::GetFPGATimestamp();
+        lastTwistTime = frc::Timer::GetFPGATimestamp().to<double>();
         lastTwist = msg;
     }
 
     void Drivetrain::stickCallback(const sensor_msgs::msg::Joy msg)
     {
-        lastStickTime = frc::Timer::GetFPGATimestamp();
+        lastStickTime = frc::Timer::GetFPGATimestamp().to<double>();
         lastStick = msg;
         //update this in disabled? or just init publish empty data? (null ptr on boot)
         isRobotRel = lastStick.buttons.at(0);
@@ -340,7 +341,7 @@ namespace robot
     }
 
     void Drivetrain::enableDebug(bool debugEnable){
-        frc::DriverStation::ReportWarning("Driverstation setting debugEnabled");
+        frc::ReportError(frc::warn::Warning, "drivetrain.cpp", 344, "debug", "You've fucked up, here's your debug data, Good luck! :D");
         DEBUG = debugEnable;
     }
 
