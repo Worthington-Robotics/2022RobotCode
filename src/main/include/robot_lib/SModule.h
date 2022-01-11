@@ -39,6 +39,8 @@ namespace robot
         double drivePos;
         double driveVel;
         double encAbs;
+        double currentOne;
+        double currentTwo;
     };
 
     /**
