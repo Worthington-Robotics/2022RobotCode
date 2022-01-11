@@ -1,5 +1,5 @@
 #include "robot_lib/VersionData.h"
-#include <frc/DriverStation.h>
+#include <frc/Errors.h>
 #include <frc/Filesystem.h>
 #include <iostream>
 #include <wpi/SmallVector.h>
@@ -8,9 +8,7 @@ namespace robot
 {
     void ShowVersionData(){
         int versionNum = 0;
-        wpi::SmallVector<char, 300> fn;
-        frc::filesystem::GetDeployDirectory(fn);
-        std::string fileName(fn.begin(), fn.end());
+        std::string fileName = frc::filesystem::GetDeployDirectory();
         fileName += "/version.dat";
 
         std::cout << "Opening version file: " << fileName << std::endl;
@@ -18,7 +16,7 @@ namespace robot
         FILE* version = std::fopen(fileName.c_str(), "r");
         std::fscanf(version, "%*s%i", &versionNum);
         std::fclose(version);
-        frc::DriverStation::GetInstance().ReportWarning(std::string("Robot Code Initialized with version ") + std::to_string(versionNum));
+        frc::ReportError(frc::warn::Warning, "SubsystemManager.cpp", 19, "ShowVersionData()", std::string("Robot Code Initialized with version ") + std::to_string(versionNum));
     }
     
 } // namespace robot

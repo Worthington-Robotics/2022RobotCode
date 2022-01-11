@@ -13,7 +13,7 @@ void Robot::RobotInit()
 {
     rclcpp::init(0, NULL);
 
-    frc::DriverStation::GetInstance().ReportWarning("ROS Sucessfully Init!");
+    frc::ReportError(frc::warn::Warning, "Robot.cpp", 16, "RobotInit()", "ROS Sucessfully Init!");
 
     // construct subsystems
     auto drive = std::make_shared<robot::Drivetrain>();

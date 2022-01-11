@@ -110,6 +110,7 @@
     "memory_resource": "cpp",
     "random": "cpp",
     "string_view": "cpp",
-    "cinttypes": "cpp"
+    "cinttypes": "cpp",
+    "filesystem": "cpp"
   }
 }
