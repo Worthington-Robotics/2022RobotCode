@@ -100,6 +100,7 @@ namespace robot
 
     void Drivetrain::updateSensorData()
     {
+        double currentSensors[4] = {frontLMod->getData().encAbs, frontRMod->getData().encAbs, rearLMod->getData().encAbs, rearRMod->getData().encAbs};
         //frc::DriverStation::ReportWarning("Updating drive sensor data");
         // read the current IMU state
         int16_t accelData[3];
@@ -263,6 +264,8 @@ namespace robot
         frontLMod->setMotors(moduleStates[1]);
         rearRMod->setMotors(moduleStates[2]);
         rearLMod->setMotors(moduleStates[3]);
+
+        checkDeltaCurrent(frontRMod., frontLMod, rearRMod, rearLMod);
         
     }
 
@@ -343,5 +346,23 @@ namespace robot
         frc::DriverStation::ReportWarning("Driverstation setting debugEnabled");
         DEBUG = debugEnable;
     }
+
+    void Drivetrain::checkDeltaCurrent(double currentOne, double currentTwo, double currentThree, double currentfour){
+        double arr[4] = {currentOne, currentTwo, currentThree, currentfour};
+        for(int i = 0; i < 4; i++){
+            double average = 0;
+            for(int k = 0; k < 4; k++){
+                if(i != k){
+                    average += arr[k];
+                }
+            }
+            average /= 3;
+            if(arr[i] > average + DELTA_CURRENT_THRESHOLD){
+                frc::DriverStation::ReportError("Drivetrain current is too high in module " + std::to_string(i + 1) + ". Current is" + std::to_string(arr[i]));
+                
+            }
+        }
+    }
+}
 
 } // namespace robot

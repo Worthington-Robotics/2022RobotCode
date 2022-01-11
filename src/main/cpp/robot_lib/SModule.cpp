@@ -105,8 +105,10 @@ namespace robot
  
     sSensorData SModule::getData()
     {
-        return sSensorData{angle->GetSelectedSensorPosition(), drive->GetSelectedSensorPosition(), drive->GetSelectedSensorVelocity(), encod->GetAbsolutePosition()};
+        return sSensorData{angle->GetSelectedSensorPosition(), drive->GetSelectedSensorPosition(), drive->GetSelectedSensorVelocity(), encod->GetAbsolutePosition(), drive->GetStatorCurrent()};
     }
+
+
 
     // frc::SwerveModuleState optimize(frc::SwerveModuleState ss, double currDegree){
     //     if(std::abs(ss.angle.Degrees().to<double>() - currDegree) > 90){
