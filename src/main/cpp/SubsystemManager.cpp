@@ -1,7 +1,7 @@
 #include "SubsystemManager.h"
 #include "units/time.h"
 #include <exception>
-#include <frc/DriverStation.h>
+#include <frc/Errors.h>
 #include "rclcpp/rclcpp.hpp"
 
 using std::placeholders::_1;
@@ -128,11 +128,11 @@ namespace robot
         }
         catch (const std::exception &e)
         {
-            frc::DriverStation::ReportError(e.what());
+            frc::ReportError(frc::err::Error, "SubsystemManager.cpp", 131, "enabledLoop()", e.what());
         }
         catch (...)
         {
-            frc::DriverStation::ReportError("Looper Thread died with unknown exception");
+            frc::ReportError(frc::err::Error, "SubsystemManager.cpp", 135, "enabledLoop()", "Looper Thread died with unknown exception");
         }
     }
 
