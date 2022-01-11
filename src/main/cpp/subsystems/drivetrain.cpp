@@ -266,7 +266,7 @@ namespace robot
         rearRMod->setMotors(moduleStates[2]);
         rearLMod->setMotors(moduleStates[3]);
 
-        checkDeltaCurrent(frontRMod., frontLMod, rearRMod, rearLMod);
+        checkDeltaCurrent(frontRMod->getData().currentOne, frontLMod->getData().currentOne, rearRMod->getData().currentOne, rearLMod->getData().currentOne);
         
     }
 
@@ -358,12 +358,10 @@ namespace robot
                 }
             }
             average /= 3;
-            if(arr[i] > average + DELTA_CURRENT_THRESHOLD){
-                frc::DriverStation::ReportError("Drivetrain current is too high in module " + std::to_string(i + 1) + ". Current is" + std::to_string(arr[i]));
+            if(arr[i] >= average + DELTA_CURRENT_THRESHOLD){
+                frc::ReportError(frc::err::ParameterOutOfRange, "drivetrain.cpp", 362, "currentDelta", "Drivetrain current is too high in module " + std::to_string(i + 1) + ". Current is" + std::to_string(arr[i]));
                 
             }
         }
     }
-}
-
 } // namespace robot

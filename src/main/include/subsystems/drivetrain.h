@@ -97,6 +97,8 @@ namespace robot
 
         void updateSensorData();
 
+        void checkDeltaCurrent(double, double, double, double);
+
         frc::ChassisSpeeds updateTrajectory(trajectory_msgs::msg::JointTrajectoryPoint::SharedPtr nPose);
 
         frc::ChassisSpeeds twistDrive(const geometry_msgs::msg::Twist & twist, const frc::Rotation2d & orientation );
