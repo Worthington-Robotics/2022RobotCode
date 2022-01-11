@@ -43,7 +43,7 @@
 #define DRIVE_TIMEOUT 0.030 // seconds
 
 // Allowable difference between swerve modules and the average current
-#define DELTA_CURRENT_THRESHOLD 5.2
+#define DELTA_CURRENT_THRESHOLD 10
 
 // IMU covariance matricies (3x3) Row major about x, y, z axes
 #define IMU_ORIENT_COVAR {1, 0, 0, 0, 1, 0, 0, 0, 1} // only show variances of data
