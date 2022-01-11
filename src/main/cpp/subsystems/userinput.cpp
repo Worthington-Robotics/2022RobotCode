@@ -85,6 +85,9 @@ namespace robot
                 }
             }
         }
+        while(output.size() < 7) {
+            output.push_back(0.0);
+        }
         return output;
     }
 
@@ -92,7 +95,7 @@ namespace robot
                                              const double deadBand, const int power, const std::vector<double> scalars)
     {
         auto output = evalDeadband(joyMsg, deadBand, power);
-        for (int i = 0; i < scalars.size(); i++)
+        for (int i = 0; i < scalars.size() && i < output.size(); i++)
         {
             output.at(i) = output.at(i) * scalars.at(i);
         }

@@ -27,7 +27,7 @@
 #define DRIVE_SHIFT_HIGH 3
 
 // Which sticks to watch from the driverstation
-#define USER_STICKS {0}
+#define USER_STICKS {}
 
 #define DRIVE_STICK_TOPIC "/sticks/stick0"
 #define DRIVE_STICK_SCALAR {1, -1, 1, 1, 1, 1}
