@@ -30,9 +30,9 @@
 #define USER_STICKS {0}
 
 #define DRIVE_STICK_TOPIC "/sticks/stick0"
-#define DRIVE_STICK_SCALAR {1, -1, .7, 1}
+#define DRIVE_STICK_SCALAR {1, -1, 1, 1, 1, 1}
 #define DRIVE_STICK_DEADBAND 0.2
-#define DRIVE_STICK_POWER 3
+#define DRIVE_STICK_POWER 4
 
 /**
  *  Constants for the drivetrain

@@ -202,7 +202,7 @@ namespace robot
                                                             DRIVE_STICK_POWER, DRIVE_STICK_SCALAR);
         stickTwist.linear.x = joyData.at(1);
         stickTwist.linear.y = joyData.at(0);
-        stickTwist.angular.z = joyData.at(2);
+        stickTwist.angular.z = joyData.at(4);
 
         execActions();
         
