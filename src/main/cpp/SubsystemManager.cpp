@@ -138,11 +138,21 @@ namespace robot
 
     void SubsystemManager::disabledLoop()
     {
-        rclcpp::spin_some(this->shared_from_this());
-        for (std::shared_ptr<Subsystem> subsystem : subsystems)
+        try{
+            rclcpp::spin_some(this->shared_from_this());
+            for (std::shared_ptr<Subsystem> subsystem : subsystems)
+            {
+                subsystem->updateSensorData();
+                subsystem->publishData();
+            }
+        }
+        catch (const std::exception &e)
         {
-            subsystem->updateSensorData();
-            subsystem->publishData();
+            frc::ReportError(frc::err::Error, "SubsystemManager.cpp", 131, "enabledLoop()", e.what());
+        }
+        catch (...)
+        {
+            frc::ReportError(frc::err::Error, "SubsystemManager.cpp", 135, "enabledLoop()", "Looper Thread died with unknown exception");
         }
     }
 
