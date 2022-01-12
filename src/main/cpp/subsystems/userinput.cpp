@@ -1,6 +1,7 @@
 #include "subsystems/userinput.h"
 #include <cmath>
 #include <string>
+#include <frc/Errors.h>
 
 namespace robot
 {
@@ -11,7 +12,7 @@ namespace robot
     {
         for (int id : stickIds)
         {
-            sticks.push_back(frc::Joystick(id));
+                sticks.push_back(frc::Joystick(id));
         }
     }
 
@@ -37,6 +38,7 @@ namespace robot
     {
         for (int i = 0; i < sticks.size(); i++)
         {
+            if(frc::DriverStation::IsJoystickConnected(i)){
             sensor_msgs::msg::Joy stickData;
 
             int numAxes = sticks.at(i).GetAxisCount();
@@ -60,6 +62,10 @@ namespace robot
             stickData.buttons = buttonValues;
 
             stickPubs.at(i)->publish(stickData);
+
+            } else {
+                frc::ReportError(frc::warn::BadJoystickIndex, "userInput.c", 18, "regSticks", "You're about to be real sad because the joystick you want just *Isn't* there :P");
+            }
         }
     }
 

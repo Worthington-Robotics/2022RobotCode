@@ -1,14 +1,16 @@
-#include "robot_lib/SModule.h"
+#include "robot_lib/PurePursuitController.h"
 #include "Constants.h"
 #include <units/math.h>
 #include <units/angle.h>
 #include <units/velocity.h>
 #include <frc/geometry/Rotation2d.h>
 #include <iostream>
-/*
+#define _USE_MATH_DEFINES
+#include <cmath>
+
+
 namespace robot
 {
-    */
 /**
  * Implements an adaptive pure pursuit controller. See:
  * https://www.ri.cmu.edu/pub_files/pub1/kelly_alonzo_1994_4/kelly_alonzo_1994_4
@@ -20,31 +22,34 @@ namespace robot
  * tracking error.
  */
 
-/*
-    PurePursuitController(double fixed_lookahead, double max_accel, double nominal_dt, Path path,
-            boolean reversed, double path_completion_tolerance) {
-        mFixedLookahead = fixed_lookahead;
-        mMaxAccel = max_accel;
-        mPath = path;
-        mDt = nominal_dt;
-        mLastCommand = null;
-        mReversed = reversed;
-        mPathCompletionTolerance = path_completion_tolerance;
+    PurePursuitController::PurePursuitController(APPCDiscriptor params) {
+        mParams = params;
     }
 
-    public boolean isDone() {
-        double remainingLength = mPath.getRemainingLength();
-        return remainingLength <= mPathCompletionTolerance;
+    double getDist(frc::Pose2d pos1, rospathmsgs::msg::Waypoint pos2) {
+        double dx = pos2.point.x - pos1.X();
+        double dy = pos2.point.y - pos1.Y();
+        return std::sqrt(dx * dx + dy * dy);
     }
 
-    public RigidTransform2d.Delta update(RigidTransform2d robot_pose, double now) {
-        RigidTransform2d pose = robot_pose;
-        if (mReversed) {
-            pose = new RigidTransform2d(robot_pose.getTranslation(),
-                    robot_pose.getRotation().rotateBy(Rotation2d.fromRadians(Math.PI)));
+    bool PurePursuitController::isDone(frc::Pose2d pos) {
+        if(mParams.mPath.size() == 1) {
+            return getDist(pos, mParams.mPath.top()) <= mParams.mPathCompletionTolerance;
         }
+        return false;
+    }
+    /*
+    //requires the stack to have at least one value
+    void PurePursuitController::walkToClosest(frc::Pose2d currPose) {
+        rospathmsgs::msg::Waypoint nextPoint = mParams.mPath.pop();
+        double currDistance;
+        double lastDistance = ;
 
-        double distance_from_path = mPath.update(robot_pose.getTranslation());
+    }
+
+    frc::Twist2d PurePursuitController::update(frc::Pose2d robot_pose, double now) {
+        frc::Pose2d pose = robot_pose;
+        walkToClosest();
         if (this.isDone()) {
             return new RigidTransform2d.Delta(0, 0, 0);
         }
@@ -95,7 +100,8 @@ namespace robot
         mLastTime = now;
         mLastCommand = rv;
         return rv;
+        
     }
-
+    */
 } // namespace robot
-*/
+
