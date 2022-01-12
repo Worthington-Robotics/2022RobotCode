@@ -101,7 +101,7 @@ namespace robot
 
     void Drivetrain::updateSensorData()
     {
-        SwerveSensorData moduleData{frontLMod->getData(), frontRMod->getData(), rearLMod->getData(), rearRMod->getData()};
+        moduleData = {frontLMod->getData(), frontRMod->getData(), rearLMod->getData(), rearRMod->getData()};
 
         //frc::DriverStation::ReportWarning("Updating drive sensor data");
         // read the current IMU state
@@ -267,7 +267,6 @@ namespace robot
         rearRMod->setMotors(moduleStates[2]);
         rearLMod->setMotors(moduleStates[3]);
 
-//SwerveSensorData moduleData{frontLMod->getData(), frontRMod->getData(), rearLMod->getData(), rearRMod->getData()};
         checkDeltaCurrent(moduleData.frontLeft.angleCurrent, moduleData.frontRight.angleCurrent, moduleData.rearLeft.angleCurrent, moduleData.rearRight.angleCurrent);
         checkDeltaCurrent(moduleData.frontLeft.driveCurrent, moduleData.frontRight.driveCurrent, moduleData.rearLeft.driveCurrent, moduleData.rearRight.driveCurrent);
         
@@ -307,15 +306,15 @@ namespace robot
         frc::SmartDashboard::PutNumber("Drive/Pose/Y", sOdom.GetPose().Y().to<double>());
         frc::SmartDashboard::PutNumber("Drive/Pose/Theta", yaw.data);
 
-        frc::SmartDashboard::PutNumber("Front/Right/Angle/Current/Value", moduleData.frontRight.angleCurrent);
-        frc::SmartDashboard::PutNumber("Front/Left/Angle/Current/Value", moduleData.frontLeft.angleCurrent);
-        frc::SmartDashboard::PutNumber("Rear/Right/Angle/Current/Value", moduleData.rearRight.angleCurrent);
-        frc::SmartDashboard::PutNumber("Rear/Left/Angle/Current/Value", moduleData.rearLeft.angleCurrent);
+        frc::SmartDashboard::PutNumber("Drive/Front/Right/Angle/Current/Value", moduleData.frontRight.angleCurrent);
+        frc::SmartDashboard::PutNumber("Drive/Front/Left/Angle/Current/Value", moduleData.frontLeft.angleCurrent);
+        frc::SmartDashboard::PutNumber("Drive/Rear/Right/Angle/Current/Value", moduleData.rearRight.angleCurrent);
+        frc::SmartDashboard::PutNumber("Drive/Rear/Left/Angle/Current/Value", moduleData.rearLeft.angleCurrent);
 
-        frc::SmartDashboard::PutNumber("Front/Right/Drive/Current/Value", moduleData.frontRight.driveCurrent);
-        frc::SmartDashboard::PutNumber("Front/Left/Drive/Current/Value", moduleData.frontLeft.driveCurrent);
-        frc::SmartDashboard::PutNumber("Rear/Right/Drive/Current/Value", moduleData.rearRight.driveCurrent);
-        frc::SmartDashboard::PutNumber("Rear/Left/Drive/Current/Value", moduleData.rearLeft.driveCurrent);
+        frc::SmartDashboard::PutNumber("Drive/Front/Right/Drive/Current/Value", moduleData.frontRight.driveCurrent);
+        frc::SmartDashboard::PutNumber("Drive/Front/Left/Drive/Current/Value", moduleData.frontLeft.driveCurrent);
+        frc::SmartDashboard::PutNumber("Drive/Rear/Right/Drive/Current/Value", moduleData.rearRight.driveCurrent);
+        frc::SmartDashboard::PutNumber("Drive/Rear/Left/Drive/Current/Value", moduleData.rearLeft.driveCurrent);
         
 
     }
