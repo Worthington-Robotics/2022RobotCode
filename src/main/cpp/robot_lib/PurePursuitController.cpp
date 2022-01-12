@@ -27,8 +27,8 @@ namespace robot
     }
 
     double getDist(frc::Pose2d pos1, rospathmsgs::msg::Waypoint pos2) {
-        double dx = pos2.point.x - pos1.X();
-        double dy = pos2.point.y - pos1.Y();
+        double dx = pos2.point.x - pos1.X().to<double>();
+        double dy = pos2.point.y - pos1.Y().to<double>();
         return std::sqrt(dx * dx + dy * dy);
     }
 
