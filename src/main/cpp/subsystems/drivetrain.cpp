@@ -332,8 +332,8 @@ namespace robot
         //update this in disabled? or just init publish empty data? (null ptr on boot)
         isRobotRel = lastStick.buttons.at(0);
         spinLock = lastStick.buttons.at(1);
-        gyroReset = lastStick.buttons.at(2);
-        tankLockButton = lastStick.buttons.at(7);
+        gyroReset = lastStick.buttons.at(4);
+        tankLockButton = lastStick.buttons.at(5);
         
     }
 
