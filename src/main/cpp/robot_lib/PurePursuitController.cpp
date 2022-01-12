@@ -38,33 +38,31 @@ namespace robot
         }
         return false;
     }
-    /*
-    //requires the stack to have at least one value
+    //requires the stack to have at least one value walks to local minima of the path as compared to the robot
     void PurePursuitController::walkToClosest(frc::Pose2d currPose) {
-        rospathmsgs::msg::Waypoint nextPoint = mParams.mPath.pop();
-        double currDistance;
-        double lastDistance = ;
-
+        rospathmsgs::msg::Waypoint nextPoint = mParams.mPath.top();
+        double lastDistance = getDist(currPose, nextPoint);
+        double currDistance = lastDistance;
+        while(currDistance <= lastDistance && mParams.mPath.size() > 1) {
+            mParams.mPath.pop();
+            lastDistance = currDistance;
+            currDistance = getDist(currPose, mParams.mPath.top());
+        }
     }
 
     frc::Twist2d PurePursuitController::update(frc::Pose2d robot_pose, double now) {
-        frc::Pose2d pose = robot_pose;
-        walkToClosest();
-        if (this.isDone()) {
-            return new RigidTransform2d.Delta(0, 0, 0);
+        /*frc::Pose2d pose = robot_pose;
+        walkToClosest(pose);
+        if (isDone(pose)) {
+            return frc::Twist2d{units::meter_t{0}, units::meter_t{0}, units::degree_t{0}};
         }
-
-        PathSegment.Sample lookahead_point = mPath.getLookaheadPoint(robot_pose.getTranslation(),
-                distance_from_path + mFixedLookahead);
-        Optional<Circle> circle = joinPath(pose, lookahead_point.translation);
-
-        double speed = lookahead_point.speed;
-        if (mReversed) {
-            speed *= -1;
-        }
+        double distanceFromPath = getDist(pose, mParams.mPath.top());
+        rospathmsgs::msg::Waypoint lookAheadPoint = getLookAheadPoint(distanceFromPath + mParams.mFixedLookahead);
+        Optional<Circle> circle = joinPath(pose, lookahead_point.translation); //this should throw stuff back to the stack to add a circle to the path if need be
+        double speed = lookAheadPoint.max_vel;
         // Ensure we don't accelerate too fast from the previous command
-        double dt = now - mLastTime;
-        if (mLastCommand == null) {
+        double dt = now - mParams.mLastTime;
+        if (mParams.mLastCommand == NULL) {
             mLastCommand = new RigidTransform2d.Delta(0, 0, 0);
             dt = mDt;
         }
@@ -99,9 +97,8 @@ namespace robot
         }
         mLastTime = now;
         mLastCommand = rv;
-        return rv;
+        return rv;*/
         
     }
-    */
 } // namespace robot
 
