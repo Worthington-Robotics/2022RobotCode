@@ -38,7 +38,7 @@ namespace robot
 
     private:
         APPCDiscriptor mParams;
-        double getDist(frc::Pose2d pos1, rospathmsgs::msg::Waypoint pos2);
+        static double getDist(frc::Pose2d pos1, rospathmsgs::msg::Waypoint pos2);
 
         
     };
