@@ -33,12 +33,14 @@ namespace robot
         PurePursuitController(APPCDiscriptor params);
         bool isDone(frc::Pose2d pos);
         frc::Twist2d update(frc::Pose2d robot_pose, double now);
-        void walkToClosest(frc::Pose2d currPos);
 
 
     private:
         APPCDiscriptor mParams;
         static double getDist(frc::Pose2d pos1, rospathmsgs::msg::Waypoint pos2);
+        void walkToClosest(frc::Pose2d currPos);
+        void joinPath(frc::Pose2d currPos, rospathmsgs::msg::Waypoint lookAheadPoint);
+        rospathmsgs::msg::Waypoint getLookAheadPoint(double lookAheadDist);
 
         
     };
