@@ -32,6 +32,13 @@ namespace robot
         PURSUIT
     };
 
+    struct SwerveSensorData{
+        sSensorData frontLeft;
+        sSensorData frontRight;
+        sSensorData rearLeft;
+        sSensorData rearRight;
+    };
+
     class Drivetrain : public Subsystem
     {
         public:
@@ -142,6 +149,7 @@ namespace robot
 
         // Control states for the DT
         ControlState driveState = OPEN_LOOP_ROBOT_REL;
+        SwerveSensorData moduleData;
 
         // last update time for safety critical topics
         double lastTwistTime, lastStickTime;
