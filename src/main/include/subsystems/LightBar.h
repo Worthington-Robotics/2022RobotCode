@@ -1,21 +1,11 @@
 #pragma once
 
 #include "subsystems/Subsystem.h"
-#include <ctre/Phoenix.h>
-#include <frc/controller/RamseteController.h>
 #include <rclcpp/rclcpp.hpp>
-#include <frc/kinematics/SwerveModuleState.h>
-#include <frc/kinematics/SwerveDriveOdometry.h>
-#include <frc/kinematics/SwerveDriveKinematics.h>
-#include <frc/kinematics/ChassisSpeeds.h>
-#include <frc/geometry/Rotation2d.h>
-#include "robot_lib/SModule.h"
 
-#include <trajectory_msgs/msg/joint_trajectory.hpp>
-#include <sensor_msgs/msg/imu.hpp>
-#include <sensor_msgs/msg/joint_state.hpp>
-#include <sensor_msgs/msg/joy.hpp>
-#include <geometry_msgs/msg/twist.hpp>
+#include "frc/AddressableLED.h"
+#include "Constants.h"
+
 #include <std_msgs/msg/int16.hpp>
 
 namespace robot
@@ -63,40 +53,25 @@ namespace robot
 
         void enableDebug(bool debug) override;
 
-        void lightModeCallback();
-
         /**
          * Callbacks for ROS Subscribers 
          **/
 
-        // /**
-        //  * Callback for streaming generated trajectories into the trajectory follower
-        //  **/
-        // void trajectoryCallback(const trajectory_msgs::msg::JointTrajectory::SharedPtr msg);
+        void lightModeCallback(const std_msgs::msg::Int16 msg);
+
     private:
 
         void execActions();
 
+        const int ledCount = 36;
+        frc::AddressableLED leds;
+
         //void updateSensorData();
 
         //IO devices
-        std::shared_ptr<SModule> frontRMod, frontLMod, rearRMod, rearLMod;
         std::shared_ptr<PigeonIMU> imu;
 
-        // ROS Publishers
-        rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imuPub;
-        rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr yawPub;
-        rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr wheelStatePub;
-
-        // ROS Messages for publishing
-        std_msgs::msg::Int16 yaw;
-        sensor_msgs::msg::Imu imuMsg;
-        sensor_msgs::msg::JointState wheelState;
-
         // ROS Subscibers
-        rclcpp::Subscription<trajectory_msgs::msg::JointTrajectory>::SharedPtr trajectorySub;
-        rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr twistSub;
-        rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr stickSub;
         rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr DriveModeSub;
 
         // Control states for the lights
