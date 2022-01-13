@@ -17,6 +17,7 @@
 #include <sensor_msgs/msg/joy.hpp>
 #include <geometry_msgs/msg/twist.hpp>
 #include <std_msgs/msg/int16.hpp>
+#include <rospathmsgs/srv/generate_path.hpp>
 
 namespace robot
 {
@@ -130,6 +131,10 @@ namespace robot
         rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr twistSub;
         rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr stickSub;
         rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr DriveModeSub;
+
+        // ROS SRV REQUESTS
+        rclcpp::Client<rospathmsgs::srv::GeneratePath>::SharedPtr GPClient;
+        rospathmsgs::srv::GeneratePath GPReq;
 
         // ROS Messages for storing subscription data
         geometry_msgs::msg::Twist stickTwist;

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <ctre/Phoenix.h>
-#include <frc/kinematics/SwerveModuleState.h>
 #include <frc/kinematics/ChassisSpeeds.h>
 #include <frc/geometry/Rotation2d.h>
 #include <frc/geometry/Twist2d.h>
@@ -19,7 +17,7 @@ namespace robot
     {
         double mFixedLookahead;
         std::stack<rospathmsgs::msg::Waypoint> mPath;
-        frc::Twist2d mLastCommand;
+        frc::ChassisSpeeds mLastCommand;
         double mLastTime;
         double mMaxAccel;
         double mDt;
@@ -27,19 +25,28 @@ namespace robot
 
     };
 
+    struct Circle
+    {
+        frc::Translation2d center;
+        double radius;
+        bool isRight;
+        bool exsists;
+    };
+
     class PurePursuitController
     {
     public:
         PurePursuitController(APPCDiscriptor params);
         bool isDone(frc::Pose2d pos);
-        frc::Twist2d update(frc::Pose2d robot_pose, double now);
+        frc::ChassisSpeeds update(frc::Pose2d currPos, frc::ChassisSpeeds currState, double now);
 
 
     private:
         APPCDiscriptor mParams;
         static double getDist(frc::Pose2d pos1, rospathmsgs::msg::Waypoint pos2);
         void walkToClosest(frc::Pose2d currPos);
-        void joinPath(frc::Pose2d currPos, rospathmsgs::msg::Waypoint lookAheadPoint);
+        Circle joinPath(frc::Pose2d currPos, rospathmsgs::msg::Waypoint lookAheadPoint);
+        double getRemainingDistance(frc::Pose2d currPos);
         rospathmsgs::msg::Waypoint getLookAheadPoint(double lookAheadDist);
 
         

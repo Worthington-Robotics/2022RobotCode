@@ -1,7 +1,7 @@
 #pragma once
 #include <units/time.h>
 #include <units/velocity.h>
-
+#include <rospathmsgs/msg/waypoint.hpp>
 // Canbus ID mappings
 #define DRIVE_FR_DRIVE 1
 #define DRIVE_FR_ANGLE 2
@@ -81,3 +81,4 @@
 #define RL_ABS_OFFSET -351.0
 
 
+// PATH FOLLOWING STUFFS (EXPERIEMTAL ;-;)
