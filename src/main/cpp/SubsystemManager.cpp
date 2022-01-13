@@ -127,7 +127,7 @@ namespace robot
 
             rclcpp::spin_some(this->shared_from_this());
             //battery stuff
-            frc::SmartDashboard::PutNumber("Drive/Pose/Theta", battery.GetPowerUsage());
+            //frc::SmartDashboard::PutNumber("Drive/Pose/Theta", battery.GetPowerUsage());
         }
         catch (const std::exception &e)
         {
@@ -158,7 +158,7 @@ namespace robot
             frc::ReportError(frc::err::Error, "SubsystemManager.cpp", 135, "enabledLoop()", "Looper Thread died with unknown exception");
         }
         //battery stuff
-        frc::SmartDashboard::PutNumber("Drive/Pose/Theta", battery.GetPowerUsage());
+        //frc::SmartDashboard::PutNumber("Drive/Pose/Theta", battery.GetPowerUsage());
     }
 
 } // namespace robot

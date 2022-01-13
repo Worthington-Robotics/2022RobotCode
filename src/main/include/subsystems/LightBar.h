@@ -5,6 +5,8 @@
 
 #include "frc/AddressableLED.h"
 #include "Constants.h"
+#include "frc/util/Color.h"
+#include "frc/Timer.h"
 
 #include <std_msgs/msg/int16.hpp>
 
@@ -16,7 +18,12 @@ namespace robot
      **/
     enum LightState
     {
-        TARGETING, INVENTORY, ALLIANCE, RAINBOW, BATTERY, TEMPERATURE;
+        TARGETING, 
+        INVENTORY, 
+        ALLIANCE, 
+        RAINBOW, 
+        BATTERY, 
+        TEMPERATURE
     };
 
     class LightBar : public Subsystem
@@ -63,19 +70,21 @@ namespace robot
 
         void execActions();
 
-        const int ledCount = 36;
+        frc::Color getColor(int pos);
+
+        static constexpr int ledCount = 36;
         frc::AddressableLED leds;
+        std::array<frc::AddressableLED::LEDData, ledCount> buffer;
 
         //void updateSensorData();
 
         //IO devices
-        std::shared_ptr<PigeonIMU> imu;
+        //std::shared_ptr<PigeonIMU> imu;
 
         // ROS Subscibers
         rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr DriveModeSub;
 
         // Control states for the lights
-        LightState lightState = BATTERY;
+        LightState lightMode = RAINBOW;
     };
-
 } // namespace robot
