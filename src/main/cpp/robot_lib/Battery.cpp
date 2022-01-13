@@ -3,7 +3,7 @@
 namespace robot
 {
     Battery::Battery(){
-        panel = frc::PowerDistribution();
+        //panel = frc::PowerDistribution();
     }
     void Battery::UpdateBattery() { //updates information about the battery
         //previousPower = batteryPower;

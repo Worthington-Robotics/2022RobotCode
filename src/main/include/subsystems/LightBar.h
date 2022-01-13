@@ -58,8 +58,6 @@ namespace robot
          **/
         void publishData() override;
 
-        void enableDebug(bool debug) override;
-
         /**
          * Callbacks for ROS Subscribers 
          **/
@@ -76,15 +74,17 @@ namespace robot
         frc::AddressableLED leds;
         std::array<frc::AddressableLED::LEDData, ledCount> buffer;
 
-        //void updateSensorData();
+        // Control states for the lights
+        LightState lightMode = RAINBOW;
+        void updateSensorData();
 
+        int step = 0;
         //IO devices
         //std::shared_ptr<PigeonIMU> imu;
 
         // ROS Subscibers
         rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr DriveModeSub;
 
-        // Control states for the lights
-        LightState lightMode = RAINBOW;
+        
     };
 } // namespace robot
