@@ -1,4 +1,4 @@
-#read
-#dear programmers,
+# dear programmers,
 someone should put something here
+
 sincerely, The President
