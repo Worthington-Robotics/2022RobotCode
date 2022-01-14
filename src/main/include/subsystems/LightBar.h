@@ -23,7 +23,8 @@ namespace robot
         ALLIANCE, 
         RAINBOW, 
         BATTERY, 
-        TEMPERATURE
+        TEMPERATURE,
+        TEST
     };
 
     class LightBar : public Subsystem
