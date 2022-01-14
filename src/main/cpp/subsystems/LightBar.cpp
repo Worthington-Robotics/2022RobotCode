@@ -36,8 +36,12 @@ namespace robot {
                 int speed = 100;
                 double scale = ((double)(step % speed) / (double)(speed - 1));
                 double h = (por + scale - floor(por + scale)) * 255.0;
-                
                 return frc::Color::FromHSV((int)h, 255, 230);
+            case TEST:
+                if (true) {
+                    return frc::Color::FromRGB(0, 255, 0);
+                }
+                return frc::Color::FromRGB(255, 0, 0);
         }
     }
     void LightBar::lightModeCallback(const std_msgs::msg::Int16 msg) {
