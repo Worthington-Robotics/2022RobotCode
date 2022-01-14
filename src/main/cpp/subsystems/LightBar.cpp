@@ -11,7 +11,7 @@ namespace robot {
         std::cout << "Made Lightbar";
     }
     void LightBar::createRosBindings(rclcpp::Node *node) {
-        DriveModeSub = node->create_subscription<std_msgs::msg::Int16>("/lights/mode", rclcpp::SensorDataQoS(), std::bind(&LightBar::lightModeCallback, this, _1));
+        LightModeSub = node->create_subscription<std_msgs::msg::Int16>("/lights/mode", rclcpp::SensorDataQoS(), std::bind(&LightBar::lightModeCallback, this, _1));
     }
     void LightBar::reset() {
         leds.Start();
@@ -42,6 +42,8 @@ namespace robot {
                     return frc::Color::FromRGB(0, 255, 0);
                 }
                 return frc::Color::FromRGB(255, 0, 0);
+            case ALLIANCE:
+                bool pattern [17] = {true, true, true, true, false, true, false, true, true, true, true, false, true, true, true, true, true}
         }
     }
     void LightBar::lightModeCallback(const std_msgs::msg::Int16 msg) {
