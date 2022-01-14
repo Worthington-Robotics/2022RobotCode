@@ -84,7 +84,7 @@ namespace robot
         //std::shared_ptr<PigeonIMU> imu;
 
         // ROS Subscibers
-        rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr DriveModeSub;
+        rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr LightModeSub;
 
         
     };
