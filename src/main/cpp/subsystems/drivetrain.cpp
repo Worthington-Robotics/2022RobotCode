@@ -48,7 +48,7 @@ namespace robot
         twistSub = node->create_subscription<geometry_msgs::msg::Twist>("/drive/velocity_twist", rclcpp::SensorDataQoS(), std::bind(&Drivetrain::twistCallback, this, _1));
         stickSub = node->create_subscription<sensor_msgs::msg::Joy>(DRIVE_STICK_TOPIC, rclcpp::SensorDataQoS(), std::bind(&Drivetrain::stickCallback, this, _1));
 
-        DriveModeSub = node->create_subscription<std_msgs::msg::Int16>("/drive/drive_mode", rclcpp::SensorDataQoS(), std::bind(&Drivetrain::driveModeCallback, this, _1));
+        DriveModeSub = node->create_subscription<std_msgs::msg::Int16>("/drive/drive_mode", rclcpp::SystemDefaultsQoS(), std::bind(&Drivetrain::driveModeCallback, this, _1));
     }
 
     void Drivetrain::reset()
@@ -101,7 +101,8 @@ namespace robot
 
     void Drivetrain::updateSensorData()
     {
-        double currentSensors[4] = {frontLMod->getData().encAbs, frontRMod->getData().encAbs, rearLMod->getData().encAbs, rearRMod->getData().encAbs};
+        moduleData = {frontLMod->getData(), frontRMod->getData(), rearLMod->getData(), rearRMod->getData()};
+
         //frc::DriverStation::ReportWarning("Updating drive sensor data");
         // read the current IMU state
         int16_t accelData[3];
@@ -266,7 +267,8 @@ namespace robot
         rearRMod->setMotors(moduleStates[2]);
         rearLMod->setMotors(moduleStates[3]);
 
-        checkDeltaCurrent(frontRMod->getData().currentOne, frontLMod->getData().currentOne, rearRMod->getData().currentOne, rearLMod->getData().currentOne);
+        // checkDeltaCurrent(moduleData.frontLeft.angleCurrent, moduleData.frontRight.angleCurrent, moduleData.rearLeft.angleCurrent, moduleData.rearRight.angleCurrent);
+        checkDeltaCurrent(moduleData.frontLeft.driveCurrent, moduleData.frontRight.driveCurrent, moduleData.rearLeft.driveCurrent, moduleData.rearRight.driveCurrent);
         
     }
 
@@ -276,26 +278,26 @@ namespace robot
         wheelStatePub->publish(wheelState);
 
         if(DEBUG){
-            frc::SmartDashboard::PutNumber("Drive/Front/Left/AngleABS", frontLMod->getData().encAbs);
-            frc::SmartDashboard::PutNumber("Drive/Front/Right/AngleABS", frontRMod->getData().encAbs);
-            frc::SmartDashboard::PutNumber("Drive/Rear/Left/AngleABS", rearLMod->getData().encAbs);
-            frc::SmartDashboard::PutNumber("Drive/Rear/Right/AngleABS", rearRMod->getData().encAbs);
+            frc::SmartDashboard::PutNumber("Drive/Front/Left/AngleABS", moduleData.frontLeft.encAbs);
+            frc::SmartDashboard::PutNumber("Drive/Front/Right/AngleABS", moduleData.frontRight.encAbs);
+            frc::SmartDashboard::PutNumber("Drive/Rear/Left/AngleABS", moduleData.rearLeft.encAbs);
+            frc::SmartDashboard::PutNumber("Drive/Rear/Right/AngleABS", moduleData.rearRight.encAbs);
 
             frc::SmartDashboard::PutNumber("Drive/Front/Right/Desired", moduleStates[0].angle.Degrees().to<double>());
             frc::SmartDashboard::PutNumber("Drive/Front/Left/Desired", moduleStates[1].angle.Degrees().to<double>());
             frc::SmartDashboard::PutNumber("Drive/Rear/Right/Desired", moduleStates[2].angle.Degrees().to<double>());
             frc::SmartDashboard::PutNumber("Drive/Rear/Left/Desired", moduleStates[3].angle.Degrees().to<double>());
 
-            frc::SmartDashboard::PutNumber("Drive/Front/Left/UncalABS", std::fmod(frontLMod->getData().encAbs - FR_ABS_OFFSET + 360, 360.0));
-            frc::SmartDashboard::PutNumber("Drive/Front/Right/UncalABS", std::fmod(frontRMod->getData().encAbs - FL_ABS_OFFSET + 360, 360.0));
-            frc::SmartDashboard::PutNumber("Drive/Rear/Left/UncalABS", std::fmod(rearLMod->getData().encAbs - RL_ABS_OFFSET + 360, 360.0));
-            frc::SmartDashboard::PutNumber("Drive/Rear/Right/UncalABS", std::fmod(rearRMod->getData().encAbs - RR_ABS_OFFSET + 360, 360.0));
+            frc::SmartDashboard::PutNumber("Drive/Front/Left/UncalABS", std::fmod(moduleData.frontLeft.encAbs - FR_ABS_OFFSET + 360, 360.0));
+            frc::SmartDashboard::PutNumber("Drive/Front/Right/UncalABS", std::fmod(moduleData.frontRight.encAbs - FL_ABS_OFFSET + 360, 360.0));
+            frc::SmartDashboard::PutNumber("Drive/Rear/Left/UncalABS", std::fmod(moduleData.rearLeft.encAbs - RL_ABS_OFFSET + 360, 360.0));
+            frc::SmartDashboard::PutNumber("Drive/Rear/Right/UncalABS", std::fmod(moduleData.rearRight.encAbs - RR_ABS_OFFSET + 360, 360.0));
         }
 
-        frc::SmartDashboard::PutNumber("Drive/Front/Left/AngleRel", frontLMod->getData().angleRel);
-        frc::SmartDashboard::PutNumber("Drive/Front/Right/AngleRel", frontRMod->getData().angleRel);
-        frc::SmartDashboard::PutNumber("Drive/Rear/Left/AngleRel", rearRMod->getData().angleRel);
-        frc::SmartDashboard::PutNumber("Drive/Rear/Right/AngleRel", rearLMod->getData().angleRel);
+        frc::SmartDashboard::PutNumber("Drive/Front/Left/AngleRel", moduleData.frontLeft.angleRel);
+        frc::SmartDashboard::PutNumber("Drive/Front/Right/AngleRel", moduleData.frontRight.angleRel);
+        frc::SmartDashboard::PutNumber("Drive/Rear/Left/AngleRel", moduleData.rearLeft.angleRel);
+        frc::SmartDashboard::PutNumber("Drive/Rear/Right/AngleRel", moduleData.rearRight.angleRel);
 
         frc::SmartDashboard::PutNumber("Drive/Control_Mode", static_cast<unsigned int>(driveState));
 
@@ -303,6 +305,16 @@ namespace robot
         frc::SmartDashboard::PutNumber("Drive/Pose/X", sOdom.GetPose().X().to<double>());
         frc::SmartDashboard::PutNumber("Drive/Pose/Y", sOdom.GetPose().Y().to<double>());
         frc::SmartDashboard::PutNumber("Drive/Pose/Theta", yaw.data);
+
+        frc::SmartDashboard::PutNumber("Drive/Front/Right/Angle/Current", moduleData.frontRight.angleCurrent);
+        frc::SmartDashboard::PutNumber("Drive/Front/Left/Angle/Current", moduleData.frontLeft.angleCurrent);
+        frc::SmartDashboard::PutNumber("Drive/Rear/Right/Angle/Current", moduleData.rearRight.angleCurrent);
+        frc::SmartDashboard::PutNumber("Drive/Rear/Left/Angle/Current", moduleData.rearLeft.angleCurrent);
+
+        frc::SmartDashboard::PutNumber("Drive/Front/Right/Drive/Current", moduleData.frontRight.driveCurrent);
+        frc::SmartDashboard::PutNumber("Drive/Front/Left/Drive/Current", moduleData.frontLeft.driveCurrent);
+        frc::SmartDashboard::PutNumber("Drive/Rear/Right/Drive/Current", moduleData.rearRight.driveCurrent);
+        frc::SmartDashboard::PutNumber("Drive/Rear/Left/Drive/Current", moduleData.rearLeft.driveCurrent);
     }
 
     frc::ChassisSpeeds Drivetrain::updateTrajectory(trajectory_msgs::msg::JointTrajectoryPoint::SharedPtr nPose)
@@ -332,8 +344,8 @@ namespace robot
         //update this in disabled? or just init publish empty data? (null ptr on boot)
         isRobotRel = lastStick.buttons.at(0);
         spinLock = lastStick.buttons.at(1);
-        gyroReset = lastStick.buttons.at(2);
-        tankLockButton = lastStick.buttons.at(7);
+        gyroReset = lastStick.buttons.at(4);
+        tankLockButton = lastStick.buttons.at(5);
         
     }
 
@@ -348,20 +360,40 @@ namespace robot
         DEBUG = debugEnable;
     }
 
-    void Drivetrain::checkDeltaCurrent(double currentOne, double currentTwo, double currentThree, double currentfour){
-        double arr[4] = {currentOne, currentTwo, currentThree, currentfour};
+    void Drivetrain::checkDeltaCurrent(double currentOne, double currentTwo, double currentThree, double currentFour){
+        std::vector<double> arr = {currentOne, currentTwo, currentThree, currentFour};
+
+        frc::SmartDashboard::PutNumber("Drive/Current1", currentOne);
+        frc::SmartDashboard::PutNumber("Drive/Current2", currentTwo);
+        frc::SmartDashboard::PutNumber("Drive/Current3", currentThree);
+        frc::SmartDashboard::PutNumber("Drive/Current4", currentFour);
+
         for(int i = 0; i < 4; i++){
             double average = 0;
             for(int k = 0; k < 4; k++){
                 if(i != k){
-                    average += arr[k];
+                    average += arr.at(k);
                 }
             }
-            average /= 3;
-            if(arr[i] >= average + DELTA_CURRENT_THRESHOLD){
-                frc::ReportError(frc::err::ParameterOutOfRange, "drivetrain.cpp", 362, "currentDelta", "Drivetrain current is too high in module " + std::to_string(i + 1) + ". Current is" + std::to_string(arr[i]));
-                
+            average /= 3.0;
+
+            frc::SmartDashboard::PutNumber("Drive/CurrentAvg" + i, average);
+
+            if(arr.at(i) > average + DELTA_CURRENT_THRESHOLD){
+                if(i == 0)
+                    frc::ReportError(frc::err::ParameterOutOfRange, "drivetrain.cpp", 362, "currentDelta", "Drivetrain current is too high in the front left. Current is " + std::to_string(arr.at(i))
+                    + ". The average current of the other three is " + std::to_string(average));
+                if(i == 1)
+                    frc::ReportError(frc::err::ParameterOutOfRange, "drivetrain.cpp", 362, "currentDelta", "Drivetrain current is too high in the front right. Current is " + std::to_string(arr.at(i))
+                    + ". The average current of the other three is " + std::to_string(average));
+                if(i == 2)
+                    frc::ReportError(frc::err::ParameterOutOfRange, "drivetrain.cpp", 362, "currentDelta", "Drivetrain current is too high in the rear left. Current is " + std::to_string(arr.at(i))
+                    + ". The average current of the other three is " + std::to_string(average));
+                if(i == 3)
+                    frc::ReportError(frc::err::ParameterOutOfRange, "drivetrain.cpp", 362, "currentDelta", "Drivetrain current is too high in the rear right. Current is " + std::to_string(arr.at(i))
+                    + ". The average current of the other three is " + std::to_string(average));
             }
         }
     }
+   
 } // namespace robot

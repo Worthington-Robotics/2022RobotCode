@@ -6,37 +6,44 @@
 #include <frc/geometry/Rotation2d.h>
 #include <frc/geometry/Twist2d.h>
 #include <rospathmsgs/msg/waypoint.hpp>
+#include <frc/geometry/Pose2d.h>
+#include <stack>
 
 #define _USE_MATH_DEFINES
 #include <cmath>
-/*
+
 namespace robot
 {
     const double kEpsilon = 1E-9;
     struct APPCDiscriptor
     {
         double mFixedLookahead;
-        std::vector<rospathmsgs::msg::Waypoint> mPath;
+        std::stack<rospathmsgs::msg::Waypoint> mPath;
         frc::Twist2d mLastCommand;
         double mLastTime;
         double mMaxAccel;
         double mDt;
-        bool mReversed;
         double mPathCompletionTolerance;
 
     };
 
     class PurePursuitController
     {
-        public:
-        //constructor
+    public:
+        PurePursuitController(APPCDiscriptor params);
+        bool isDone(frc::Pose2d pos);
+        frc::Twist2d update(frc::Pose2d robot_pose, double now);
 
 
     private:
+        APPCDiscriptor mParams;
+        static double getDist(frc::Pose2d pos1, rospathmsgs::msg::Waypoint pos2);
+        void walkToClosest(frc::Pose2d currPos);
+        void joinPath(frc::Pose2d currPos, rospathmsgs::msg::Waypoint lookAheadPoint);
+        rospathmsgs::msg::Waypoint getLookAheadPoint(double lookAheadDist);
 
         
     };
 
 } // namespace robot
-*/
 

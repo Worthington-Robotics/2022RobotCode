@@ -105,7 +105,8 @@ namespace robot
  
     sSensorData SModule::getData()
     {
-        return sSensorData{angle->GetSelectedSensorPosition(), drive->GetSelectedSensorPosition(), drive->GetSelectedSensorVelocity(), encod->GetAbsolutePosition(), drive->GetStatorCurrent()};
+        return sSensorData{angle->GetSelectedSensorPosition(), drive->GetSelectedSensorPosition(), 
+        drive->GetSelectedSensorVelocity(), encod->GetAbsolutePosition(), std::abs(angle->GetStatorCurrent()), std::abs(drive->GetStatorCurrent())};
     }
 
 
