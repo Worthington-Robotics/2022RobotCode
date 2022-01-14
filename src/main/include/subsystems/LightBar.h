@@ -70,6 +70,7 @@ namespace robot
         void execActions();
 
         frc::Color getColor(int pos);
+        frc::Color meterColor(int pos);
 
         static constexpr int ledCount = 36;
         frc::AddressableLED leds;
