@@ -7,6 +7,7 @@
 #include "Constants.h"
 #include "frc/util/Color.h"
 #include "frc/Timer.h"
+#include "frc/DriverStation.h"
 
 #include <std_msgs/msg/int16.hpp>
 
