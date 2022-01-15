@@ -267,7 +267,7 @@ namespace robot
         rearRMod->setMotors(moduleStates[2]);
         rearLMod->setMotors(moduleStates[3]);
 
-        // checkDeltaCurrent(moduleData.frontLeft.angleCurrent, moduleData.frontRight.angleCurrent, moduleData.rearLeft.angleCurrent, moduleData.rearRight.angleCurrent);
+        checkDeltaCurrent(moduleData.frontLeft.angleCurrent, moduleData.frontRight.angleCurrent, moduleData.rearLeft.angleCurrent, moduleData.rearRight.angleCurrent);
         checkDeltaCurrent(moduleData.frontLeft.driveCurrent, moduleData.frontRight.driveCurrent, moduleData.rearLeft.driveCurrent, moduleData.rearRight.driveCurrent);
         
     }
@@ -363,10 +363,10 @@ namespace robot
     void Drivetrain::checkDeltaCurrent(double currentOne, double currentTwo, double currentThree, double currentFour){
         std::vector<double> arr = {currentOne, currentTwo, currentThree, currentFour};
 
-        frc::SmartDashboard::PutNumber("Drive/Current1", currentOne);
-        frc::SmartDashboard::PutNumber("Drive/Current2", currentTwo);
-        frc::SmartDashboard::PutNumber("Drive/Current3", currentThree);
-        frc::SmartDashboard::PutNumber("Drive/Current4", currentFour);
+        // frc::SmartDashboard::PutNumber("Drive/Current1", currentOne);
+        // frc::SmartDashboard::PutNumber("Drive/Current2", currentTwo);
+        // frc::SmartDashboard::PutNumber("Drive/Current3", currentThree);
+        // frc::SmartDashboard::PutNumber("Drive/Current4", currentFour);
 
         for(int i = 0; i < 4; i++){
             double average = 0;
@@ -377,21 +377,27 @@ namespace robot
             }
             average /= 3.0;
 
-            frc::SmartDashboard::PutNumber("Drive/CurrentAvg" + i, average);
+            //frc::SmartDashboard::PutNumber("Drive/CurrentAvg" + i, average);
 
             if(arr.at(i) > average + DELTA_CURRENT_THRESHOLD){
+                iterators.at(i)++;
+            } else {
+                iterators.at(i)--;
+            }
+
+            if(iterators.at(i) > 50 && iterators.at(i) < 55){
                 if(i == 0)
                     frc::ReportError(frc::err::ParameterOutOfRange, "drivetrain.cpp", 362, "currentDelta", "Drivetrain current is too high in the front left. Current is " + std::to_string(arr.at(i))
-                    + ". The average current of the other three is " + std::to_string(average));
+                    + ". The average current of the other three modules is " + std::to_string(average));
                 if(i == 1)
                     frc::ReportError(frc::err::ParameterOutOfRange, "drivetrain.cpp", 362, "currentDelta", "Drivetrain current is too high in the front right. Current is " + std::to_string(arr.at(i))
-                    + ". The average current of the other three is " + std::to_string(average));
+                    + ". The average current of the other three modules is " + std::to_string(average));
                 if(i == 2)
                     frc::ReportError(frc::err::ParameterOutOfRange, "drivetrain.cpp", 362, "currentDelta", "Drivetrain current is too high in the rear left. Current is " + std::to_string(arr.at(i))
-                    + ". The average current of the other three is " + std::to_string(average));
+                    + ". The average current of the other three modules is " + std::to_string(average));
                 if(i == 3)
                     frc::ReportError(frc::err::ParameterOutOfRange, "drivetrain.cpp", 362, "currentDelta", "Drivetrain current is too high in the rear right. Current is " + std::to_string(arr.at(i))
-                    + ". The average current of the other three is " + std::to_string(average));
+                    + ". The average current of the other three modules is " + std::to_string(average));    
             }
         }
     }
