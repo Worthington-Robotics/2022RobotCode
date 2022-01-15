@@ -25,7 +25,8 @@ namespace robot
         RAINBOW, 
         BATTERY, 
         TEMPERATURE,
-        TEST
+        TEST,
+        INDEX
     };
 
     class LightBar : public Subsystem
@@ -71,14 +72,14 @@ namespace robot
         void execActions();
 
         frc::Color getColor(int pos);
-        frc::Color meterColor(int pos);
+        frc::Color meterColor(int pos, double value);
 
         static constexpr int ledCount = 36;
         frc::AddressableLED leds;
         std::array<frc::AddressableLED::LEDData, ledCount> buffer;
 
         // Control states for the lights
-        LightState lightMode = RAINBOW;
+        LightState lightMode = INDEX;
         void updateSensorData();
 
         int step = 0;
