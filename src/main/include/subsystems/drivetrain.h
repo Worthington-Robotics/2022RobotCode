@@ -64,7 +64,7 @@ namespace robot
         /**
          * Override this function for any code that must be called periodically by the subsystem
          **/
-        void onLoop() override;
+        void onLoop(double currentTime) override;
 
         /**
          * Override this function with code needed to publish all data out to the ros network
