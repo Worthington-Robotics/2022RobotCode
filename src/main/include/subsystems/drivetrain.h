@@ -167,6 +167,9 @@ namespace robot
         bool spinLock = false;
         //button for gyro reset
         bool gyroReset = false;
+
+        //vector of iterators to check if currents values are too high
+        std::vector<double> iterators = {0, 0, 0, 0};
     };
 
 } // namespace robot
