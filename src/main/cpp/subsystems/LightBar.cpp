@@ -7,7 +7,8 @@ using std::placeholders::_1;
 
 namespace robot {
     LightBar::LightBar(): leds{LED_BAR}{
-        leds.SetLength(ledCount);
+        leds.SetLength(60);
+        //leds.SetSyncTime(units::time::microsecond_t(1.25));
         LightBar::reset();
     }
     void LightBar::createRosBindings(rclcpp::Node *node) {
@@ -23,7 +24,9 @@ namespace robot {
         
     }
     void LightBar::publishData() {
+        frc::SmartDashboard::PutNumber("Lights/Mode", lightMode);
         for (int i = 0; i < ledCount; i++) {
+            //std::cout << i << " " << LightBar::getColor(i).red << " " << LightBar::getColor(i).green << " " << LightBar::getColor(i).blue << std::endl;
             buffer[i].SetLED(LightBar::getColor(i));
         }
         step++;
@@ -39,7 +42,7 @@ namespace robot {
                 return frc::Color::FromHSV((int)h, 255, 230);
             }
             case TEST: {
-                if (true) {
+                if (frc::Timer::GetFPGATimestamp().to<int>() % 3 == 0) {
                     return frc::Color(0, 255, 0);
                 }
                 return frc::Color(255, 0, 0);
@@ -77,14 +80,17 @@ namespace robot {
             case INDEX: {
                 return frc::Color::FromHSV((int)(por * 255.0), 255, 255);
             }
+            case TEMPERATURE: {
+                return LightBar::meterColor(pos, frc::Timer::GetFPGATimestamp().to<int>() % ledCount);
+            }
         }
         return frc::Color(0, 0, 0);
     }
-    frc::Color LightBar::meterColor(int pos, double value) {
-        int portion = (int)value / ledCount;
-        if (pos <= portion) {
-            if (portion <= ledCount / 2) {
-                if (portion <= ledCount / 4) {
+    frc::Color LightBar::meterColor(int pos, int value) {
+        //int portion = (int)value / ledCount;
+        if (pos <= value) {
+            if (value <= ledCount / 2) {
+                if (value <= ledCount / 4) {
                     return frc::Color(255, 0, 0);
                 }
                 return frc::Color(255, 255, 0);

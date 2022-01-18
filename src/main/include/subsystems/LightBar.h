@@ -72,14 +72,14 @@ namespace robot
         void execActions();
 
         frc::Color getColor(int pos);
-        frc::Color meterColor(int pos, double value);
+        frc::Color meterColor(int pos, int value);
 
-        static constexpr int ledCount = 36;
+        static constexpr int ledCount = 30;
         frc::AddressableLED leds;
         std::array<frc::AddressableLED::LEDData, ledCount> buffer;
 
         // Control states for the lights
-        LightState lightMode = INDEX;
+        LightState lightMode = RAINBOW;
         void updateSensorData();
 
         int step = 0;
