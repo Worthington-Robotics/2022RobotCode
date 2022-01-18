@@ -19,6 +19,7 @@
 #define DRIVE_RL_ANGLE 8
 #define DRIVE_RL_ENCOD 4
 
+#define LED_BAR 9
 
 #define IMU_ID 0
 
