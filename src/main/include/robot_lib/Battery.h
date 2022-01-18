@@ -1,6 +1,7 @@
 #include "frc/PowerDistribution.h"
 #include "frc/Timer.h"
 #include "frc/DriverStation.h"
+#include "frc/RobotController.h"
 namespace robot
 {
     class Battery {
@@ -15,6 +16,6 @@ namespace robot
         double previousTime = 0.0; //timestamp of the last GetPowerUsage() call
         double previousPower = 18.0; //level of the battery on the last update
         //void LowWarning();
-        //frc::PowerDistribution panel{0, frc::PowerDistribution::ModuleType::kCTRE};
+        frc::PowerDistribution panel;
 };
 } // namespace robot

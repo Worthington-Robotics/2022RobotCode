@@ -4,11 +4,10 @@
 namespace robot
 {
     Battery::Battery(){
-
+        //panel = frc::PowerDistribution{0, frc::PowerDistribution::ModuleType::kCTRE};
     }
     double Battery::GetPowerUsage() { //get amount of power used over time from the PD panel
-        frc::PowerDistribution panel = frc::PowerDistribution{1, frc::PowerDistribution::ModuleType::kCTRE};
-        double power = panel.GetTotalPower(); //power in joules from panel
+        double power = frc::RobotController::GetInputCurrent() * frc::RobotController::GetInputVoltage(); //power in joules from panel
         double currentTime = frc::Timer::GetFPGATimestamp().to<double>();
         double timeDiff = currentTime - previousTime; //amount of time passed since last call
         double amt = power * timeDiff; //output
