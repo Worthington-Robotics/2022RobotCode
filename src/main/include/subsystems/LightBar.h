@@ -79,7 +79,7 @@ namespace robot
         std::array<frc::AddressableLED::LEDData, ledCount> buffer;
 
         // Control states for the lights
-        LightState lightMode = RAINBOW;
+        LightState lightMode = TEMPERATURE;
         void updateSensorData();
 
         int step = 0;

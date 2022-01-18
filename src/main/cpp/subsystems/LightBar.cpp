@@ -90,7 +90,7 @@ namespace robot {
         //int portion = (int)value / ledCount;
         if (pos <= value) {
             if (value <= ledCount / 2) {
-                if (value <= ledCount / 4) {
+                if (value <= ledCount / 6) {
                     return frc::Color(255, 0, 0);
                 }
                 return frc::Color(255, 255, 0);
