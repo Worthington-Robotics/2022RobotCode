@@ -6,10 +6,10 @@
 using std::placeholders::_1;
 
 namespace robot {
-    LightBar::LightBar(): leds{LED_BAR}{
+    LightBar::LightBar() {
         leds.SetLength(60);
         //leds.SetSyncTime(units::time::microsecond_t(1.25));
-        LightBar::reset();
+        //LightBar::reset();
     }
     void LightBar::createRosBindings(rclcpp::Node *node) {
         LightModeSub = node->create_subscription<std_msgs::msg::Int16>("/lights/mode", rclcpp::SensorDataQoS(), std::bind(&LightBar::lightModeCallback, this, _1));
@@ -27,7 +27,8 @@ namespace robot {
         frc::SmartDashboard::PutNumber("Lights/Mode", lightMode);
         for (int i = 0; i < ledCount; i++) {
             //std::cout << i << " " << LightBar::getColor(i).red << " " << LightBar::getColor(i).green << " " << LightBar::getColor(i).blue << std::endl;
-            buffer[i].SetLED(LightBar::getColor(i));
+            frc::Color color = LightBar::getColor(i);
+            buffer[i].SetRGB(color.red * 255, color.green * 255, color.blue * 255);
         }
         step++;
         leds.SetData(buffer);
@@ -38,29 +39,20 @@ namespace robot {
             case RAINBOW: {
                 int speed = 130;
                 double scale = ((double)(step % speed) / (double)(speed - 1));
-                double h = (por + scale - floor(por + scale)) * 255.0;
+                double h = (por + scale - floor(por + scale)) * 180.0;
                 return frc::Color::FromHSV((int)h, 255, 230);
             }
             case TEST: {
                 if (frc::Timer::GetFPGATimestamp().to<int>() % 3 == 0) {
-                    return frc::Color(0, 255, 0);
+                    return frc::Color(0, 1, 0);
                 }
-                return frc::Color(255, 0, 0);
+                return frc::Color(1, 0, 0);
             }
             case ALLIANCE: {
                 frc::Color allianceColor;
+                std::vector<frc::Color> colors = {frc::Color(1, 0, 0), frc::Color(0, 0, 1), frc::Color(0, 0, 0)};
                 frc::SmartDashboard::PutNumber("Test/Alliance", frc::DriverStation::GetAlliance());
-                switch (frc::DriverStation::GetAlliance()) {
-                    case frc::DriverStation::kBlue: {
-                        allianceColor = frc::Color(0, 0, 255);
-                    }
-                    case frc::DriverStation::kRed: {
-                        allianceColor = frc::Color(255, 0, 0);
-                    }
-                    case frc::DriverStation::kInvalid: {
-                        allianceColor = frc::Color(0, 0, 0);
-                    }
-                }
+                allianceColor = colors.at(frc::DriverStation::GetAlliance());
                 return allianceColor;
                 if (ledCount < 17) {return allianceColor;}
                 bool pattern [17] = {true, true, true, true, false, true, false, true, true, true, true, false, true, true, true, true, true};
@@ -72,16 +64,26 @@ namespace robot {
                 } else {
                     if (pattern[(int)(pos - margin)]) {
                         std::cout << (int)(pos - margin) << std::endl;
-                        return frc::Color(255, 255, 255);
+                        return frc::Color(1, 1, 1);
                     }
                 }
                 return allianceColor;
             }
             case INDEX: {
-                return frc::Color::FromHSV((int)(por * 255.0), 255, 255);
+                return frc::Color::FromHSV((int)(por * 180.0), 255, 255);
             }
             case TEMPERATURE: {
                 return LightBar::meterColor(pos, frc::Timer::GetFPGATimestamp().to<int>() % ledCount);
+            }
+            case ONE: {
+                if (pos == 0) {
+                    return frc::Color(1, 1, 1);
+                } else {
+                    return frc::Color(0, 0, 0);
+                }
+            }
+            case STARS: {
+                
             }
         }
         return frc::Color(0, 0, 0);
@@ -91,11 +93,11 @@ namespace robot {
         if (pos <= value) {
             if (value <= ledCount / 2) {
                 if (value <= ledCount / 6) {
-                    return frc::Color(255, 0, 0);
+                    return frc::Color(1, 0, 0);
                 }
-                return frc::Color(255, 255, 0);
+                return frc::Color(1, 1, 0);
             }
-            return frc::Color(0, 255, 0);
+            return frc::Color(0, 1, 0);
         }
         return frc::Color(0, 0, 0);
     }

@@ -26,7 +26,9 @@ namespace robot
         BATTERY, 
         TEMPERATURE,
         TEST,
-        INDEX
+        INDEX,
+        ONE,
+        STARS
     };
 
     class LightBar : public Subsystem
@@ -71,20 +73,32 @@ namespace robot
 
         void execActions();
 
+        /** 
+         * Function to get the light color at a position
+         * @param int pos - Position to get the color at
+         **/
         frc::Color getColor(int pos);
+        /** 
+         * Function to build light modes that display a meter value
+         * @param int pos - Position to get the color at
+         * @param int value - Value from 0 to the led count to measure
+         **/
         frc::Color meterColor(int pos, int value);
-
+        //addressable led bar
+        frc::AddressableLED leds{LED_BAR};
+        //number of leds
         static constexpr int ledCount = 30;
-        frc::AddressableLED leds;
+        //buffer used to hold led color information
         std::array<frc::AddressableLED::LEDData, ledCount> buffer;
 
         // Control states for the lights
-        LightState lightMode = TEMPERATURE;
+        LightState lightMode = RAINBOW;
+
         void updateSensorData();
 
+        //current time step for modes that animate over time
         int step = 0;
-        //IO devices
-        //std::shared_ptr<PigeonIMU> imu;
+        int starOffset = 0;
 
         // ROS Subscibers
         rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr LightModeSub;

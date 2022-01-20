@@ -4,6 +4,7 @@
 #include <frc/Errors.h>
 #include "rclcpp/rclcpp.hpp"
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <iostream>
 
 using std::placeholders::_1;
 using std::placeholders::_2;
@@ -18,7 +19,7 @@ namespace robot
     {
         sysReset = this->create_service<std_srvs::srv::Trigger>("/sys/reset", std::bind(&SubsystemManager::serviceReset, this, _1, _2));
         sysDebug = this->create_service<std_srvs::srv::SetBool>("/sys/debug", std::bind(&SubsystemManager::serviceDebug, this, _1, _2));
-        battery = robot::Battery();
+        //battery = robot::Battery();
     }
 
     void SubsystemManager::registerSubsystems(std::vector<std::shared_ptr<Subsystem>> subsystems)
@@ -159,6 +160,7 @@ namespace robot
             frc::ReportError(frc::err::Error, "SubsystemManager.cpp", 135, "enabledLoop()", "Looper Thread died with unknown exception");
         }
         //battery stuff
+        //std::cout << battery.GetPowerUsage() << std::endl;
         frc::SmartDashboard::PutNumber("Battery/Usage", battery.GetPowerUsage());
     }
 

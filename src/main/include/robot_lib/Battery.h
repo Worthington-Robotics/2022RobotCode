@@ -16,6 +16,6 @@ namespace robot
         double previousTime = 0.0; //timestamp of the last GetPowerUsage() call
         double previousPower = 18.0; //level of the battery on the last update
         //void LowWarning();
-        frc::PowerDistribution panel;
+        frc::PowerDistribution panel{0, frc::PowerDistribution::ModuleType::kCTRE};
 };
 } // namespace robot
