@@ -34,6 +34,8 @@ namespace robot
 
         imu = std::make_shared<PigeonIMU>(IMU_ID);
 
+        PPC = PurePursuitController{APPCDiscriptor{.5, 0, 1, 0, .1}};
+
         reset();
     }
 
@@ -49,6 +51,9 @@ namespace robot
         stickSub = node->create_subscription<sensor_msgs::msg::Joy>(DRIVE_STICK_TOPIC, rclcpp::SensorDataQoS(), std::bind(&Drivetrain::stickCallback, this, _1));
 
         DriveModeSub = node->create_subscription<std_msgs::msg::Int16>("/drive/drive_mode", rclcpp::SensorDataQoS(), std::bind(&Drivetrain::driveModeCallback, this, _1));
+        //createing the cliesnts   
+        GPClient = node->create_client<rospathmsgs::srv::GetPath>("/get_path");
+    
     }
 
     void Drivetrain::reset()
@@ -193,6 +198,24 @@ namespace robot
             driveState = OPEN_LOOP_ROBOT_REL;
             stickTwist.linear.y = 0;
         }
+    }
+
+    void Drivetrain::enablePathFollower(std::string name) {
+        GPReq = std::make_shared<rospathmsgs::srv::GetPath::Request>();
+        GPReq->path_name = name;
+        if(GPClient->service_is_ready()){
+            auto future = GPClient->async_send_request(GPReq);
+            //add a timeout eventually
+            while(rclcpp::ok() && !future.valid())
+            {    
+                
+            }
+            future.get()->path;
+            //ADD THING TO MAKE ARRAY INTO STACK FOR THE SETPATH METHOD
+            PPC.setPath(GPClient->take_response());
+        }
+
+        return;
     }
 
     void Drivetrain::onLoop()

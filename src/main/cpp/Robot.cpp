@@ -4,8 +4,6 @@
 
 #include "Robot.h"
 #include <iostream>
-#include "subsystems/drivetrain.h"
-#include "subsystems/userinput.h"
 #include "Constants.h"
 #include "robot_lib/VersionData.h"
 
@@ -16,8 +14,8 @@ void Robot::RobotInit()
     frc::ReportError(frc::warn::Warning, "Robot.cpp", 16, "RobotInit()", "ROS Sucessfully Init!");
 
     // construct subsystems
-    auto drive = std::make_shared<robot::Drivetrain>();
-    auto sticks = std::make_shared<robot::UserInput>();
+    drive = std::make_shared<robot::Drivetrain>();
+    sticks = std::make_shared<robot::UserInput>();
     sticks->registerSticks(USER_STICKS); //  register which joystick IDs to read
 
     // intialize all subsystems here
@@ -39,6 +37,7 @@ void Robot::AutonomousInit()
 {
     manager->stopDisabledLoop();
     manager->startEnabledLoop();
+    drive->enablePathFollower("six");
 }
 void Robot::AutonomousPeriodic() {}
 

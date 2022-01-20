@@ -1,6 +1,7 @@
 #pragma once
 
 #include "subsystems/Subsystem.h"
+#include "robot_lib/PurePursuitController.h"
 #include <ctre/Phoenix.h>
 #include <frc/controller/RamseteController.h>
 #include <rclcpp/rclcpp.hpp>
@@ -17,7 +18,7 @@
 #include <sensor_msgs/msg/joy.hpp>
 #include <geometry_msgs/msg/twist.hpp>
 #include <std_msgs/msg/int16.hpp>
-#include <rospathmsgs/srv/generate_path.hpp>
+#include <rospathmsgs/srv/get_path.hpp>
 
 namespace robot
 {
@@ -73,6 +74,8 @@ namespace robot
         void publishData() override;
 
         void enableDebug(bool debug) override;
+
+        void enablePathFollower(std::string name);
 
         /**
          * Callbacks for ROS Subscribers 
@@ -133,8 +136,8 @@ namespace robot
         rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr DriveModeSub;
 
         // ROS SRV REQUESTS
-        rclcpp::Client<rospathmsgs::srv::GeneratePath>::SharedPtr GPClient;
-        rospathmsgs::srv::GeneratePath GPReq;
+        rclcpp::Client<rospathmsgs::srv::GetPath>::SharedPtr GPClient;
+        rospathmsgs::srv::GetPath::Request::SharedPtr GPReq;
 
         // ROS Messages for storing subscription data
         geometry_msgs::msg::Twist stickTwist;
@@ -149,6 +152,8 @@ namespace robot
         frc::SwerveDriveKinematics<4> sKinematics {sFrontRight, sFrontLeft, sRearRight, sRearLeft};
         frc::SwerveDriveOdometry<4> sOdom {sKinematics, frc::Rotation2d{units::degree_t{0}}};
         std::array<frc::SwerveModuleState, 4> moduleStates; //fr, fl, rr, rl
+        PurePursuitController PPC;
+        
 
         bool DEBUG = false;
 

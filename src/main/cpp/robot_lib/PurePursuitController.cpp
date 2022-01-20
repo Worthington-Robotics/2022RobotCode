@@ -30,44 +30,61 @@ namespace robot
         return std::sqrt(dx * dx + dy * dy);
     }
 
+    double PurePursuitController::getDist(rospathmsgs::msg::Waypoint pos1, rospathmsgs::msg::Waypoint pos2) {
+        double dx = pos2.point.x - pos1.point.x;
+        double dy = pos2.point.y - pos1.point.y;
+        return std::sqrt(dx * dx + dy * dy);
+    }
+
     double PurePursuitController::getRemainingDistance(frc::Pose2d currPos){
-        return mParams.mPath.size() / 100.0 + getDist(currPos, mParams.mPath.top());
+        return mPath.size() / 100.0 + getDist(currPos, mPath.top());
 
     }
 
     bool PurePursuitController::isDone(frc::Pose2d pos) {
-        if(mParams.mPath.size() == 1) {
-            return getDist(pos, mParams.mPath.top()) <= mParams.mPathCompletionTolerance;
+        if(mPath.size() == 1) {
+            return getDist(pos, mPath.top()) <= mParams.mPathCompletionTolerance;
         }
         return false;
     }
+
+    void PurePursuitController::setPath(std::stack<rospathmsgs::msg::Waypoint> path){
+        mPath = path;
+    }
     //requires the stack to have at least one value walks to local minima of the path as compared to the robot
     void PurePursuitController::walkToClosest(frc::Pose2d currPose) {
-        rospathmsgs::msg::Waypoint nextPoint = mParams.mPath.top();
+        rospathmsgs::msg::Waypoint nextPoint = mPath.top();
         double lastDistance = getDist(currPose, nextPoint);
         double currDistance = lastDistance;
-        while(currDistance <= lastDistance && mParams.mPath.size() > 1) {
-            mParams.mPath.pop();
+        while(currDistance <= lastDistance && mPath.size() > 1) {
+            mPath.pop();
             lastDistance = currDistance;
-            currDistance = getDist(currPose, mParams.mPath.top());
+            currDistance = getDist(currPose, mPath.top());
         }
     }
 
     rospathmsgs::msg::Waypoint PurePursuitController::getLookAheadPoint(double dist) {
         //.01 spaceing between points
-        int pointsToPop = (int)(dist / .01) - 1;
+        double currDist = 0;
         std::stack<rospathmsgs::msg::Waypoint> storage;
-        for(int i = 0; i < pointsToPop && mParams.mPath.size() > 1; i++)
+        rospathmsgs::msg::Waypoint currPoint = mPath.top();
+        rospathmsgs::msg::Waypoint lookAhead;
+        // go through, and while the path still exsists, take the next point in the path and find the distance between it and the current point
+        while(currDist < dist && mPath.size() > 1)
         {
-            storage.push(mParams.mPath.top());
-            mParams.mPath.pop();
+            lookAhead = mPath.top();
+            storage.push(lookAhead);
+            mPath.pop();
+            currDist += getDist(lookAhead, currPoint);
+            currPoint = lookAhead;
         }
+        lookAhead = mPath.top();
         while(storage.size() > 0)
         {
-            mParams.mPath.push(storage.top());
+            mPath.push(storage.top());
             storage.pop();
         }
-        return mParams.mPath.top();
+        return mPath.top();
     }
 
     Circle PurePursuitController::joinPath(frc::Pose2d currPos, rospathmsgs::msg::Waypoint lookAheadPoint){
@@ -109,18 +126,18 @@ namespace robot
         if (isDone(currPos)) {
             return frc::ChassisSpeeds{units::meters_per_second_t{0}, units::meters_per_second_t{0}, units::radians_per_second_t{0}};
         }
-        double distanceFromPath = getDist(currPos, mParams.mPath.top());
+        double distanceFromPath = getDist(currPos, mPath.top());
         rospathmsgs::msg::Waypoint lookAheadPoint = getLookAheadPoint(distanceFromPath + mParams.mFixedLookahead);
         Circle circle = joinPath(currPos, lookAheadPoint); //this should throw stuff back to the stack to add a circle to the path if need be
-        double speed = lookAheadPoint.max_vel;
+        double speed = lookAheadPoint.velocity;
 
         // Ensure we don't accelerate too fast from the previous command
         double dt = now - mParams.mLastTime;
-        double accel = (speed - mParams.mLastCommand.vx.to<double>()) / dt;
+        double accel = (speed - mLastCommand.vx.to<double>()) / dt;
         if (accel < -mParams.mMaxAccel) {
-            speed = mParams.mLastCommand.vx.to<double>() - mParams.mMaxAccel * dt;
+            speed = mLastCommand.vx.to<double>() - mParams.mMaxAccel * dt;
         } else if (accel > mParams.mMaxAccel) {
-            speed = mParams.mLastCommand.vx.to<double>() + mParams.mMaxAccel * dt;
+            speed = mLastCommand.vx.to<double>() + mParams.mMaxAccel * dt;
         }
 
         // Ensure we slow down in time to stop
@@ -143,7 +160,7 @@ namespace robot
             rv = frc::ChassisSpeeds{units::meters_per_second_t{speed * inertialHeading.Cos()}, units::meters_per_second_t{speed * inertialHeading.Sin()}, units::radians_per_second_t{0}};
         }
         mParams.mLastTime = now;
-        mParams.mLastCommand = rv;
+        mLastCommand = rv;
         return rv;
         
     }

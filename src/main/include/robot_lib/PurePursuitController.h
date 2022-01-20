@@ -13,11 +13,10 @@
 namespace robot
 {
     const double kEpsilon = 1E-9;
+
     struct APPCDiscriptor
     {
         double mFixedLookahead;
-        std::stack<rospathmsgs::msg::Waypoint> mPath;
-        frc::ChassisSpeeds mLastCommand;
         double mLastTime;
         double mMaxAccel;
         double mDt;
@@ -37,13 +36,17 @@ namespace robot
     {
     public:
         PurePursuitController(APPCDiscriptor params);
+        void setPath(std::stack<rospathmsgs::msg::Waypoint> mPath);
         bool isDone(frc::Pose2d pos);
         frc::ChassisSpeeds update(frc::Pose2d currPos, frc::ChassisSpeeds currState, double now);
 
 
     private:
         APPCDiscriptor mParams;
+        std::stack<rospathmsgs::msg::Waypoint> mPath;
+        frc::ChassisSpeeds mLastCommand;
         static double getDist(frc::Pose2d pos1, rospathmsgs::msg::Waypoint pos2);
+        static double getDist(rospathmsgs::msg::Waypoint pos1, rospathmsgs::msg::Waypoint pos2);
         void walkToClosest(frc::Pose2d currPos);
         Circle joinPath(frc::Pose2d currPos, rospathmsgs::msg::Waypoint lookAheadPoint);
         double getRemainingDistance(frc::Pose2d currPos);
