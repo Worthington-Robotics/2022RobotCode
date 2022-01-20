@@ -79,6 +79,7 @@ namespace robot
                                     const frc::Rotation2d &currentAngle)
     {
         auto delta = desiredState.angle - currentAngle;
+        
         if (units::math::abs(delta.Degrees()) >= 90_deg)
         {
             return {-desiredState.speed, desiredState.angle.RotateBy(frc::Rotation2d{180_deg})};
@@ -91,9 +92,35 @@ namespace robot
 
     void SModule::setMotors(frc::SwerveModuleState ss)
     {
-        auto ssO = Optimize(ss, units::degree_t(angle->GetSelectedSensorPosition() / TICKS_PER_DEGREE / (64 / 5)));
-        angle->Set(ControlMode::Position, ssO.angle.Degrees().to<double>() * TICKS_PER_DEGREE * (64 / 5));
-        drive->Set(ControlMode::PercentOutput, ssO.speed.to<double>());
+        //ss represents desired stat
+        //work on this next time 
+        // auto ssO = Optimize(ss, units::degree_t(angle->GetSelectedSensorPosition() / TICKS_PER_DEGREE / (64 / 5)));
+        // double currentAngleTicks = angle->GetSelectedSensorPosition();
+        // double setAngleTicks = ssO.angle.Degrees().to<double>() * TICKS_PER_DEGREE * (64 / 5);
+        // double currentAngleDegrees = currentAngleTicks / TICKS_PER_DEGREE;
+        // double setAngleDegrees = setAngleTicks / TICKS_PER_DEGREE;
+
+        // double deltaLeft = std::fmod((currentAngleDegrees - setAngleDegrees), 360);
+        // double deltaRight = std::fmod((setAngleDegrees - currentAngleDegrees), 360);
+        // double smallerDelta;
+        // if(deltaLeft < 0){
+        //     deltaLeft += 360.0;
+        // }
+        // if(deltaRight < 0){
+        //     deltaRight += 360.0;
+        // }
+
+        // if(deltaLeft < deltaRight){
+        //     smallerDelta = -deltaLeft;
+        // } else {
+        //     smallerDelta = deltaRight;
+        // }
+
+        // double smallerDeltaTicks = smallerDelta * TICKS_PER_DEGREE;
+
+        //     angle->Set(ControlMode::Position, currentAngleTicks + smallerDeltaTicks);
+        //     drive->Set(ControlMode::PercentOutput, ssO.speed.to<double>());
+        
     }
 
     frc::SwerveModuleState SModule::getState()
