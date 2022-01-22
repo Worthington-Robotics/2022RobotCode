@@ -21,7 +21,7 @@ void Robot::RobotInit()
     // intialize all subsystems here
     manager = std::make_shared<robot::SubsystemManager>();
     manager->registerSubsystems(std::vector<std::shared_ptr<robot::Subsystem>>{
-        drive,
+        /*drive,*/
         sticks});
 
     // grab the version string
@@ -37,7 +37,7 @@ void Robot::AutonomousInit()
 {
     manager->stopDisabledLoop();
     manager->startEnabledLoop();
-    drive->enablePathFollower("six");
+    //drive->enablePathFollower("six");
 }
 void Robot::AutonomousPeriodic() {}
 

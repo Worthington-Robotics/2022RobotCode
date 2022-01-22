@@ -152,7 +152,7 @@ namespace robot
         frc::SwerveDriveKinematics<4> sKinematics {sFrontRight, sFrontLeft, sRearRight, sRearLeft};
         frc::SwerveDriveOdometry<4> sOdom {sKinematics, frc::Rotation2d{units::degree_t{0}}};
         std::array<frc::SwerveModuleState, 4> moduleStates; //fr, fl, rr, rl
-        PurePursuitController PPC;
+        //std::shared_ptr<PurePursuitController> PPC;
         
 
         bool DEBUG = false;

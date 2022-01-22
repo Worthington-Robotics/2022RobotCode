@@ -38,6 +38,7 @@ namespace robot
         double angleRel;
         double drivePos;
         double driveVel;
+        double driveGoal;
         double encAbs;
         double angleCurrent;
         double driveCurrent;
@@ -69,6 +70,8 @@ namespace robot
 
         void setMotors(frc::SwerveModuleState);
 
+        void setMotorVelocity(frc::SwerveModuleState);
+
         frc::SwerveModuleState getState();
 
         sSensorData getData();
@@ -79,6 +82,8 @@ namespace robot
         /**
          * Configure the associated motor controllers with their settings as specified in constants
          **/ 
+        double setpoint = 0;
+
         void configMotors(double, PIDF, PIDF);
 
         void updateSensorData();

@@ -27,10 +27,11 @@ class Robot : public frc::TimedRobot {
 
   void TestInit() override;
   void TestPeriodic() override;
-  private:
 
   std::shared_ptr<robot::Drivetrain> drive;
   std::shared_ptr<robot::UserInput> sticks;
+  private:
+
 
   std::shared_ptr<robot::SubsystemManager> manager;
 };
