@@ -7,6 +7,7 @@
 #include "subsystems/drivetrain.h"
 #include "subsystems/userinput.h"
 #include "subsystems/LightBar.h"
+#include "subsystems/Battery.h"
 #include "Constants.h"
 #include "robot_lib/VersionData.h"
 
@@ -20,6 +21,7 @@ void Robot::RobotInit()
     auto drive = std::make_shared<robot::Drivetrain>();
     auto sticks = std::make_shared<robot::UserInput>();
     auto lights = std::make_shared<robot::LightBar>();
+    auto battery = std::make_shared<robot::Battery>();
     sticks->registerSticks(USER_STICKS); //  register which joystick IDs to read
 
     // intialize all subsystems here
@@ -27,7 +29,8 @@ void Robot::RobotInit()
     manager->registerSubsystems(std::vector<std::shared_ptr<robot::Subsystem>>{
         drive,
         sticks,
-        lights});
+        lights,
+        battery});
 
     // grab the version string
     robot::ShowVersionData();

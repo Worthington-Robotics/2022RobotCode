@@ -8,7 +8,6 @@
 #include "subsystems/Subsystem.h"
 #include "std_srvs/srv/trigger.hpp"
 #include "std_srvs/srv/set_bool.hpp"
-#include "robot_lib/Battery.h"
 
 namespace robot
 {
@@ -87,7 +86,6 @@ namespace robot
         void disabledLoop();
         rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr sysReset;
         rclcpp::Service<std_srvs::srv::SetBool>::SharedPtr sysDebug;
-        robot::Battery battery;
     };
 
 } // namespace robot
