@@ -11,6 +11,8 @@ namespace robot {
     }
     void Battery::createRosBindings(rclcpp::Node *node) {
         IdleStageSub = node->create_subscription<std_msgs::msg::Int16>("/battery/idle", rclcpp::SensorDataQoS(), std::bind(&Battery::idleStageCallback, this, _1));
+        ResetStageSub = node->create_subscription<std_msgs::msg::Int16>("/battery/idle", rclcpp::SensorDataQoS(), std::bind(&Battery::idleStageCallback, this, _1));
+        node->create_publisher<std_msgs::msg::Int16>("/battery/idle", rclcpp::SystemDefaultsQoS());
     }
     void Battery::reset() {
         
@@ -22,8 +24,19 @@ namespace robot {
         
     }
     void Battery::publishData() {
+        int time1 = 5 * 100;
+        int time2 = 15 * 100;
         idleTime++;
-        
+        if (idleTime >= time1) {
+            if (idleTime >= time2) {
+                idleStage = 1;
+            } else {
+                idleStage = 2;
+            }
+        } else {
+            idleStage = 0;
+        }
+
     }
     void Battery::resetIdle() {
         idleTime = 0;

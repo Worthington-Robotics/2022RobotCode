@@ -52,14 +52,13 @@ namespace robot
          **/
 
         void idleStageCallback(const std_msgs::msg::Int16 msg);
+        void resetStageCallback();
 
         /**
          * Reset idle countdown
          **/
         void resetIdle();
         
-        int idleStage = 0; //stage from 0-2 of current level of idle
-
     private:
 
         void execActions();
@@ -72,6 +71,7 @@ namespace robot
         double getPowerUsage();
 
         int idleTime = 0; //amount of time spent since last update
+        int idleStage = 0; //stage from 0-2 of current level of idle
 
         double previous = 0.0; //result of the last getPowerUsage() call
         double previousTime = 0.0; //timestamp of the last getPowerUsage() call
@@ -84,5 +84,6 @@ namespace robot
 
         // ROS Subscibers
         rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr IdleStageSub;
+        rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr ResetStageSub;
     };
 } // namespace robot

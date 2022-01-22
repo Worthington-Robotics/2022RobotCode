@@ -19,16 +19,16 @@ namespace robot
      **/
     enum LightState
     {
-        TARGETING, 
-        INVENTORY, 
-        ALLIANCE, 
-        RAINBOW, 
-        BATTERY, 
-        TEMPERATURE,
-        TEST,
-        INDEX,
-        ONE,
-        STARS
+        TARGETING, //shows progress with targeting
+        INVENTORY, //shows balls in possession
+        ALLIANCE, //shows alliance color
+        RAINBOW, //turns the robot into a razer mouse
+        BATTERY, //shows battery remaining
+        TEMPERATURE, //shows temperature
+        TEST, //shows the value of a boolean
+        INDEX, //debug that shows light position
+        ONE, //debug that turns one led on
+        STARS //schmoovin
     };
 
     class LightBar : public Subsystem

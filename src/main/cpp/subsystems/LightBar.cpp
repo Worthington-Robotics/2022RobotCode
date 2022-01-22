@@ -35,6 +35,7 @@ namespace robot {
     }
     frc::Color LightBar::getColor(int pos) {
         double por = (double)pos / (double)ledCount;
+        frc::Color output;
         switch (lightMode) {
             case RAINBOW: {
                 int speed = 130;
@@ -86,7 +87,11 @@ namespace robot {
                 
             }
         }
-        return frc::Color(0, 0, 0);
+        double multiplier = 1.0;
+        output.red *= multiplier;
+        output.green *= multiplier;
+        output.blue *= multiplier;
+        return output;
     }
     frc::Color LightBar::meterColor(int pos, int value) {
         //int portion = (int)value / ledCount;
