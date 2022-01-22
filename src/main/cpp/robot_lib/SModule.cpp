@@ -120,6 +120,9 @@ namespace robot
 
         //     angle->Set(ControlMode::Position, currentAngleTicks + smallerDeltaTicks);
         //     drive->Set(ControlMode::PercentOutput, ssO.speed.to<double>());
+        auto ssO = Optimize(ss, units::degree_t(angle->GetSelectedSensorPosition() / TICKS_PER_DEGREE / (64 / 5)));
+        angle->Set(ControlMode::Position, ssO.angle.Degrees().to<double>() * TICKS_PER_DEGREE * (64 / 5));
+        drive->Set(ControlMode::PercentOutput, ssO.speed.to<double>());
         
     }
 
