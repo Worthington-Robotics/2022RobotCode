@@ -97,6 +97,7 @@ namespace robot
         auto ssO = Optimize(ss, units::degree_t(angle->GetSelectedSensorPosition() / TICKS_PER_DEGREE / (64 / 5)));
         double currentAngleTicks = angle->GetSelectedSensorPosition();
         double setAngleTicks = ssO.angle.Degrees().to<double>() * TICKS_PER_DEGREE * (64 / 5);
+        double currentDirection = angle->
         double currentAngleDegrees = currentAngleTicks / (TICKS_PER_DEGREE * (64 / 5));
         double setAngleDegrees = setAngleTicks / (TICKS_PER_DEGREE * (64/5));
 
@@ -123,17 +124,17 @@ namespace robot
             outputDirection = currentDirection;
         } else {
             double moveTarget;
-            moveTarget = fmod((setAngle + 180) , 360);
+            moveTarget = fmod((setAngleDegrees + 180) , 360);
             outputDirection = currentDirection * -1;
 
-            if(moveTarget >= 270 && moveTarget <= 360 && currentAngle >= 0 && currentAngle <= 90){
-                smallerDelta = (currentAngle - 0) + (360 - moveTarget);
+            if(moveTarget >= 270 && moveTarget <= 360 && currentAngleDegrees >= 0 && currentAngleDegrees <= 90){
+                smallerDelta = (currentAngleDegrees - 0) + (360 - moveTarget);
                 smallerDelta *= -1;
-            } else if(currentAngle >= 270 && currentAngle <= 360 && moveTarget >= 0 && moveTarget <= 90){
-                smallerDelta = (moveTarget - 0) + (360 - currentAngle);
+            } else if(currentAngleDegrees >= 270 && currentAngleDegrees <= 360 && moveTarget >= 0 && moveTarget <= 90){
+                smallerDelta = (moveTarget - 0) + (360 - currentAngleDegrees);
             } else {
-                smallerDelta = abs(moveTarget - currentAngle);
-                if(moveTarget < currentAngle){
+                smallerDelta = abs(moveTarget - currentAngleDegrees);
+                if(moveTarget < currentAngleDegrees){
                     smallerDelta *= -1;
                 }
             }
