@@ -162,4 +162,14 @@ namespace robot
         //frc::SmartDashboard::PutNumber("Drive/Pose/Theta", battery.GetPowerUsage());
     }
 
+    /*
+    std::shared_ptr<SubsystemManager> SubsystemManager::getInstance()
+    {
+        if(!manager)
+        {
+            manager = std::make_shared<SubsystemManager>();
+        }
+        return manager;
+    }*/
+
 } // namespace robot

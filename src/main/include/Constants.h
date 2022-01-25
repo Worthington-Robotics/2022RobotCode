@@ -51,15 +51,15 @@
 #define IMU_ANG_VEL_COVAR {1, 0, 0, 0, 1, 0, 0, 0, 1} // only show variances of data
 
 // PID constants for left and right transmission velocity control
-#define DRIVE_LEFT_KF 0
-#define DRIVE_LEFT_KP 2.75
-#define DRIVE_LEFT_KI 0.03
-#define DRIVE_LEFT_KD 1
+#define ANGLE_KF 0
+#define ANGLE_KP 2.75
+#define ANGLE_KI 0.03
+#define ANGLE_KD 1
 #define DRIVE_LEFT_IACCUM 300
-#define DRIVE_RIGHT_KF 0.0
-#define DRIVE_RIGHT_KP 0.0
-#define DRIVE_RIGHT_KI 0.0
-#define DRIVE_RIGHT_KD 0.0
+#define DRIVE_KF 0.0522
+#define DRIVE_KP 0.2
+#define DRIVE_KI 0.0
+#define DRIVE_KD 2
 #define DRIVE_RIGHT_IACCUM 300
 
 // voltage compensation voltage
