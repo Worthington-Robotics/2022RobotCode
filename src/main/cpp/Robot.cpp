@@ -11,7 +11,7 @@ void Robot::RobotInit()
 {
     rclcpp::init(0, NULL);
 
-    frc::ReportError(frc::warn::Warning, "Robot.cpp", 16, "RobotInit()", "ROS Sucessfully Init!");
+    frc::ReportError(frc::warn::Warning, "Robot.cpp", 14, "RobotInit()", "ROS Sucessfully Init!");
 
     // construct subsystems
     drive = std::make_shared<robot::Drivetrain>();
@@ -21,7 +21,7 @@ void Robot::RobotInit()
     // intialize all subsystems here
     manager = std::make_shared<robot::SubsystemManager>();
     manager->registerSubsystems(std::vector<std::shared_ptr<robot::Subsystem>>{
-        /*drive,*/
+        drive,
         sticks});
 
     // grab the version string

@@ -300,7 +300,7 @@ namespace robot
             rearRMod->setMotors(moduleStates[2]);
             rearLMod->setMotors(moduleStates[3]);
 
-        std::cout << "you should be here" << std::endl;
+        //std::cout << "you should be here" << std::endl;
             break;
         case VELOCITY_TWIST:
         case PURSUIT: // for now have pursuit as an illegal mode
