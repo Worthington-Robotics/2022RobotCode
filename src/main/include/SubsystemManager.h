@@ -16,6 +16,7 @@ namespace robot
     class SubsystemManager : public rclcpp::Node
     {
         public: 
+        
         SubsystemManager();
 
         /**
@@ -78,6 +79,11 @@ namespace robot
          **/ 
         void stopDisabledLoop();
 
+        /*
+        static std::shared_ptr<SubsystemManager> getInstance();
+        static std::shared_ptr<SubsystemManager> manager;
+        */
+
     private:
         bool isFirstIteration = false;
         std::vector<std::shared_ptr<Subsystem>> subsystems;
@@ -85,6 +91,7 @@ namespace robot
 
         void enabledLoop();
         void disabledLoop();
+
         rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr sysReset;
         rclcpp::Service<std_srvs::srv::SetBool>::SharedPtr sysDebug;
         robot::Battery battery;

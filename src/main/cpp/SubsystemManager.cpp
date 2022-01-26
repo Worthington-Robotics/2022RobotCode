@@ -120,7 +120,7 @@ namespace robot
                 //frc::DriverStation::ReportWarning("Running onloop iteration");
                 for (std::shared_ptr<Subsystem> subsystem : subsystems)
                 {
-                    subsystem->onLoop();
+                    subsystem->onLoop(frc::Timer::GetFPGATimestamp().to<double>());
                     subsystem->updateSensorData();
                     subsystem->publishData();
                 }
@@ -161,5 +161,15 @@ namespace robot
         //battery stuff
         //frc::SmartDashboard::PutNumber("Drive/Pose/Theta", battery.GetPowerUsage());
     }
+
+    /*
+    std::shared_ptr<SubsystemManager> SubsystemManager::getInstance()
+    {
+        if(!manager)
+        {
+            manager = std::make_shared<SubsystemManager>();
+        }
+        return manager;
+    }*/
 
 } // namespace robot

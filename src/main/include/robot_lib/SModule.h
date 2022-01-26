@@ -78,6 +78,8 @@ namespace robot
 
         void setInvertDrive(bool);
 
+        void updateDrivePID(PIDF);
+
     private:
         /**
          * Configure the associated motor controllers with their settings as specified in constants
@@ -97,4 +99,3 @@ namespace robot
     };
 
 } // namespace robot
-

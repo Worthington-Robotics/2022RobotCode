@@ -111,6 +111,7 @@
     "random": "cpp",
     "string_view": "cpp",
     "cinttypes": "cpp",
-    "filesystem": "cpp"
+    "filesystem": "cpp",
+    "*.inc": "cpp"
   }
 }
