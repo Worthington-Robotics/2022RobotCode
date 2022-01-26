@@ -57,9 +57,9 @@
 #define ANGLE_KD 1
 #define DRIVE_LEFT_IACCUM 300
 #define DRIVE_KF 0.0522
-#define DRIVE_KP 0.0
+#define DRIVE_KP 0.2
 #define DRIVE_KI 0.0
-#define DRIVE_KD 0.0
+#define DRIVE_KD 2
 #define DRIVE_RIGHT_IACCUM 300
 
 // voltage compensation voltage

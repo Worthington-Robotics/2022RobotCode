@@ -5,6 +5,7 @@
 #include <frc/geometry/Twist2d.h>
 #include <rospathmsgs/msg/waypoint.hpp>
 #include <frc/geometry/Pose2d.h>
+#include <rclcpp/rclcpp.hpp>
 #include <stack>
 
 #define _USE_MATH_DEFINES
@@ -13,6 +14,12 @@
 namespace robot
 {
     const double kEpsilon = 1E-9;
+
+    struct stupidFuckingReturnType
+    {
+        frc::ChassisSpeeds speed;
+        rospathmsgs::msg::Waypoint lookaheadPoint;
+    };
 
     struct APPCDiscriptor
     {
@@ -38,10 +45,13 @@ namespace robot
         PurePursuitController(APPCDiscriptor params);
         void setPath(std::stack<rospathmsgs::msg::Waypoint> mPath);
         bool isDone(frc::Pose2d pos);
-        frc::ChassisSpeeds update(frc::Pose2d currPos, frc::ChassisSpeeds currState, double now);
-
+        stupidFuckingReturnType update(frc::Pose2d currPos, frc::ChassisSpeeds currState, double now);
+        rospathmsgs::msg::Waypoint mLastpoint;
+        
 
     private:
+        rclcpp::Publisher<rospathmsgs::msg::Waypoint>::SharedPtr lookaheadPub;
+
         APPCDiscriptor mParams;
         std::stack<rospathmsgs::msg::Waypoint> mPath;
         frc::ChassisSpeeds mLastCommand;
@@ -56,4 +66,3 @@ namespace robot
     };
 
 } // namespace robot
-

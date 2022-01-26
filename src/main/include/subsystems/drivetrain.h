@@ -11,14 +11,18 @@
 #include <frc/kinematics/ChassisSpeeds.h>
 #include <frc/geometry/Rotation2d.h>
 #include "robot_lib/SModule.h"
+#include "rospathmsgs/srv/get_path.hpp"
+#include "robot_lib/PurePursuitController.h"
 
 #include <trajectory_msgs/msg/joint_trajectory.hpp>
 #include <sensor_msgs/msg/imu.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
 #include <sensor_msgs/msg/joy.hpp>
 #include <geometry_msgs/msg/twist.hpp>
+#include <geometry_msgs/msg/pose2_d.hpp>
 #include <std_msgs/msg/int16.hpp>
 #include <rospathmsgs/srv/get_path.hpp>
+#include <std_msgs/msg/float32.hpp>
 
 namespace robot
 {
@@ -66,7 +70,7 @@ namespace robot
         /**
          * Override this function for any code that must be called periodically by the subsystem
          **/
-        void onLoop() override;
+        void onLoop(double currentTime) override;
 
         /**
          * Override this function with code needed to publish all data out to the ros network
@@ -76,6 +80,8 @@ namespace robot
         void enableDebug(bool debug) override;
 
         void enablePathFollower(std::string name);
+        
+        void enableOpenLoop();
 
         /**
          * Callbacks for ROS Subscribers 
@@ -102,6 +108,8 @@ namespace robot
          **/
         void driveModeCallback(const std_msgs::msg::Int16 msg);
 
+        void resetPose();
+
     private:
 
         void execActions();
@@ -109,6 +117,9 @@ namespace robot
         void updateSensorData();
 
         void checkDeltaCurrent(double, double, double, double);
+
+        rclcpp::Client<rospathmsgs::srv::GetPath>::SharedPtr GPClient;
+        rospathmsgs::srv::GetPath::Request::SharedPtr GPReq;
 
         frc::ChassisSpeeds updateTrajectory(trajectory_msgs::msg::JointTrajectoryPoint::SharedPtr nPose);
 
@@ -122,12 +133,20 @@ namespace robot
         // ROS Publishers
         rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imuPub;
         rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr yawPub;
-        rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr wheelStatePub;
+        rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr goalPub;
+        rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr autoTwistDemandPub;
+        rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr robotVelPub;
+        rclcpp::Publisher<geometry_msgs::msg::Pose2D>::SharedPtr robotPosPub;
+        rclcpp::Publisher<rospathmsgs::msg::Waypoint>::SharedPtr lookaheadPointPub;
 
         // ROS Messages for publishing
+        std_msgs::msg::Float32 goal;
+        geometry_msgs::msg::Twist autoTwistDemand;
         std_msgs::msg::Int16 yaw;
         sensor_msgs::msg::Imu imuMsg;
-        sensor_msgs::msg::JointState wheelState;
+        geometry_msgs::msg::Pose2D robotPosMsg;
+        geometry_msgs::msg::Twist robotVelMsg;
+        rospathmsgs::msg::Waypoint lookAheadPoint;
 
         // ROS Subscibers
         rclcpp::Subscription<trajectory_msgs::msg::JointTrajectory>::SharedPtr trajectorySub;
@@ -157,9 +176,18 @@ namespace robot
 
         bool DEBUG = false;
 
+        bool resetPIDVals = false;
+
+        double kF;
+        double kP;
+        double kI;
+        double kD;
+
         // Control states for the DT
         ControlState driveState = OPEN_LOOP_ROBOT_REL;
         SwerveSensorData moduleData;
+        APPCDiscriptor params;
+        std::shared_ptr<PurePursuitController> PPC;
 
         // last update time for safety critical topics
         double lastTwistTime, lastStickTime;
@@ -177,6 +205,9 @@ namespace robot
         bool spinLock = false;
         //button for gyro reset
         bool gyroReset = false;
+
+        //vector of iterators to check if currents values are too high
+        std::vector<double> iterators = {0, 0, 0, 0};
     };
 
 } // namespace robot

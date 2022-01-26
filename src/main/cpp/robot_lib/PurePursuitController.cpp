@@ -5,6 +5,7 @@
 #include <units/velocity.h>
 #define _USE_MATH_DEFINES
 #include <cmath>
+#include <iostream>
 
 
 namespace robot
@@ -22,6 +23,7 @@ namespace robot
 
     PurePursuitController::PurePursuitController(APPCDiscriptor params) {
         mParams = params;
+        
     }
 
     double PurePursuitController::getDist(frc::Pose2d pos1, rospathmsgs::msg::Waypoint pos2) {
@@ -42,10 +44,12 @@ namespace robot
     }
 
     bool PurePursuitController::isDone(frc::Pose2d pos) {
-        if(mPath.size() == 1) {
-            return getDist(pos, mPath.top()) <= mParams.mPathCompletionTolerance;
-        }
-        return false;
+            return getDist(pos, mLastpoint) <= mParams.mPathCompletionTolerance;
+    }
+
+    void PurePursuitController::setPath(std::stack<rospathmsgs::msg::Waypoint> path){
+        mPath = path;
+        std::cout << mPath.size() << " is the total number of points in the path STACK" << std::endl;
     }
 
     void PurePursuitController::setPath(std::stack<rospathmsgs::msg::Waypoint> path){
@@ -53,14 +57,19 @@ namespace robot
     }
     //requires the stack to have at least one value walks to local minima of the path as compared to the robot
     void PurePursuitController::walkToClosest(frc::Pose2d currPose) {
-        rospathmsgs::msg::Waypoint nextPoint = mPath.top();
-        double lastDistance = getDist(currPose, nextPoint);
-        double currDistance = lastDistance;
+        rospathmsgs::msg::Waypoint currPoint = mPath.top();
+        rospathmsgs::msg::Waypoint lastPoint = currPoint;
+        double currDistance = getDist(currPose, currPoint);
+        double lastDistance = currDistance;
         while(currDistance <= lastDistance && mPath.size() > 1) {
-            mPath.pop();
+            lastPoint = currPoint;
             lastDistance = currDistance;
-            currDistance = getDist(currPose, mPath.top());
+            mPath.pop();
+            currPoint = mPath.top();
+            currDistance = getDist(currPose, currPoint);
+            std::cout << lastDistance << " // " << currDistance << std::endl;
         }
+        mPath.push(lastPoint);
     }
 
     rospathmsgs::msg::Waypoint PurePursuitController::getLookAheadPoint(double dist) {
@@ -121,25 +130,30 @@ namespace robot
         return arcDebug;
     }
 
-    frc::ChassisSpeeds PurePursuitController::update(frc::Pose2d currPos, frc::ChassisSpeeds currState, double now) {
+    stupidFuckingReturnType PurePursuitController::update(frc::Pose2d currPos, frc::ChassisSpeeds currState, double now) {
+        std::cout << "size pre walk" << mPath.size() << std::endl;
         walkToClosest(currPos);
+        std::cout << "size post walk " << mPath.size() << std::endl;
         if (isDone(currPos)) {
-            return frc::ChassisSpeeds{units::meters_per_second_t{0}, units::meters_per_second_t{0}, units::radians_per_second_t{0}};
+            return {frc::ChassisSpeeds{units::meters_per_second_t{0}, units::meters_per_second_t{0}, units::radians_per_second_t{0}}, mPath.top()};
         }
         double distanceFromPath = getDist(currPos, mPath.top());
-        rospathmsgs::msg::Waypoint lookAheadPoint = getLookAheadPoint(distanceFromPath + mParams.mFixedLookahead);
+        auto lookAheadPoint = getLookAheadPoint(distanceFromPath + mParams.mFixedLookahead);
         Circle circle = joinPath(currPos, lookAheadPoint); //this should throw stuff back to the stack to add a circle to the path if need be
         double speed = lookAheadPoint.velocity;
 
+        std::cout << " lookAheadSpeed1: " << speed;
         // Ensure we don't accelerate too fast from the previous command
         double dt = now - mParams.mLastTime;
         double accel = (speed - mLastCommand.vx.to<double>()) / dt;
+        std::cout << " lookAheadAccel: " << accel;
         if (accel < -mParams.mMaxAccel) {
             speed = mLastCommand.vx.to<double>() - mParams.mMaxAccel * dt;
         } else if (accel > mParams.mMaxAccel) {
             speed = mLastCommand.vx.to<double>() + mParams.mMaxAccel * dt;
         }
 
+        std::cout << " lookAheadSpeed2: " << speed;
         // Ensure we slow down in time to stop
         // vf^2 = v^2 + 2*a*d
         // 0 = v^2 + 2*a*d
@@ -149,20 +163,23 @@ namespace robot
             speed = max_allowed_speed * (speed / std::abs(speed));
         }
 
+        std::cout << " lookAheadSpeed3: " << speed;
         frc::ChassisSpeeds rv;
         //.01 added to make the math happy?
         frc::Rotation2d inertialHeading = frc::Rotation2d(currState.vx.to<double>(), currState.vy.to<double>());
+        //std::cout << inertialHeading.Degrees().to<double>() << std::endl;
         if (circle.exsists) {
+            std::cout << "There is a circle";
             inertialHeading.RotateBy(units::radian_t{(circle.isRight ? -1 : 1) * std::abs(speed) / circle.radius});
             rv = frc::ChassisSpeeds{units::meters_per_second_t{speed * inertialHeading.Cos()}, units::meters_per_second_t{speed * inertialHeading.Sin()}, units::radians_per_second_t{0}};
         } else {
+            std::cout << "There isn't a circle";
             //need to implement the whole omega turning thing... kinda importaint
             rv = frc::ChassisSpeeds{units::meters_per_second_t{speed * inertialHeading.Cos()}, units::meters_per_second_t{speed * inertialHeading.Sin()}, units::radians_per_second_t{0}};
         }
         mParams.mLastTime = now;
         mLastCommand = rv;
-        return rv;
+        return {rv, lookAheadPoint};
         
     }
 } // namespace robot
-
