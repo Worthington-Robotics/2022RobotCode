@@ -165,7 +165,8 @@ namespace robot
         frc::Rotation2d inertialHeading = frc::Rotation2d(currState.vx.to<double>(), currState.vy.to<double>());
         //std::cout << inertialHeading.Degrees().to<double>() << std::endl;
         if (circle.exsists) {
-            std::cout << "There is a circle";
+            std::cout << " There is a circle with radius: " << circle.radius;
+            std::cout << " Rotating " << speed / circle.radius << "because of it";
             inertialHeading.RotateBy(units::radian_t{(circle.isRight ? -1 : 1) * std::abs(speed) / circle.radius});
             rv = frc::ChassisSpeeds{units::meters_per_second_t{speed * inertialHeading.Cos()}, units::meters_per_second_t{speed * inertialHeading.Sin()}, units::radians_per_second_t{0}};
         } else {
