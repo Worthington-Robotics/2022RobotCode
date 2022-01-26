@@ -113,9 +113,10 @@ namespace robot
         auto ssO = Optimize(ss, units::degree_t(angle->GetSelectedSensorPosition() / TICKS_PER_DEGREE / (64 / 5)));
         double currentAngleTicks = angle->GetSelectedSensorPosition();
         double setAngleTicks = ssO.angle.Degrees().to<double>() * TICKS_PER_DEGREE * (64 / 5);
-        double currentDirection = angle->
+       // double currentDirection = angle->GetSelectedSensorVelocity();
         double currentAngleDegrees = currentAngleTicks / (TICKS_PER_DEGREE * (64 / 5));
-        double setAngleDegrees = setAngleTicks / (TICKS_PER_DEGREE * (64/5));
+        double setAngleDegrees = setAngleTicks / (TICKS_PER_DEGREE * (64 / 5));
+        bool changeDirection = false;
 
         double deltaLeft = std::fmod((currentAngleDegrees - setAngleDegrees), 360);
         double deltaRight = std::fmod((setAngleDegrees - currentAngleDegrees), 360);
@@ -137,11 +138,11 @@ namespace robot
         }
 
         if(abs(smallerDelta) <= 90){
-            outputDirection = currentDirection;
+            changeDirection = false;
         } else {
             double moveTarget;
             moveTarget = fmod((setAngleDegrees + 180) , 360);
-            outputDirection = currentDirection * -1;
+            changeDirection = true;
 
             if(moveTarget >= 270 && moveTarget <= 360 && currentAngleDegrees >= 0 && currentAngleDegrees <= 90){
                 smallerDelta = (currentAngleDegrees - 0) + (360 - moveTarget);
@@ -159,10 +160,14 @@ namespace robot
         double smallerDeltaTicks = smallerDelta * TICKS_PER_DEGREE * (64/5);
 
         angle->Set(ControlMode::Position, currentAngleTicks + smallerDeltaTicks);
-        drive->Set(ControlMode::PercentOutput, ssO.speed.to<double>());
-        auto ssO = Optimize(ss, units::degree_t(angle->GetSelectedSensorPosition() / TICKS_PER_DEGREE / (64 / 5)));
-        angle->Set(ControlMode::Position, ssO.angle.Degrees().to<double>() * TICKS_PER_DEGREE * (64 / 5));
-        drive->Set(ControlMode::PercentOutput, ssO.speed.to<double>());
+        if(changeDirection){
+            drive->Set(ControlMode::PercentOutput, ssO.speed.to<double>() * -1);
+        } else {
+            drive->Set(ControlMode::PercentOutput, ssO.speed.to<double>());
+        }
+        //auto ssO = Optimize(ss, units::degree_t(angle->GetSelectedSensorPosition() / TICKS_PER_DEGREE / (64 / 5)));
+        //angle->Set(ControlMode::Position, ssO.angle.Degrees().to<double>() * TICKS_PER_DEGREE * (64 / 5));
+        //drive->Set(ControlMode::PercentOutput, ssO.speed.to<double>());
         
     }
 
