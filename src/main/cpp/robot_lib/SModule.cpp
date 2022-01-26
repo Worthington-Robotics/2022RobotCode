@@ -111,31 +111,58 @@ namespace robot
         //ss represents desired stat
         //work on this next time 
         auto ssO = Optimize(ss, units::degree_t(angle->GetSelectedSensorPosition() / TICKS_PER_DEGREE / (64 / 5)));
-        // double currentAngleTicks = angle->GetSelectedSensorPosition();
-        // double setAngleTicks = ssO.angle.Degrees().to<double>() * TICKS_PER_DEGREE * (64 / 5);
-        // double currentAngleDegrees = currentAngleTicks / TICKS_PER_DEGREE;
-        // double setAngleDegrees = setAngleTicks / TICKS_PER_DEGREE;
+        double currentAngleTicks = angle->GetSelectedSensorPosition();
+        double setAngleTicks = ssO.angle.Degrees().to<double>() * TICKS_PER_DEGREE * (64 / 5);
+        double currentDirection = angle->
+        double currentAngleDegrees = currentAngleTicks / (TICKS_PER_DEGREE * (64 / 5));
+        double setAngleDegrees = setAngleTicks / (TICKS_PER_DEGREE * (64/5));
 
-        // double deltaLeft = std::fmod((currentAngleDegrees - setAngleDegrees), 360);
-        // double deltaRight = std::fmod((setAngleDegrees - currentAngleDegrees), 360);
-        // double smallerDelta;
-        // if(deltaLeft < 0){
-        //     deltaLeft += 360.0;
-        // }
-        // if(deltaRight < 0){
-        //     deltaRight += 360.0;
-        // }
+        double deltaLeft = std::fmod((currentAngleDegrees - setAngleDegrees), 360);
+        double deltaRight = std::fmod((setAngleDegrees - currentAngleDegrees), 360);
+        double smallerDelta = 0;
 
-        // if(deltaLeft < deltaRight){
-        //     smallerDelta = -deltaLeft;
-        // } else {
-        //     smallerDelta = deltaRight;
-        // }
+        if(deltaLeft < 0){
+            deltaLeft += 360.0;
+         }
 
-        // double smallerDeltaTicks = smallerDelta * TICKS_PER_DEGREE;
+        if(deltaRight < 0){
+            deltaRight += 360.0;
+        }
 
-      angle->Set(ControlMode::Position,  ssO.angle.Degrees().to<double>() * TICKS_PER_DEGREE * (64 / 5));
-     drive->Set(ControlMode::PercentOutput, ssO.speed.to<double>());
+
+        if(deltaLeft < deltaRight){
+            smallerDelta = -deltaLeft;
+        } else {
+            smallerDelta = deltaRight;
+        }
+
+        if(abs(smallerDelta) <= 90){
+            outputDirection = currentDirection;
+        } else {
+            double moveTarget;
+            moveTarget = fmod((setAngleDegrees + 180) , 360);
+            outputDirection = currentDirection * -1;
+
+            if(moveTarget >= 270 && moveTarget <= 360 && currentAngleDegrees >= 0 && currentAngleDegrees <= 90){
+                smallerDelta = (currentAngleDegrees - 0) + (360 - moveTarget);
+                smallerDelta *= -1;
+            } else if(currentAngleDegrees >= 270 && currentAngleDegrees <= 360 && moveTarget >= 0 && moveTarget <= 90){
+                smallerDelta = (moveTarget - 0) + (360 - currentAngleDegrees);
+            } else {
+                smallerDelta = abs(moveTarget - currentAngleDegrees);
+                if(moveTarget < currentAngleDegrees){
+                    smallerDelta *= -1;
+                }
+            }
+        }
+
+        double smallerDeltaTicks = smallerDelta * TICKS_PER_DEGREE * (64/5);
+
+        angle->Set(ControlMode::Position, currentAngleTicks + smallerDeltaTicks);
+        drive->Set(ControlMode::PercentOutput, ssO.speed.to<double>());
+        auto ssO = Optimize(ss, units::degree_t(angle->GetSelectedSensorPosition() / TICKS_PER_DEGREE / (64 / 5)));
+        angle->Set(ControlMode::Position, ssO.angle.Degrees().to<double>() * TICKS_PER_DEGREE * (64 / 5));
+        drive->Set(ControlMode::PercentOutput, ssO.speed.to<double>());
         
     }
 
