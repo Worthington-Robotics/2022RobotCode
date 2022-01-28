@@ -19,6 +19,7 @@ namespace robot
     {
         frc::ChassisSpeeds speed;
         rospathmsgs::msg::Waypoint lookaheadPoint;
+        frc::Rotation2d inertialHeading;
     };
 
     struct APPCDiscriptor
@@ -28,13 +29,13 @@ namespace robot
         double mMaxAccel;
         double mDt;
         double mPathCompletionTolerance;
+        double mMaxRotVel;
 
     };
 
     struct Circle
     {
-        frc::Translation2d center;
-        double radius;
+        frc::Rotation2d curvature;
         bool isRight;
         bool exsists;
     };
@@ -42,6 +43,7 @@ namespace robot
     class PurePursuitController
     {
     public:
+        frc::Rotation2d inertialHeading;
         PurePursuitController(APPCDiscriptor params);
         void setPath(std::stack<rospathmsgs::msg::Waypoint> mPath);
         bool isDone(frc::Pose2d pos);
@@ -58,7 +60,7 @@ namespace robot
         static double getDist(frc::Pose2d pos1, rospathmsgs::msg::Waypoint pos2);
         static double getDist(rospathmsgs::msg::Waypoint pos1, rospathmsgs::msg::Waypoint pos2);
         void walkToClosest(frc::Pose2d currPos);
-        Circle joinPath(frc::Pose2d currPos, rospathmsgs::msg::Waypoint lookAheadPoint);
+        frc::Rotation2d joinPath(frc::Pose2d currPos, rospathmsgs::msg::Waypoint lookAheadPoint);
         double getRemainingDistance(frc::Pose2d currPos);
         rospathmsgs::msg::Waypoint getLookAheadPoint(double lookAheadDist);
 

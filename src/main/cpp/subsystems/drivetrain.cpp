@@ -38,7 +38,7 @@ namespace robot
         imu = std::make_shared<PigeonIMU>(IMU_ID);
 
 
-        APPCDiscriptor params = APPCDiscriptor{.25, 0, .5, 0, .05};
+        APPCDiscriptor params = APPCDiscriptor{.25, 0, 5, 0, .02, .5};
         PPC = std::make_shared<PurePursuitController>(params);
 
         reset();
@@ -53,6 +53,7 @@ namespace robot
         goalPub = node->create_publisher<std_msgs::msg::Float32>("/drive/motor_goal",  rclcpp::SystemDefaultsQoS());
         autoTwistDemandPub = node->create_publisher<geometry_msgs::msg::Twist>("/drive/auto_twist_demand",  rclcpp::SystemDefaultsQoS());
         lookaheadPointPub = node->create_publisher<rospathmsgs::msg::Waypoint>("/drive/lookahead_point",  rclcpp::SystemDefaultsQoS());
+        inertialAnglePub = node->create_publisher<std_msgs::msg::Float32>("/drive/inertial_angle",  rclcpp::SystemDefaultsQoS());
 
         // Create subscribers
         trajectorySub = node->create_subscription<trajectory_msgs::msg::JointTrajectory>("/drive/active_traj", rclcpp::SystemDefaultsQoS(), std::bind(&Drivetrain::trajectoryCallback, this, _1));
@@ -135,6 +136,8 @@ namespace robot
         robotPosMsg.theta = pose.Rotation().Degrees().to<double>();
 
         moduleData = {frontLMod->getData(), frontRMod->getData(), rearLMod->getData(), rearRMod->getData()};
+
+        inertialAnglePub->publish(inertialAngle);
 
         // frc::DriverStation::ReportWarning("Updating drive sensor data");
         //  read the current IMU state
@@ -235,25 +238,6 @@ namespace robot
         }
     }
 
-    void Drivetrain::enablePathFollower(std::string name)
-    {
-        /*GPReq = std::make_shared<rospathmsgs::srv::GetPath::Request>();
-        GPReq->path_name = name;
-        if(GPClient->service_is_ready()){
-            auto future = GPClient->async_send_request(GPReq);
-            //add a timeout eventually
-            while(rclcpp::ok() && !future.valid())
-            {
-
-            }
-            future.get()->path;
-            //ADD THING TO MAKE ARRAY INTO STACK FOR THE SETPATH METHOD
-            PPC.setPath(GPClient->take_response());
-        }
-        */
-        return;
-    }
-
     void Drivetrain::onLoop(double currentTime)
     {
         frc::ChassisSpeeds speed;
@@ -312,13 +296,15 @@ namespace robot
             break;
         case PURSUIT:
             if(!PPC->isDone(sOdom.GetPose())){
-                auto [mSpeed, mLookAheadPoint] = PPC->update(sOdom.GetPose(), currState, currentTime);
+                auto [mSpeed, mLookAheadPoint, inertialHeading] = PPC->update(sOdom.GetPose(), currState, currentTime);
                 autoTwistDemand.linear.x = mSpeed.vx.to<double>();
                 autoTwistDemand.linear.y = mSpeed.vy.to<double>();
                 autoTwistDemand.angular.z = mSpeed.omega.to<double>();
                 speed = mSpeed;
                 lookAheadPoint = mLookAheadPoint;
+                inertialAngle.data = inertialHeading.Degrees().to<double>();
             } else {
+                std::cout << "Completed path" << std::endl;
                 driveState = OPEN_LOOP_FIELD_REL;
             }
             break;
@@ -343,7 +329,7 @@ namespace robot
         case PURSUIT: // for now have pursuit as an illegal mode
         case VELOCITY_TWIST:
             // FR, FL, RR, RL
-            std::cout << "requested speed is: " << moduleStates[0].speed.to<double>() << std::endl;
+            //std::cout << "requested speed is: " << moduleStates[0].speed.to<double>() << std::endl;
             frontRMod->setMotorVelocity(moduleStates[0]);
             frontLMod->setMotorVelocity(moduleStates[1]);
             rearRMod->setMotorVelocity(moduleStates[2]);
@@ -443,16 +429,13 @@ namespace robot
         GPReq = std::make_shared<rospathmsgs::srv::GetPath::Request>();
         GPReq->path_name = name;
         if(GPClient->service_is_ready()){
-            std::cout << "Hey batter batter, hey batter batter";
             auto future = GPClient->async_send_request(GPReq);
-            std::cout << "SWING!" << std::endl;
             while(rclcpp::ok() && !future.valid())
             {
-                std::cout << "Waiting for path *Jepordy Theme Plays*" << std::endl;
-                //rclcpp::spin_some(Robot::getSubManager());
+                std::cout << "Waiting for path" << std::endl;
             }
             std::vector<rospathmsgs::msg::Waypoint> path = future.get()->path; 
-            std::cout << "the total number of point in the ARRAY is: " << path.size() << std::endl;
+            //std::cout << "the total number of point in the ARRAY is: " << path.size() << std::endl;
             std::stack<rospathmsgs::msg::Waypoint> pathStack;
             PPC->mLastpoint = path.back();
             while(path.size() > 1)
@@ -460,6 +443,7 @@ namespace robot
                 pathStack.push(path.back());
                 path.pop_back();
             }
+            std::cout << "Following path " << name << std::endl;
             PPC->setPath(pathStack);
             driveState = PURSUIT;
         } else {

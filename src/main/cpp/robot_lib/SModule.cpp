@@ -97,15 +97,6 @@ namespace robot
         }
     }
 
-    void SModule::setMotorVelocity(frc::SwerveModuleState ss)
-    {
-        auto ssO = Optimize(ss, units::degree_t(angle->GetSelectedSensorPosition() / TICKS_PER_DEGREE / (64 / 5)));
-        angle->Set(ControlMode::Position, ssO.angle.Degrees().to<double>() * TICKS_PER_DEGREE * (64 / 5));
-        setpoint =  ssO.speed.to<double>() * (2048 * 39.37 * 6.12) / (4 * M_PI * 10);
-        drive->Set(ControlMode::Velocity, setpoint);
-        // meters per second / (1m / 39.37in) * (1 rev / 4 PI in) / (100ms / 1s)
-    }
-
     void SModule::setMotors(frc::SwerveModuleState ss)
     {
         //ss represents desired stat

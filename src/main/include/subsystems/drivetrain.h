@@ -79,6 +79,9 @@ namespace robot
 
         void enableDebug(bool debug) override;
 
+        /**
+         * make sure ROS is spinning before calling this function
+         **/ 
         void enablePathFollower(std::string name);
         
         void enableOpenLoop();
@@ -118,8 +121,6 @@ namespace robot
 
         void checkDeltaCurrent(double, double, double, double);
 
-        rclcpp::Client<rospathmsgs::srv::GetPath>::SharedPtr GPClient;
-        rospathmsgs::srv::GetPath::Request::SharedPtr GPReq;
 
         frc::ChassisSpeeds updateTrajectory(trajectory_msgs::msg::JointTrajectoryPoint::SharedPtr nPose);
 
@@ -138,6 +139,7 @@ namespace robot
         rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr robotVelPub;
         rclcpp::Publisher<geometry_msgs::msg::Pose2D>::SharedPtr robotPosPub;
         rclcpp::Publisher<rospathmsgs::msg::Waypoint>::SharedPtr lookaheadPointPub;
+        rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr inertialAnglePub;
 
         // ROS Messages for publishing
         std_msgs::msg::Float32 goal;
@@ -147,6 +149,7 @@ namespace robot
         geometry_msgs::msg::Pose2D robotPosMsg;
         geometry_msgs::msg::Twist robotVelMsg;
         rospathmsgs::msg::Waypoint lookAheadPoint;
+        std_msgs::msg::Float32 inertialAngle;
 
         // ROS Subscibers
         rclcpp::Subscription<trajectory_msgs::msg::JointTrajectory>::SharedPtr trajectorySub;
