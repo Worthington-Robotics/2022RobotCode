@@ -9,7 +9,7 @@
 namespace robot
 {
 
-    SModule::SModule(int driveID, int angleID, int encodID, double offset, PIDF dValues, PIDF aValues)
+    SModule::SModule(int driveID, int angleID, int encodID, double offset, PIDFDiscriptor dValues, PIDFDiscriptor aValues)
     {
         angle = std::make_shared<TalonFX>(angleID);
         drive = std::make_shared<TalonFX>(driveID);
@@ -18,7 +18,7 @@ namespace robot
         reset();
     }
 
-    void SModule::configMotors(double offset, PIDF dValues, PIDF aValues)
+    void SModule::configMotors(double offset, PIDFDiscriptor dValues, PIDFDiscriptor aValues)
     {
         //to convert from ticks to radians (2 radians per revolution) / (2048 ticks per revolution) * (GEAR REDUCTION)
         //to convert from ticks / 100ms to rps
@@ -71,7 +71,7 @@ namespace robot
         drive->SetInverted(invert);
     }
 
-    void SModule::updateDrivePID(PIDF consts){
+    void SModule::updateDrivePID(PIDFDiscriptor consts){
         drive->Config_kF(0, consts.f, 0);
         drive->Config_kP(0, consts.p, 0);
         drive->Config_kI(0, consts.i, 0);

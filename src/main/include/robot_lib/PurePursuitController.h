@@ -15,7 +15,7 @@ namespace robot
 {
     const double kEpsilon = 1E-9;
 
-    struct stupidFuckingReturnType
+    struct updateReturnType
     {
         frc::ChassisSpeeds speed;
         rospathmsgs::msg::Waypoint lookaheadPoint;
@@ -47,7 +47,7 @@ namespace robot
         PurePursuitController(APPCDiscriptor params);
         void setPath(std::stack<rospathmsgs::msg::Waypoint> mPath);
         bool isDone(frc::Pose2d pos);
-        stupidFuckingReturnType update(frc::Pose2d currPos, frc::ChassisSpeeds currState, double now);
+        updateReturnType update(frc::Pose2d currPos, frc::ChassisSpeeds currState, double now);
         rospathmsgs::msg::Waypoint mLastpoint;
         
 

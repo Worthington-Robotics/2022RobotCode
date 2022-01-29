@@ -144,7 +144,7 @@ namespace robot
         // return arcDebug;
     }
 
-    stupidFuckingReturnType PurePursuitController::update(frc::Pose2d currPos, frc::ChassisSpeeds currState, double now)
+    updateReturnType PurePursuitController::update(frc::Pose2d currPos, frc::ChassisSpeeds currState, double now)
     {
         //Check if the path is done, if it is, send a stop command and nothing else
         if (isDone(currPos))
