@@ -1,6 +1,5 @@
-#include "frc/PowerDistribution.h"
-#include "frc/Timer.h"
-#include "frc/DriverStation.h"
+#pragma once
+
 namespace robot
 {
     /**
@@ -28,15 +27,15 @@ namespace robot
         void setContinuous(bool continuous);
         void setSetpoint(double setpoint);
         void setIMax(double nIMax);
-        double update(double reading, double now);
+        double update(double reading);
+        double setpoint = 0.0;
     private:
         double getContinuousError(double error);
         double getI(double error);
         double getD(double error);
         double iMax = 0.0;
         double inputRange = 0.0;
-        double setpoint = 0.0;
-        double previous = 0.0; //result of the last GetPowerUsage() call
+        double previousE = 0.0; //result of the last GetPowerUsage() call
         double errorSum = 0.0;
         double previousTime = 0.0; //timestamp of the last GetPowerUsage() call
         double dt = 0.0;

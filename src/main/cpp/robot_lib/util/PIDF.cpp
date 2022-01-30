@@ -1,4 +1,7 @@
 #include "robot_lib/util/PIDF.h"
+#include <frc/Timer.h>
+#include <cmath>
+#include <iostream>
 
 namespace robot
 {
@@ -28,6 +31,9 @@ namespace robot
         void PIDF::setSetpoint(double nSetpoint)
         {
             setpoint = nSetpoint;
+            previousTime = frc::Timer::GetFPGATimestamp().to<double>();
+            errorSum = 0;
+            dt = 0;
         }
 
         /**
@@ -36,13 +42,15 @@ namespace robot
          * @param now the timestamp now, like *right now*
          * @return the PIDF output
          */
-        double PIDF::update(double reading, double now)
+        double PIDF::update(double reading)
         {
-            double error = getContinuousError(reading);
-            double power = (mParams.f * setpoint + mParams.p * error + mParams.i * getI(error) + mParams.d * getD(reading));
+            double now = frc::Timer::GetFPGATimestamp().to<double>();
+            double error = getContinuousError(reading - setpoint);
+            std::cout << error << std::endl;
+            double power = (mParams.f * setpoint + mParams.p * error + mParams.i * getI(error) + mParams.d * getD(error));
             dt = now - previousTime;
             previousTime = now;
-            previous = reading;
+            previousE = error;
             return power;
         }
 
@@ -65,9 +73,13 @@ namespace robot
             iMax = std::abs(nIMax);
         }
 
-        double PIDF::getD(double reading)
+        double PIDF::getD(double error)
         {
-            return ((reading - previous) / dt);
+            if(dt == 0)
+            {
+                return 0;
+            }
+            return ((error - previousE) / dt);
         }
 
     /**

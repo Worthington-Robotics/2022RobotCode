@@ -62,6 +62,11 @@
 #define DRIVE_KD 2
 #define DRIVE_RIGHT_IACCUM 300
 
+//HEADING LOCKOUT PID VALUES
+#define HEADING_KF 0
+#define HEADING_KP 0.0001
+#define HEADING_KI 0
+#define HEADING_KD 0.002
 // voltage compensation voltage
 #define DRIVE_VCOMP_VOLTAGE 11.0
 
