@@ -26,6 +26,11 @@ namespace robot
         double f;
     };
 
+    struct rotationalData{
+        double deltaAngleDegrees;
+        double speed;
+    };
+
     /**
      * A struct for encoding the sensor data of a give swerve module, including information for the angle, drive, and CANcoder sections
      * @param angleRel the relative ticks of the given motor, should boot to zero if inline after being adjusted by startup offsets
@@ -68,7 +73,7 @@ namespace robot
          **/
         void reset();
 
-        void setMotors(frc::SwerveModuleState);
+        rotationalData setMotors(frc::SwerveModuleState);
 
         void setMotorVelocity(frc::SwerveModuleState);
 

@@ -132,6 +132,7 @@ namespace robot
         rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imuPub;
         rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr yawPub;
         rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr goalPub;
+        rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr deltaAnglePub;
         rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr autoTwistDemandPub;
         rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr robotVelPub;
         rclcpp::Publisher<geometry_msgs::msg::Pose2D>::SharedPtr robotPosPub;
@@ -139,12 +140,14 @@ namespace robot
 
         // ROS Messages for publishing
         std_msgs::msg::Float32 goal;
+        std_msgs::msg::Float32 deltaAngle;
         geometry_msgs::msg::Twist autoTwistDemand;
         std_msgs::msg::Int16 yaw;
         sensor_msgs::msg::Imu imuMsg;
         geometry_msgs::msg::Pose2D robotPosMsg;
         geometry_msgs::msg::Twist robotVelMsg;
         rospathmsgs::msg::Waypoint lookAheadPoint;
+
 
         // ROS Subscibers
         rclcpp::Subscription<trajectory_msgs::msg::JointTrajectory>::SharedPtr trajectorySub;

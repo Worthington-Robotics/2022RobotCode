@@ -53,6 +53,8 @@ namespace robot
         goalPub = node->create_publisher<std_msgs::msg::Float32>("/drive/motor_goal",  rclcpp::SystemDefaultsQoS());
         autoTwistDemandPub = node->create_publisher<geometry_msgs::msg::Twist>("/drive/auto_twist_demand",  rclcpp::SystemDefaultsQoS());
         lookaheadPointPub = node->create_publisher<rospathmsgs::msg::Waypoint>("/drive/lookahead_point",  rclcpp::SystemDefaultsQoS());
+        deltaAnglePub = node->create_publisher<std_msgs::msg::Float32>("/drive/delta_angle",  rclcpp::SystemDefaultsQoS());
+
 
         // Create subscribers
         trajectorySub = node->create_subscription<trajectory_msgs::msg::JointTrajectory>("/drive/active_traj", rclcpp::SystemDefaultsQoS(), std::bind(&Drivetrain::trajectoryCallback, this, _1));
@@ -62,6 +64,7 @@ namespace robot
         DriveModeSub = node->create_subscription<std_msgs::msg::Int16>("/drive/drive_mode", rclcpp::SystemDefaultsQoS(), std::bind(&Drivetrain::driveModeCallback, this, _1));
     
         GPClient = node->create_client<rospathmsgs::srv::GetPath>("/get_path");
+
     }
 
     void Drivetrain::reset()
@@ -303,13 +306,16 @@ namespace robot
         }
 
         moduleStates = sKinematics.ToSwerveModuleStates(speed);
+        rotationalData moduleOne;
 
         switch (driveState)
         {
         case OPEN_LOOP_FIELD_REL:
         case OPEN_LOOP_ROBOT_REL:
             // FR, FL, RR, RL
-            frontRMod->setMotors(moduleStates[0]);
+            moduleOne = frontRMod->setMotors(moduleStates[0]);
+            deltaAngle.data = moduleOne.deltaAngleDegrees;
+           // moduleOne.speed
             frontLMod->setMotors(moduleStates[1]);
             rearRMod->setMotors(moduleStates[2]);
             rearLMod->setMotors(moduleStates[3]);
@@ -346,6 +352,7 @@ namespace robot
         robotVelPub->publish(robotVelMsg);
         autoTwistDemandPub->publish(autoTwistDemand);
         goalPub->publish(goal);
+        deltaAnglePub->publish(deltaAngle);
         imuPub->publish(imuMsg);
 
         if(DEBUG){

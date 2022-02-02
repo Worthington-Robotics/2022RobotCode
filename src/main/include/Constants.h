@@ -54,7 +54,7 @@
 #define ANGLE_KF 0
 #define ANGLE_KP 2.75
 #define ANGLE_KI 0.03
-#define ANGLE_KD 1
+#define ANGLE_KD 2 // originally 1, at 2 for debug
 #define DRIVE_LEFT_IACCUM 300
 #define DRIVE_KF 0.0522
 #define DRIVE_KP 0.2
