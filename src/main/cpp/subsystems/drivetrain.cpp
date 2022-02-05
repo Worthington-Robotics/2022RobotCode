@@ -53,7 +53,10 @@ namespace robot
         goalPub = node->create_publisher<std_msgs::msg::Float32>("/drive/motor_goal",  rclcpp::SystemDefaultsQoS());
         autoTwistDemandPub = node->create_publisher<geometry_msgs::msg::Twist>("/drive/auto_twist_demand",  rclcpp::SystemDefaultsQoS());
         lookaheadPointPub = node->create_publisher<rospathmsgs::msg::Waypoint>("/drive/lookahead_point",  rclcpp::SystemDefaultsQoS());
-        deltaAnglePub = node->create_publisher<std_msgs::msg::Float32>("/drive/delta_angle",  rclcpp::SystemDefaultsQoS());
+        #ifdef DEBUG_enable
+            currentAnglePub = node->create_publisher<std_msgs::msg::Float32>("/drive/current_angle",  rclcpp::SystemDefaultsQoS());
+            desiredAnglePub = node->create_publisher<std_msgs::msg::Float32>("/drive/desired_angle",  rclcpp::SystemDefaultsQoS());
+        #endif
 
 
         // Create subscribers
@@ -314,7 +317,10 @@ namespace robot
         case OPEN_LOOP_ROBOT_REL:
             // FR, FL, RR, RL
             moduleOne = frontRMod->setMotors(moduleStates[0]);
-            deltaAngle.data = moduleOne.deltaAngleDegrees;
+            #ifdef DEBUG_enable
+                currentAngle.data = frontRMod->getData().angleRel;
+                desiredAngle.data = moduleOne.angleTicks;
+            #endif
            // moduleOne.speed
             frontLMod->setMotors(moduleStates[1]);
             rearRMod->setMotors(moduleStates[2]);
@@ -352,8 +358,11 @@ namespace robot
         robotVelPub->publish(robotVelMsg);
         autoTwistDemandPub->publish(autoTwistDemand);
         goalPub->publish(goal);
-        deltaAnglePub->publish(deltaAngle);
         imuPub->publish(imuMsg);
+        #ifdef DEBUG_enable
+            currentAnglePub->publish(currentAngle);
+            desiredAnglePub->publish(desiredAngle);
+        #endif
 
         if(DEBUG){
             frc::SmartDashboard::PutNumber("Drive/Front/Left/AngleABS", moduleData.frontLeft.encAbs);

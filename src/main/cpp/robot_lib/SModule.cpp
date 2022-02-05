@@ -177,22 +177,19 @@ namespace robot
 
         if(differenceOne < differenceTwo && differenceOne < differenceThree){
             angle->Set(ControlMode::Position, targetPointOne);
-            setpoint =  ssO.speed.to<double>() * (2048 * 39.37 * 6.12) / (4 * M_PI * 10);
             drive->Set(ControlMode::PercentOutput, ssO.speed.to<double>());
         } else if (differenceTwo < differenceOne && differenceTwo < differenceThree){
             angle->Set(ControlMode::Position, targetPointTwo);
-            setpoint =  ssO.speed.to<double>() * (2048 * 39.37 * 6.12) / (4 * M_PI * 10);
             drive->Set(ControlMode::PercentOutput, ssO.speed.to<double>());
         } else {
             angle->Set(ControlMode::Position, targetPointThree);
-            setpoint =  ssO.speed.to<double>() * (2048 * 39.37 * 6.12) / (4 * M_PI * 10);
             drive->Set(ControlMode::PercentOutput, ssO.speed.to<double>());
         }
 
         //auto ssO = Optimize(ss, units::degree_t(angle->GetSelectedSensorPosition() / TICKS_PER_DEGREE / (64 / 5)));
         //angle->Set(ControlMode::Position, ssO.angle.Degrees().to<double>() * TICKS_PER_DEGREE * (64 / 5));
         //drive->Set(ControlMode::PercentOutput, ssO.speed.to<double>());
-        return {ssO.angle.Degrees().to<double>(), ssO.speed.to<double>()};
+        return {ssO.angle.Degrees().to<double>()  * (TICKS_PER_DEGREE * 360) / (64 / 5) , ssO.speed.to<double>()};
         
     }
 
@@ -203,8 +200,7 @@ namespace robot
          frc::Rotation2d{units::degree_t{angle->GetSelectedSensorPosition() / TICKS_PER_DEGREE / (64 / 5)}}};
     }
  
-    sSensorData SModule::getData()
-    {
+    sSensorData SModule::getData(){
         return sSensorData{angle->GetSelectedSensorPosition(), drive->GetSelectedSensorPosition(), 
         drive->GetSelectedSensorVelocity(), setpoint, encod->GetAbsolutePosition(), std::abs(angle->GetStatorCurrent()), std::abs(drive->GetStatorCurrent())};
     }

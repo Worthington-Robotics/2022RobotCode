@@ -27,7 +27,7 @@ namespace robot
     };
 
     struct rotationalData{
-        double deltaAngleDegrees;
+        double angleTicks;
         double speed;
     };
 
@@ -37,6 +37,8 @@ namespace robot
      * @param drivePos the position of the drive motor in ticks, NOT the position of the robot
      * @param driveVel the velocity of the drive motor in ticks / 100ms NOT the speed of the robot
      * @param encAbs the absolute position of the CANcoder, and the refrence point for angleRel
+     * @param angleCurrent provides the power of the motor controlling the angle of the swerve module
+     * @param driveCurrent provides the power of the motor controlling the drive speed for the swerve module
      */
     struct sSensorData
     {
