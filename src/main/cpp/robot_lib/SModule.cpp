@@ -83,28 +83,7 @@ namespace robot
     {
     }
 
-    // frc::SwerveModuleState Optimize(const frc::SwerveModuleState &desiredState,
-    //                                 const frc::Rotation2d &currentAngle, double currentTicks)
-    // {
-    //     auto delta = desiredState.angle - currentAngle;
-    //     //double currentTicks = GetSelectedSensorPosition() / TICKS_PER_DEGREE / (64 / 5)
-    //     // double currentTicks = currentAngle.Degrees().to<double>()*TICKS_PER_DEGREE * (64/5);
-    //     // double desiredTicks = desiredState.angle.Degrees().to<double>()*TICKS_PER_DEGREE*(64/5);
-        
-    //     if (units::math::abs(delta.Degrees()) >= 90_deg)
-    //     {
-    //         //double currentTicks = currentAngle.Degrees().to<double>()*TICKS_PER_DEGREE * (64/5);
-    //         double deltaTicks = delta.RotateBy(frc::Rotation2d{180_deg}).Degrees().to<double>()*TICKS_PER_DEGREE*(64/5);
-    //         frc::Rotation2d newAngle =  units::degree_t((currentTicks + deltaTicks) / TICKS_PER_DEGREE / (64 / 5));
-    //         return {-desiredState.speed, newAngle};
-    //     }
-    //     else
-    //     {
-    //         double deltaTicks = delta.RotateBy(frc::Rotation2d{180_deg}).Degrees().to<double>()*TICKS_PER_DEGREE*(64/5);
-    //         frc::Rotation2d newAngle = units::degree_t((currentTicks + deltaTicks) / TICKS_PER_DEGREE / (64 / 5));
-    //         return {desiredState.speed, newAngle};
-    //     }
-    // }
+
 
     frc::SwerveModuleState Optimize(const frc::SwerveModuleState &desiredState,
                                     const frc::Rotation2d &currentAngle)
@@ -124,35 +103,6 @@ namespace robot
 
     void SModule::setMotorVelocity(frc::SwerveModuleState ss)
     {
-    
-        // double currentTicks = angle->GetSelectedSensorPosition();
-        // auto ssO = Optimize(ss, units::degree_t(angle->GetSelectedSensorPosition() / TICKS_PER_DEGREE / (64 / 5)));
-        // int rotations = (int)(currentTicks / (TICKS_PER_DEGREE * 360) / (64 / 5));
-        // double targetPoint = rotations * (TICKS_PER_DEGREE * 360) / (64 / 5);
-
-        // double targetPointOne = targetPoint + ssO.angle.Degrees().to<double>() * TICKS_PER_DEGREE * (64/5);
-        // double differenceOne = abs(targetPointOne - currentTicks);
-
-        // double targetPointTwo = targetPointOne - (TICKS_PER_DEGREE * 360) / (64 / 5) ; 
-        // double differenceTwo = abs(targetPointTwo - currentTicks);
-
-        // double targetPointThree = targetPointTwo + 2 * (TICKS_PER_DEGREE * 360) / (64 / 5);
-        // double differenceThree = abs(targetPointThree - currentTicks);
-
-        // if(differenceOne < differenceTwo && differenceOne < differenceThree){
-        //     angle->Set(ControlMode::Position, targetPointOne);
-        //     setpoint =  ssO.speed.to<double>() * (2048 * 39.37 * 6.12) / (4 * M_PI * 10);
-        //     drive->Set(ControlMode::Velocity, setpoint);
-        // } else if (differenceTwo < differenceOne && differenceTwo < differenceThree){
-        //     angle->Set(ControlMode::Position, targetPointTwo);
-        //     setpoint =  ssO.speed.to<double>() * (2048 * 39.37 * 6.12) / (4 * M_PI * 10);
-        //     drive->Set(ControlMode::Velocity, setpoint);
-        // } else {
-        //     angle->Set(ControlMode::Position, targetPointThree);
-        //     setpoint =  ssO.speed.to<double>() * (2048 * 39.37 * 6.12) / (4 * M_PI * 10);
-        //     drive->Set(ControlMode::Velocity, setpoint);
-        // }
-
         auto ssO = Optimize(ss, units::degree_t(angle->GetSelectedSensorPosition() / TICKS_PER_DEGREE / (64 / 5)));
         angle->Set(ControlMode::Position, ssO.angle.Degrees().to<double>() * TICKS_PER_DEGREE * (64 / 5));
         setpoint =  ssO.speed.to<double>() * (2048 * 39.37 * 6.12) / (4 * M_PI * 10);
