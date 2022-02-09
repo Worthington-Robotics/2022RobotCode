@@ -16,8 +16,8 @@ namespace robot
                                            enabledNotif(std::bind(&SubsystemManager::enabledLoop, this)),
                                            disabledNotif(std::bind(&SubsystemManager::disabledLoop, this))
     {
-        sysReset = this->create_service<std_srvs::srv::Trigger>("/sys/reset", std::bind(&SubsystemManager::serviceReset, this, _1, _2));
-        sysDebug = this->create_service<std_srvs::srv::SetBool>("/sys/debug", std::bind(&SubsystemManager::serviceDebug, this, _1, _2));
+        sysReset = this->create_subscription<std_msgs::msg::Bool>("/sys/reset", rclcpp::SystemDefaultsQoS(), std::bind(&SubsystemManager::serviceReset, this, _1, _2));
+        sysDebug = this->create_subscription<std_msgs::msg::Bool>("/sys/debug", rclcpp::SystemDefaultsQoS(), std::bind(&SubsystemManager::serviceDebug, this, _1, _2));
         //battery = robot::Battery();
     }
 
@@ -43,9 +43,8 @@ namespace robot
         }
     }
 
-    void SubsystemManager::serviceReset(std::shared_ptr<std_srvs::srv::Trigger::Request> ping, std::shared_ptr<std_srvs::srv::Trigger::Response> pong)
+    void SubsystemManager::serviceReset(std::shared_ptr<std_msgs::msg::Bool> msg)
     {
-        pong->success = true;
         try
         {
             for (std::shared_ptr<Subsystem> subsystem : subsystems)
@@ -55,25 +54,22 @@ namespace robot
         }
         catch (std::exception e)
         {
-            pong->message = e.what();
-            pong->success = false;
+            std::cout << "There was an issue debugging: " << e.what() << std::endl;
         }
     }
 
-    void SubsystemManager::serviceDebug(std::shared_ptr<std_srvs::srv::SetBool::Request> ping, std::shared_ptr<std_srvs::srv::SetBool::Response> pong)
+    void SubsystemManager::serviceDebug(std::shared_ptr<std_msgs::msg::Bool> msg)
     {
-        pong->success = true;
         try
         {
             for (std::shared_ptr<Subsystem> subsystem : subsystems)
             {
-                subsystem->enableDebug(ping->data);
+                subsystem->enableDebug(msg->data);
             }
         }
         catch (std::exception e)
         {
-            pong->message = e.what();
-            pong->success = false;
+            std::cout << "There was an issue debugging: " << e.what() << std::endl;
         }
     }
 
