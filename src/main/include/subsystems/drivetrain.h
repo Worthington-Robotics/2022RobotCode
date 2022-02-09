@@ -21,6 +21,9 @@
 #include <geometry_msgs/msg/pose2_d.hpp>
 #include <std_msgs/msg/int16.hpp>
 #include <std_msgs/msg/float32.hpp>
+#include "autobt_msgs/srv/string_service.hpp"
+
+#define DEBUG_enable
 
 namespace robot
 {
@@ -77,7 +80,9 @@ namespace robot
 
         void enableDebug(bool debug) override;
 
-        void enablePathFollower(std::string name);
+        bool enablePathFollower(std::string name);
+
+        void enablePathFollowerS(std::shared_ptr<autobt_msgs::srv::StringService_Request> ping, std::shared_ptr<autobt_msgs::srv::StringService_Response> pong);
         
         void enableOpenLoop();
 
@@ -132,19 +137,31 @@ namespace robot
         rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imuPub;
         rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr yawPub;
         rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr goalPub;
+        #ifdef DEBUG_enable
+            rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr currentAnglePub;
+            rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr desiredAnglePub;
+        #endif
         rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr autoTwistDemandPub;
         rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr robotVelPub;
         rclcpp::Publisher<geometry_msgs::msg::Pose2D>::SharedPtr robotPosPub;
         rclcpp::Publisher<rospathmsgs::msg::Waypoint>::SharedPtr lookaheadPointPub;
 
+        //Ros services
+        rclcpp::Service<autobt_msgs::srv::StringService>::SharedPtr startPath;
+
         // ROS Messages for publishing
         std_msgs::msg::Float32 goal;
+        #ifdef DEBUG_enable
+            std_msgs::msg::Float32 currentAngle;
+            std_msgs::msg::Float32 desiredAngle;
+        #endif
         geometry_msgs::msg::Twist autoTwistDemand;
         std_msgs::msg::Int16 yaw;
         sensor_msgs::msg::Imu imuMsg;
         geometry_msgs::msg::Pose2D robotPosMsg;
         geometry_msgs::msg::Twist robotVelMsg;
         rospathmsgs::msg::Waypoint lookAheadPoint;
+
 
         // ROS Subscibers
         rclcpp::Subscription<trajectory_msgs::msg::JointTrajectory>::SharedPtr trajectorySub;
@@ -166,7 +183,7 @@ namespace robot
         frc::SwerveDriveOdometry<4> sOdom {sKinematics, frc::Rotation2d{units::degree_t{0}}};
         std::array<frc::SwerveModuleState, 4> moduleStates; //fr, fl, rr, rl
 
-        bool DEBUG = false;
+        bool DEBUG = true;
 
         bool resetPIDVals = false;
 

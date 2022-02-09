@@ -6,8 +6,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "subsystems/Subsystem.h"
-#include "std_srvs/srv/trigger.hpp"
-#include "std_srvs/srv/set_bool.hpp"
+#include "std_msgs/msg/bool.hpp"
 #include "robot_lib/Battery.h"
 
 namespace robot
@@ -40,7 +39,7 @@ namespace robot
          * @param ping This is empty and you can ignore it, it is merely a requirement of ROS
          * @param pong This is the response message with error status
          **/ 
-        void serviceReset(std::shared_ptr<std_srvs::srv::Trigger::Request> ping, std::shared_ptr<std_srvs::srv::Trigger::Response> pong);
+        void serviceReset(std::shared_ptr<std_msgs::msg::Bool> msg);
 
         /**
          * Commands all susbsystems to enable or disable their debug modes
@@ -52,7 +51,7 @@ namespace robot
          * @param ping This contains the ros message, and the boolean for debug to be set to
          * @param pong This is the response message with error status
          **/ 
-        void serviceDebug(std::shared_ptr<std_srvs::srv::SetBool::Request> ping, std::shared_ptr<std_srvs::srv::SetBool::Response> pong);
+        void serviceDebug(std::shared_ptr<std_msgs::msg::Bool> msg);
 
         /**
          * starts the subsystem manager thread, and begins updating the subsystems in order. 
@@ -92,8 +91,8 @@ namespace robot
         void enabledLoop();
         void disabledLoop();
 
-        rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr sysReset;
-        rclcpp::Service<std_srvs::srv::SetBool>::SharedPtr sysDebug;
+        rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr sysReset;
+        rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr sysDebug;
         robot::Battery battery;
     };
 
