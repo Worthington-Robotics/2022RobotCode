@@ -16,8 +16,8 @@ namespace robot
                                            enabledNotif(std::bind(&SubsystemManager::enabledLoop, this)),
                                            disabledNotif(std::bind(&SubsystemManager::disabledLoop, this))
     {
-        sysReset = this->create_subscription<std_msgs::msg::Bool>("/sys/reset", rclcpp::SystemDefaultsQoS(), std::bind(&SubsystemManager::serviceReset, this, _1, _2));
-        sysDebug = this->create_subscription<std_msgs::msg::Bool>("/sys/debug", rclcpp::SystemDefaultsQoS(), std::bind(&SubsystemManager::serviceDebug, this, _1, _2));
+        sysReset = this->create_subscription<std_msgs::msg::Bool>("/sys/reset", rclcpp::SystemDefaultsQoS(), std::bind(&SubsystemManager::serviceReset, this, _1));
+        sysDebug = this->create_subscription<std_msgs::msg::Bool>("/sys/debug", rclcpp::SystemDefaultsQoS(), std::bind(&SubsystemManager::serviceDebug, this, _1));
         //battery = robot::Battery();
     }
 
