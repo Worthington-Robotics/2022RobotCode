@@ -1,5 +1,4 @@
 #include "subsystems/drivetrain.h"
-#include "Constants.h"
 #include <frc/DriverStation.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include "subsystems/userinput.h"
@@ -39,7 +38,7 @@ namespace robot
         imu = std::make_shared<PigeonIMU>(IMU_ID);
 
 
-        APPCDiscriptor params = APPCDiscriptor{.25, 0, .5, 0, .05};
+        APPCDiscriptor params = APPCDiscriptor{FIXED_LOOKAHEAD, 0, MAX_ACCEL, 0, PATH_COMPLETE_TOLERANCE};
         PPC = std::make_shared<PurePursuitController>(params);
 
         reset();
@@ -243,9 +242,9 @@ namespace robot
         // parse the joy message
         std::vector<double> joyData = UserInput::scalarCut(lastStick, DRIVE_STICK_DEADBAND,
                                                             DRIVE_STICK_POWER, DRIVE_STICK_SCALAR);
-        stickTwist.linear.x = joyData.at(1);
-        stickTwist.linear.y = joyData.at(0);
-        stickTwist.angular.z = joyData.at(4);
+        stickTwist.linear.x = joyData.at(X_AXIS);
+        stickTwist.linear.y = joyData.at(Y_AXIS);
+        stickTwist.angular.z = joyData.at(Z_AXIS);
 
        
 
@@ -423,16 +422,14 @@ namespace robot
         GPReq = std::make_shared<rospathmsgs::srv::GetPath::Request>();
         GPReq->path_name = name;
         if(GPClient->service_is_ready()){
-            std::cout << "Hey batter batter, hey batter batter";
             auto future = GPClient->async_send_request(GPReq);
-            std::cout << "SWING!" << std::endl;
             while(rclcpp::ok() && !future.valid())
             {
                 std::cout << "Waiting for path *Jepordy Theme Plays*" << std::endl;
                 //rclcpp::spin_some(Robot::getSubManager());
             }
             std::vector<rospathmsgs::msg::Waypoint> path = future.get()->path; 
-            std::cout << "the total number of point in the ARRAY is: " << path.size() << std::endl;
+            std::cout << "the total number of points in the ARRAY is: " << path.size() << std::endl;
             std::stack<rospathmsgs::msg::Waypoint> pathStack;
             PPC->mLastpoint = path.back();
             while(path.size() > 1)

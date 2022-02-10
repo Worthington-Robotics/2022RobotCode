@@ -11,6 +11,7 @@
 #include <frc/geometry/Rotation2d.h>
 #include "robot_lib/SModule.h"
 #include "rospathmsgs/srv/get_path.hpp"
+#include "Constants.h"
 #include "robot_lib/PurePursuitController.h"
 
 #include <trajectory_msgs/msg/joint_trajectory.hpp>
@@ -39,6 +40,10 @@ namespace robot
         PURSUIT
     };
 
+    /**
+     * A data struct that contains the data for all 
+     * four swerve modules 
+     **/
     struct SwerveSensorData{
         sSensorData frontLeft;
         sSensorData frontRight;
@@ -80,6 +85,9 @@ namespace robot
 
         void enableDebug(bool debug) override;
 
+        /**
+         * Request a path from the path generator with the given name, assuming it is baked
+         */
         bool enablePathFollower(std::string name);
 
         void enablePathFollowerS(std::shared_ptr<autobt_msgs::srv::StringService_Request> ping, std::shared_ptr<autobt_msgs::srv::StringService_Response> pong);
@@ -175,10 +183,10 @@ namespace robot
         sensor_msgs::msg::Joy lastStick;
 
         // underlying controllers
-        frc::Translation2d sFrontRight{0.65_m, 0.65_m};
-        frc::Translation2d sFrontLeft{0.65_m, -0.65_m};
-        frc::Translation2d sRearRight{-0.65_m, 0.65_m};
-        frc::Translation2d sRearLeft{-0.65_m, -0.65_m};
+        frc::Translation2d sFrontRight{CHASSIS_LENGTH, CHASSIS_LENGTH};
+        frc::Translation2d sFrontLeft{CHASSIS_LENGTH, -CHASSIS_LENGTH};
+        frc::Translation2d sRearRight{-CHASSIS_LENGTH, CHASSIS_LENGTH};
+        frc::Translation2d sRearLeft{-CHASSIS_LENGTH, -CHASSIS_LENGTH};
         frc::SwerveDriveKinematics<4> sKinematics {sFrontRight, sFrontLeft, sRearRight, sRearLeft};
         frc::SwerveDriveOdometry<4> sOdom {sKinematics, frc::Rotation2d{units::degree_t{0}}};
         std::array<frc::SwerveModuleState, 4> moduleStates; //fr, fl, rr, rl

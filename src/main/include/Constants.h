@@ -19,6 +19,18 @@
 #define DRIVE_RL_ANGLE 8
 #define DRIVE_RL_ENCOD 4
 
+// Square size of chassis
+#define CHASSIS_LENGTH 0.65_m
+
+// Adaptive Pure Pursuit Controller
+#define FIXED_LOOKAHEAD .25
+#define MAX_ACCEL .5
+#define PATH_COMPLETE_TOLERANCE .05
+
+// Controller Axis
+#define X_AXIS 1
+#define Y_AXIS 0
+#define Z_AXIS 4
 
 #define IMU_ID 0
 
