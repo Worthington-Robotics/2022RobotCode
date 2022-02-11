@@ -3,6 +3,8 @@
 #include <units/velocity.h>
 
 // Canbus ID mappings
+
+// TALON FX
 #define DRIVE_FR_DRIVE 1
 #define DRIVE_FR_ANGLE 2
 #define DRIVE_FR_ENCOD 1
@@ -18,6 +20,20 @@
 #define DRIVE_RL_DRIVE 7
 #define DRIVE_RL_ANGLE 8
 #define DRIVE_RL_ENCOD 4
+
+#define INTAKE_MOTOR_ID 9
+#define DELIVERY_MOTOR_ID 10
+#define FLYWHEEL_MOTOR_ID 11
+#define CLIMBER_L_MOTOR_ID 12
+#define CLIMBER_R_MOTOR_ID 13
+#define CLIMBER_C_MOTOR_ID 14
+
+// TALON SRX
+#define HOOD_MOTOR_ID 1
+
+// TALON SRX
+#define EXTERNAL_TOF_ID 1
+#define INTERNAL_TOF_ID 2
 
 // Square size of chassis
 #define CHASSIS_LENGTH 0.65_m
@@ -41,7 +57,7 @@
 // Which sticks to watch from the driverstation
 #define USER_STICKS {0}
 
-#define DRIVE_STICK_TOPIC "/sticks/stick0"
+#define DRIVE_STICK_TOPIC "/sticks/stick0" 
 #define DRIVE_STICK_SCALAR {1, -1, 1, 1, 1, 1}
 #define DRIVE_STICK_DEADBAND 0.2
 #define DRIVE_STICK_POWER 4

@@ -488,8 +488,6 @@ namespace robot
     }
 
     void Drivetrain::enableDebug(bool debugEnable){
-        if(debugEnable)
-        frc::ReportError(frc::warn::Warning, "drivetrain.cpp", 344, "debug", "You've fucked up, here's your debug data, Good luck! :D");
         DEBUG = debugEnable;
     }
 
