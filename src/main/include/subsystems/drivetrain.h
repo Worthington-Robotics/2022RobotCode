@@ -1,6 +1,7 @@
 #pragma once
 
 #include "subsystems/Subsystem.h"
+#include "robot_lib/PurePursuitController.h"
 #include <ctre/Phoenix.h>
 #include <frc/controller/RamseteController.h>
 #include <rclcpp/rclcpp.hpp>
@@ -13,6 +14,7 @@
 #include "rospathmsgs/srv/get_path.hpp"
 #include "Constants.h"
 #include "robot_lib/PurePursuitController.h"
+#include "robot_lib/util/PIDF.h"
 
 #include <trajectory_msgs/msg/joint_trajectory.hpp>
 #include <sensor_msgs/msg/imu.hpp>
@@ -21,10 +23,12 @@
 #include <geometry_msgs/msg/twist.hpp>
 #include <geometry_msgs/msg/pose2_d.hpp>
 #include <std_msgs/msg/int16.hpp>
+#include <rospathmsgs/srv/get_path.hpp>
 #include <std_msgs/msg/float32.hpp>
 #include "autobt_msgs/srv/string_service.hpp"
 
 #define DEBUG_enable
+#include <std_msgs/msg/bool.hpp>
 
 namespace robot
 {
@@ -93,6 +97,13 @@ namespace robot
         void enablePathFollowerS(std::shared_ptr<autobt_msgs::srv::StringService_Request> ping, std::shared_ptr<autobt_msgs::srv::StringService_Response> pong);
         
         void enableOpenLoop();
+        
+        void resetPose();
+
+        void engageHeadingControl(std_msgs::msg::Bool engaged);
+
+        void setHeadingControl(std_msgs::msg::Float32 setpoint);
+
 
         /**
          * Callbacks for ROS Subscribers 
@@ -119,8 +130,6 @@ namespace robot
          **/
         void driveModeCallback(const std_msgs::msg::Int16 msg);
 
-        void resetPose();
-
     private:
 
         void execActions();
@@ -128,11 +137,6 @@ namespace robot
         void updateSensorData();
 
         void checkDeltaCurrent(double, double, double, double);
-
-        rclcpp::Client<rospathmsgs::srv::GetPath>::SharedPtr GPClient;
-        rospathmsgs::srv::GetPath::Request::SharedPtr GPReq;
-
-        frc::ChassisSpeeds updateTrajectory(trajectory_msgs::msg::JointTrajectoryPoint::SharedPtr nPose);
 
         frc::ChassisSpeeds twistDrive(const geometry_msgs::msg::Twist & twist, const frc::Rotation2d & orientation );
         frc::ChassisSpeeds twistDrive(const geometry_msgs::msg::Twist & twist );
@@ -143,7 +147,7 @@ namespace robot
 
         // ROS Publishers
         rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imuPub;
-        rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr yawPub;
+        rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr yawPub;
         rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr goalPub;
         #ifdef DEBUG_enable
             rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr currentAnglePub;
@@ -153,6 +157,7 @@ namespace robot
         rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr robotVelPub;
         rclcpp::Publisher<geometry_msgs::msg::Pose2D>::SharedPtr robotPosPub;
         rclcpp::Publisher<rospathmsgs::msg::Waypoint>::SharedPtr lookaheadPointPub;
+        rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr inertialAnglePub;
 
         //Ros services
         rclcpp::Service<autobt_msgs::srv::StringService>::SharedPtr startPath;
@@ -164,11 +169,12 @@ namespace robot
             std_msgs::msg::Float32 desiredAngle;
         #endif
         geometry_msgs::msg::Twist autoTwistDemand;
-        std_msgs::msg::Int16 yaw;
+        std_msgs::msg::Float32 yaw;
         sensor_msgs::msg::Imu imuMsg;
         geometry_msgs::msg::Pose2D robotPosMsg;
         geometry_msgs::msg::Twist robotVelMsg;
         rospathmsgs::msg::Waypoint lookAheadPoint;
+        std_msgs::msg::Float32 inertialAngle;
 
 
         // ROS Subscibers
@@ -176,6 +182,12 @@ namespace robot
         rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr twistSub;
         rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr stickSub;
         rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr DriveModeSub;
+        rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr HeadingSetpointSub;
+        rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr HeadingControlSub;
+
+        // ROS SRV REQUESTS
+        rclcpp::Client<rospathmsgs::srv::GetPath>::SharedPtr GPClient;
+        rospathmsgs::srv::GetPath::Request::SharedPtr GPReq;
 
         // ROS Messages for storing subscription data
         geometry_msgs::msg::Twist stickTwist;
@@ -190,6 +202,8 @@ namespace robot
         frc::SwerveDriveKinematics<4> sKinematics {sFrontRight, sFrontLeft, sRearRight, sRearLeft};
         frc::SwerveDriveOdometry<4> sOdom {sKinematics, frc::Rotation2d{units::degree_t{0}}};
         std::array<frc::SwerveModuleState, 4> moduleStates; //fr, fl, rr, rl
+        //std::shared_ptr<PurePursuitController> PPC;
+        
 
         bool DEBUG = true;
 
@@ -212,6 +226,10 @@ namespace robot
         // Demand variables
         double leftDemand, rightDemand;
 
+        //
+        bool headingControl = false;
+        PIDF headingController = PIDF(PIDFDiscriptor{.033, 0, .0025, 0});
+
         //button bool for robot relitive drive
         bool isRobotRel = false;
         //a set of three buttons for a toggle function that set the robot to tank mode
@@ -222,6 +240,8 @@ namespace robot
         bool spinLock = false;
         //button for gyro reset
         bool gyroReset = false;
+
+        frc::Pose2d pose;
 
         //vector of iterators to check if currents values are too high
         std::vector<double> iterators = {0, 0, 0, 0};

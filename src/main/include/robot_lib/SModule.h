@@ -4,6 +4,7 @@
 #include <frc/kinematics/SwerveModuleState.h>
 #include <frc/kinematics/ChassisSpeeds.h>
 #include <frc/geometry/Rotation2d.h>
+#include "robot_lib/util/PIDF.h"
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -11,20 +12,6 @@
 namespace robot
 {
 
-    /**
-     * A struct for encoding the PIDF gains of a control loop
-     * @param p the proportional response to error (ex. kp * error / 1023 = motor responce)
-     * @param i the integrated response of the error (ex. ki * S error dt / 1023 = motor responce) [This is VERY DANGEROUS and should be used with an iAccum]
-     * @param d the derivative of error (ex. kd * [d/dt] error / 1023 = motor responce)
-     * @param f the feedforward response to the setpoint (ex. kf * setpoint / 1023 = motor responce)
-     */
-    struct PIDF
-    {
-        double p;
-        double i;
-        double d;
-        double f;
-    };
 
     struct rotationalData{
         double angleTicks;
@@ -68,7 +55,7 @@ namespace robot
          * @param dValues
          * @param aValues
          */
-        SModule(int driveID, int angleID, int encoderID, double offset, PIDF dValues, PIDF aValues);
+        SModule(int driveID, int angleID, int encoderID, double offset, PIDFDiscriptor dValues, PIDFDiscriptor aValues);
 
         /**
          * Override this function with all the nessecary code needed to reset a subsystem
@@ -85,7 +72,7 @@ namespace robot
 
         void setInvertDrive(bool);
 
-        void updateDrivePID(PIDF);
+        void updateDrivePID(PIDFDiscriptor);
 
     private:
         /**
@@ -93,7 +80,7 @@ namespace robot
          **/ 
         double setpoint = 0;
 
-        void configMotors(double, PIDF, PIDF);
+        void configMotors(double, PIDFDiscriptor, PIDFDiscriptor);
 
         void updateSensorData();
 

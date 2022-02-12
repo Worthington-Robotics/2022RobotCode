@@ -1,7 +1,7 @@
 #pragma once
 #include <units/time.h>
 #include <units/velocity.h>
-
+#include <rospathmsgs/msg/waypoint.hpp>
 // Canbus ID mappings
 
 // TALON FX
@@ -148,6 +148,11 @@
 #define DRIVE_KD 2
 #define DRIVE_RIGHT_IACCUM 300
 
+//HEADING LOCKOUT PID VALUES
+#define HEADING_KF 0
+#define HEADING_KP 0.0001
+#define HEADING_KI 0
+#define HEADING_KD 0.002
 // voltage compensation voltage
 #define DRIVE_VCOMP_VOLTAGE 11.0
 
@@ -167,3 +172,4 @@
 #define RL_ABS_OFFSET -351.0
 
 
+// PATH FOLLOWING STUFFS (EXPERIEMTAL ;-;)
