@@ -11,6 +11,7 @@
 // motor libs and such
 #include <ctre/Phoenix.h>
 #include <TimeOfFlight.h>
+#include <frc/DoubleSolenoid.h>
 
 
 
@@ -64,9 +65,13 @@ namespace robot
         rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr flywheelMotorVelocityDemandSub;
         rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr deliveryMotorDemandSub;
         rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr intakeMotorDemandSub;
+        rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr indexerMotorDemandSub;
         rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr climberMotorLDemandSub;
         rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr climberMotorCDemandSub;
         rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr climberMotorRDemandSub;
+        rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr climberSolenoidLRStateSub;
+        rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr climberSolenoidCStateSub;
+        rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr intakeSolenoidStateSub;
 
         // msgs used in the publishers of the listed above
         std_msgs::msg::Float32 hoodEncoderPosition;
@@ -81,23 +86,32 @@ namespace robot
         double flywheelMotorVelocityDemand = 0;
         double deliveryMotorDemand = 0;
         double intakeMotorDemand = 0;
-        double climberLMotorDemand = 0;
-        double climberCMotorDemand = 0;
-        double climberRMotorDemand = 0;
+        double indexerMotorDemand = 0;
+        double climberMotorLDemand = 0;
+        double climberMotorCDemand = 0;
+        double climberMotorRDemand = 0;
+        int climberSolenoidLRState = 0;
+        int climberSolenoidCState = 0;
+        int intakeSolenoidState = 0;
 
         //subscriber callback functions
         
         void setHoodMotorPositionDemand(const std_msgs::msg::Float32);
         void setFlywheelMotorVelocityDemand(const std_msgs::msg::Float32);
         void setDeliveryMotorDemand(const std_msgs::msg::Float32);
+        void setIndexerMotorDemand(const std_msgs::msg::Float32);
         void setIntakeMotorDemand(const std_msgs::msg::Float32);
-        void setClimberLMotorDemand(const std_msgs::msg::Float32);
-        void setClimberCMotorDemand(const std_msgs::msg::Float32);
-        void setClimberRMotorDemand(const std_msgs::msg::Float32);
+        void setClimberMotorLDemand(const std_msgs::msg::Float32);
+        void setClimberMotorCDemand(const std_msgs::msg::Float32);
+        void setClimberMotorRDemand(const std_msgs::msg::Float32);
+        void setClimberSolenoidLRState(const std_msgs::msg::Int16);
+        void setClimberSolenoidCState(const std_msgs::msg::Int16);
+        void setIntakeSolenoidState(const std_msgs::msg::Int16);
 
         // motors to be controlled by copro code and other systems
-        std::shared_ptr<TalonFX> flywheelMotor, deliveryMotor, intakeMotor, climberMotorL, climberMotorR, climberMotorC;
+        std::shared_ptr<TalonFX> flywheelMotor, deliveryMotor, indexerMotor, intakeMotor, climberMotorL, climberMotorR, climberMotorC;
         std::shared_ptr<TalonSRX> hoodMotor;
         std::shared_ptr<frc::TimeOfFlight> internalTOF, externalTOF;
+        std::shared_ptr<frc::DoubleSolenoid> climberSolenoidLR, climberSolenoidC, intakeSolenoid;
     };
 }

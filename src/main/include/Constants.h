@@ -22,17 +22,72 @@
 #define DRIVE_RL_ENCOD 4
 
 #define INTAKE_MOTOR_ID 9
-#define DELIVERY_MOTOR_ID 10
-#define FLYWHEEL_MOTOR_ID 11
-#define CLIMBER_L_MOTOR_ID 12
-#define CLIMBER_R_MOTOR_ID 13
-#define CLIMBER_C_MOTOR_ID 14
+#define INDEXER_MOTOR_ID 10
+#define DELIVERY_MOTOR_ID 11
+#define FLYWHEEL_MOTOR_ID 12
+#define CLIMBER_L_MOTOR_ID 13
+#define CLIMBER_R_MOTOR_ID 14
+#define CLIMBER_C_MOTOR_ID 15
 
 // TALON SRX
 #define HOOD_MOTOR_ID 1
 
 //Motor defines
 #define VOLTAGE_COMP 11
+
+#define HOOD_KP 1
+#define HOOD_KI 0
+#define HOOD_KD 0
+#define HOOD_KF 0
+#define HOOD_IMAX 0
+
+#define FLYWHEEL_KP 0
+#define FLYWHEEL_KI 0
+#define FLYWHEEL_KD 0
+#define FLYWHEEL_KF 1
+#define FLYWHEEL_IMAX 0
+
+#define INTAKE_KP 0
+#define INTAKE_KI 0
+#define INTAKE_KD 0
+#define INTAKE_KF 1
+#define INTAKE_IMAX 0
+
+#define INDEXER_KP 0
+#define INDEXER_KI 0
+#define INDEXER_KD 0
+#define INDEXER_KF 1
+#define INDEXER_IMAX 0
+
+#define CLIMBER_L_KP 0
+#define CLIMBER_L_KI 0
+#define CLIMBER_L_KD 0
+#define CLIMBER_L_KF 0
+#define CLIMBER_L_IMAX 0
+
+#define CLIMBER_C_KP 0
+#define CLIMBER_C_KI 0
+#define CLIMBER_C_KD 0
+#define CLIMBER_C_KF 0
+#define CLIMBER_C_IMAX 0
+
+#define CLIMBER_R_KP 0
+#define CLIMBER_R_KI 0
+#define CLIMBER_R_KD 0
+#define CLIMBER_R_KF 0
+#define CLIMBER_R_IMAX 0
+
+#define CLIMBER_MAX_AMPS 50
+#define CLIMBER_MAX_TIME 2
+#define CLIMBER_HOLD_AMPS 30
+
+//SOLENOIDS
+#define CLIMBER_SOLENOID_LR_HIGH_ID 0
+#define CLIMBER_SOLENOID_LR_LOW_ID 0
+#define CLIMBER_SOLENOID_C_HIGH_ID 0
+#define CLIMBER_SOLENOID_C_LOW_ID 0
+#define INTAKE_SOLENOID_HIGH_ID 0
+#define INTAKE_SOLENOID_LOW_ID 0
 
 // TOFs
 #define EXTERNAL_TOF_ID 1
