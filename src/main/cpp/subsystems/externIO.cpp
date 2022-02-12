@@ -22,14 +22,6 @@ namespace robot
      * NOTE: This function is automatically called by the subsystem manager on registration
      **/
     void ExternIO::createRosBindings(rclcpp::Node *node) {
-        
-        // publishers of sensor data
-        rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr hoodEncoderPositionPub;
-        rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr flywheelEncoderVelocityPub;
-        rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr externalTOFDistancePub;
-        rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr internalTOFDistancePub;
-        rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr upperHoodLimitSwitchPub;
-        rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr lowerHoodLimitSwitchPub;
 
         // subscribers of motor demands
         hoodMotorPositionDemandSub  = node -> create_subscription<std_msgs::msg::Float32>("/externIO/hood_motor_pos_demand", rclcpp::SystemDefaultsQoS(), std::bind(&ExternIO::setHoodMotorPositionDemand, this, _1));
@@ -39,6 +31,16 @@ namespace robot
         climberMotorLDemandSub = node -> create_subscription<std_msgs::msg::Float32>("/externIO/climber_l_motor_demand", rclcpp::SystemDefaultsQoS(), std::bind(&ExternIO::setClimberLMotorDemand, this, _1));
         climberMotorCDemandSub = node -> create_subscription<std_msgs::msg::Float32>("/externIO/climber_c_motor_demand", rclcpp::SystemDefaultsQoS(), std::bind(&ExternIO::setClimberCMotorDemand, this, _1));
         climberMotorRDemandSub = node -> create_subscription<std_msgs::msg::Float32>("/externIO/climber_r_motor_demand", rclcpp::SystemDefaultsQoS(), std::bind(&ExternIO::setClimberRMotorDemand, this, _1));
+        
+        // publishers of sensor data
+         hoodEncoderPositionPub = node -> create_publisher<std_msgs::msg::Float32>("/externIO/hood_encoder_pos", rclcpp::SystemDefaultsQoS());
+         flywheelEncoderVelocityPub = node -> create_publisher<std_msgs::msg::Float32>("/externIO/flywheel_encoder_vel", rclcpp::SystemDefaultsQoS());
+         externalTOFDistancePub = node -> create_publisher<std_msgs::msg::Float32>("/externIO/external_tof_distance", rclcpp::SystemDefaultsQoS());
+         internalTOFDistancePub = node -> create_publisher<std_msgs::msg::Float32>("/externIO/internal_tof_distance", rclcpp::SystemDefaultsQoS());
+         upperHoodLimitSwitchPub = node -> create_publisher<std_msgs::msg::Bool>("/externIO/upper_hood_limit_switch", rclcpp::SystemDefaultsQoS());
+         lowerHoodLimitSwitchPub = node -> create_publisher<std_msgs::msg::Bool>("/externIO/lower_hood_limit_switch", rclcpp::SystemDefaultsQoS());
+        
+        
         //goalPub = node->create_publisher<std_msgs::msg::Float32>("/drive/motor_goal",  rclcpp::SystemDefaultsQoS());
        
     }

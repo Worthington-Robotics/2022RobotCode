@@ -31,7 +31,10 @@
 // TALON SRX
 #define HOOD_MOTOR_ID 1
 
-// TALON SRX
+//Motor defines
+#define VOLTAGE_COMP 11
+
+// TOFs
 #define EXTERNAL_TOF_ID 1
 #define INTERNAL_TOF_ID 2
 
