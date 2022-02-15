@@ -15,10 +15,6 @@ namespace motors
     class Motor{
         public:
 
-        virtual void declareConfig(std::shared_ptr<rclcpp::Node>){}
-
-        virtual void executeConfig(std::shared_ptr<rclcpp::Node>){}
-
         virtual void setValue(std::shared_ptr<can_msgs::msg::MotorMsg> msg) {}
 
         virtual void configMotorPIDF(const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request> req,
@@ -29,8 +25,9 @@ namespace motors
     };
 
     struct MotorContainer {
-        Motor& motor;
+        std::shared_ptr<Motor> motor;
         rclcpp::Subscription<can_msgs::msg::MotorMsg>::SharedPtr sub;
+        rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr pub;
         rclcpp::Service<can_msgs::srv::SetPIDFGains>::SharedPtr pidfSrv;
     };
 } // namespace motors

@@ -4,10 +4,10 @@
 #include <ctre/Phoenix.h>
 
 namespace motors {
-    class TalonBrushless : public Motor {
+    class TalonBrushed : public Motor {
         public:
-        TalonBrushless(int id, std::string motorName) {
-            motor = std::make_shared<TalonFX>(id);
+        TalonBrushed(int id, std::string motorName) {
+            motor = std::make_shared<TalonSRX>(id);
             name = motorName;
         }
 
@@ -48,6 +48,14 @@ namespace motors {
             }
         }
 
+        std::shared_ptr<TalonSRX> getMotor() {
+            return motor;
+        }
+
+        std::string getName(){
+            return name;
+        }
+
         JointState getJointState(){
             return {
                 name,
@@ -57,16 +65,8 @@ namespace motors {
             };
         }
 
-        std::shared_ptr<TalonFX> getMotor(){
-            return motor;
-        }
-
-        std::string getName(){
-            return name;
-        }
-
      private:
-        std::shared_ptr<TalonFX> motor;
+        std::shared_ptr<TalonSRX> motor;
         std::string name;
     };
 
