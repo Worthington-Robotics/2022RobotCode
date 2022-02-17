@@ -12,6 +12,7 @@
 #include <iostream>
 
 using std::placeholders::_1;
+using std::placeholders::_2;
 
 namespace robot
 {
@@ -55,6 +56,8 @@ namespace robot
         lookaheadPointPub = node->create_publisher<rospathmsgs::msg::Waypoint>("/drive/lookahead_point",  rclcpp::SystemDefaultsQoS());
         currentAnglePub = node->create_publisher<std_msgs::msg::Float32>("/drive/current_angle",  rclcpp::SystemDefaultsQoS());
         desiredAnglePub = node->create_publisher<std_msgs::msg::Float32>("/drive/desired_angle",  rclcpp::SystemDefaultsQoS());
+
+        startPath = node->create_service<autobt_msgs::srv::StringService>("/drive/start_path", std::bind(&Drivetrain::enablePathFollowerS, this, _1, _2));
 
 
         // Create subscribers
@@ -413,7 +416,7 @@ namespace robot
     }
 
 
-    void Drivetrain::enablePathFollower(std::string name)
+    bool Drivetrain::enablePathFollower(std::string name)
     {
         GPReq = std::make_shared<rospathmsgs::srv::GetPath::Request>();
         GPReq->path_name = name;
@@ -439,8 +442,14 @@ namespace robot
             driveState = PURSUIT;
         } else {
             frc::ReportError(frc::err::UnsupportedInSimulation, "drivetrain.cpp", 400, "enablePathFollower", "You have somehow made a request to the path generation server that it was unable to process, please try again later ;-;");
+            return false;
         }
-        return;
+        return true;
+    }
+
+    void Drivetrain::enablePathFollowerS(std::shared_ptr<autobt_msgs::srv::StringService_Request> ping, std::shared_ptr<autobt_msgs::srv::StringService_Response> pong)
+    {
+       pong->success =  enablePathFollower(ping->request_string);
     }
 
     void Drivetrain::enableOpenLoop(){

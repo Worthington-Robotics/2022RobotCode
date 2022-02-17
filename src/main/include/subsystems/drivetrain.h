@@ -21,6 +21,7 @@
 #include <geometry_msgs/msg/pose2_d.hpp>
 #include <std_msgs/msg/int16.hpp>
 #include <std_msgs/msg/float32.hpp>
+#include "autobt_msgs/srv/string_service.hpp"
 
 #define DEBUG_enable
 
@@ -79,7 +80,9 @@ namespace robot
 
         void enableDebug(bool debug) override;
 
-        void enablePathFollower(std::string name);
+        bool enablePathFollower(std::string name);
+
+        void enablePathFollowerS(std::shared_ptr<autobt_msgs::srv::StringService_Request> ping, std::shared_ptr<autobt_msgs::srv::StringService_Response> pong);
         
         void enableOpenLoop();
 
@@ -142,6 +145,9 @@ namespace robot
         rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr robotVelPub;
         rclcpp::Publisher<geometry_msgs::msg::Pose2D>::SharedPtr robotPosPub;
         rclcpp::Publisher<rospathmsgs::msg::Waypoint>::SharedPtr lookaheadPointPub;
+
+        //Ros services
+        rclcpp::Service<autobt_msgs::srv::StringService>::SharedPtr startPath;
 
         // ROS Messages for publishing
         std_msgs::msg::Float32 goal;
