@@ -148,6 +148,8 @@ namespace robot
 
         //Ros services
         rclcpp::Service<autobt_msgs::srv::StringService>::SharedPtr startPath;
+        rclcpp::Service<autobt_msgs::srv::StringService>::SharedPtr autoVelocitySpeed;
+
 
         // ROS Messages for publishing
         std_msgs::msg::Float32 goal;
