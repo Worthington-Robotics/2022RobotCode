@@ -45,6 +45,35 @@ namespace robot
         reset();
     }
 
+    rclcpp::Service<autobt_msgs::srv::StringService>::SharedPtr serviceRequest = node->create_service<autobt_msgs::srv::StringService>("/drive/start_path", std::bind(&Drivetrain::enablePathFollowerS, this, _1, _2));
+    
+       response->success =  enablePathFollower(request->request_string);
+    }
+    
+    void Drivetrain::getCallBack(std::shared_ptr<autobt_msgs::srv::StringService_Request> request, std::shared_ptr<autobt_msgs::srv::StringService_Response> response)
+    {
+        int pos= request.find(":");
+        string direction = request.substr(0, pos);
+        string value = request.substr(pos + 1);
+   
+        if(direction.compare == "x"){
+            xSpeed = std::strtof(value);
+        } else if (direction == "y"){
+            ySpeed = std::strtof(value);
+        } else if (direction == "t"){
+            zTurn == std::strtof(value);
+        }
+
+        autoVelocitySpeed = frc::ChassisSpeeds{
+            units::meters_per_second_t{xSpeed},
+            units::meters_per_second_t{ySpeed},
+            units::radians_per_second_t{zTurn}
+            };
+            driveState = VELOCITY_TWIST;
+        
+        response->success =  enablePathFollower(request->request_string);
+    }
+    
     void Drivetrain::createRosBindings(rclcpp::Node *node)
     {
         // Create sensor data publishers
@@ -286,7 +315,8 @@ namespace robot
         }
         case VELOCITY_TWIST:
             // if we are safe, set motor demands,
-            speed = frc::ChassisSpeeds{2_mps, 0_mps, 0_rad_per_s};
+            //speed = frc::ChassisSpeeds{2_mps, 0_mps, 0_rad_per_s};
+            speed = autoVelocitySpeed;
 
             // FR, FL, RR, RL
 
