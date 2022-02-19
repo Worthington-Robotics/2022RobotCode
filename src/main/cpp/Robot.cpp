@@ -10,19 +10,22 @@
 
 void Robot::RobotInit()
 {
-    rclcpp::init(0, NULL);
+    std::cout << "code init started" << std::endl;
+    
+    const char* argv[] = {"--ros-args", "--log-level", "DEBUG"};
+    rclcpp::init(3, argv);
 
     frc::ReportError(frc::warn::Warning, "Robot.cpp", 14, "RobotInit()", "ROS Sucessfully Init!");
 
     // construct subsystems
-    drive = std::make_shared<robot::Drivetrain>();
+    //drive = std::make_shared<robot::Drivetrain>();
     sticks = std::make_shared<robot::UserInput>();
     sticks->registerSticks(USER_STICKS); //  register which joystick IDs to read
 
     // intialize all subsystems here
     manager = std::make_shared<robot::SubsystemManager>();
     manager->registerSubsystems(std::vector<std::shared_ptr<robot::Subsystem>>{
-        drive,
+        //drive,
         sticks});
 
     // grab the version string
@@ -37,16 +40,16 @@ void Robot::RobotPeriodic()
 void Robot::AutonomousInit()
 {
     manager->stopDisabledLoop();
-    drive->resetPose();
+    //drive->resetPose();
     manager->startEnabledLoop();
-    drive->enablePathFollower("six");
+    //drive->enablePathFollower("six");
 }
 void Robot::AutonomousPeriodic() {}
 
 void Robot::TeleopInit()
 {
     manager->stopDisabledLoop();
-    drive->enableOpenLoop();
+    //drive->enableOpenLoop();
     manager->startEnabledLoop();
 }
 void Robot::TeleopPeriodic() {}
