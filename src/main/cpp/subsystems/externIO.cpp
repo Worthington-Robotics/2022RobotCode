@@ -8,8 +8,8 @@ namespace robot
 
    ExternIO::ExternIO()
    {
-      internalTOF = std::make_shared<frc::TimeOfFlight>(INTERNAL_TOF_ID);
-      externalTOF = std::make_shared<frc::TimeOfFlight>(EXTERNAL_TOF_ID);
+      //internalTOF = std::make_shared<frc::TimeOfFlight>(INTERNAL_TOF_ID);
+      //externalTOF = std::make_shared<frc::TimeOfFlight>(EXTERNAL_TOF_ID);
       climberSolenoidLR = std::make_shared<frc::DoubleSolenoid>(frc::PneumaticsModuleType::CTREPCM, CLIMBER_SOLENOID_LR_HIGH_ID, CLIMBER_SOLENOID_LR_LOW_ID);
       climberSolenoidC = std::make_shared<frc::DoubleSolenoid>(frc::PneumaticsModuleType::CTREPCM, CLIMBER_SOLENOID_C_HIGH_ID, CLIMBER_SOLENOID_C_LOW_ID);
       intakeSolenoid = std::make_shared<frc::DoubleSolenoid>(frc::PneumaticsModuleType::CTREPCM, INTAKE_SOLENOID_HIGH_ID, INTAKE_SOLENOID_LOW_ID);
@@ -33,15 +33,15 @@ namespace robot
          motorsFXC.push_back(MC);
       }
       // subscribers of motor demands
-      climberSolenoidLRStateSub = node->create_subscription<std_msgs::msg::Int16>("/externIO/climber_solenoid_lr_state", rclcpp::SystemDefaultsQoS(), std::bind(&ExternIO::setClimberSolenoidLRState, this, _1));
-      climberSolenoidCStateSub = node->create_subscription<std_msgs::msg::Int16>("/externIO/climber_solenoid_c_state", rclcpp::SystemDefaultsQoS(), std::bind(&ExternIO::setClimberSolenoidCState, this, _1));
-      intakeSolenoidStateSub = node->create_subscription<std_msgs::msg::Int16>("/externIO/intake_solenoid_state", rclcpp::SystemDefaultsQoS(), std::bind(&ExternIO::setIntakeSolenoidState, this, _1));
+      climberSolenoidLRStateSub = node->create_subscription<std_msgs::msg::Int16>("/externIO/climber_solenoid_lr/state", rclcpp::SystemDefaultsQoS(), std::bind(&ExternIO::setClimberSolenoidLRState, this, _1));
+      climberSolenoidCStateSub = node->create_subscription<std_msgs::msg::Int16>("/externIO/climber_solenoid_c/state", rclcpp::SystemDefaultsQoS(), std::bind(&ExternIO::setClimberSolenoidCState, this, _1));
+      intakeSolenoidStateSub = node->create_subscription<std_msgs::msg::Int16>("/externIO/intake_solenoid/state", rclcpp::SystemDefaultsQoS(), std::bind(&ExternIO::setIntakeSolenoidState, this, _1));
 
       // publishers of sensor data
-      externalTOFDistancePub = node->create_publisher<std_msgs::msg::Float32>("/externIO/external_tof_distance", rclcpp::SystemDefaultsQoS());
-      internalTOFDistancePub = node->create_publisher<std_msgs::msg::Float32>("/externIO/internal_tof_distance", rclcpp::SystemDefaultsQoS());
-      upperHoodLimitSwitchPub = node->create_publisher<std_msgs::msg::Bool>("/externIO/upper_hood_limit_switch", rclcpp::SystemDefaultsQoS());
-      lowerHoodLimitSwitchPub = node->create_publisher<std_msgs::msg::Bool>("/externIO/lower_hood_limit_switch", rclcpp::SystemDefaultsQoS());
+      externalTOFDistancePub = node->create_publisher<std_msgs::msg::Float32>("/externIO/external_tof/distance", rclcpp::SystemDefaultsQoS());
+      internalTOFDistancePub = node->create_publisher<std_msgs::msg::Float32>("/externIO/internal_tof/distance", rclcpp::SystemDefaultsQoS());
+      upperHoodLimitSwitchPub = node->create_publisher<std_msgs::msg::Bool>("/externIO/upper_hood/limit_switch", rclcpp::SystemDefaultsQoS());
+      lowerHoodLimitSwitchPub = node->create_publisher<std_msgs::msg::Bool>("/externIO/lower_hood/limit_switch", rclcpp::SystemDefaultsQoS());
    }
 
    /**
@@ -50,8 +50,8 @@ namespace robot
    void ExternIO::reset()
    {
       // reset the TOFs
-      externalTOF->SetRangingMode(frc::TimeOfFlight::kShort, 25);
-      internalTOF->SetRangingMode(frc::TimeOfFlight::kShort, 25);
+      //externalTOF->SetRangingMode(frc::TimeOfFlight::kShort, 25);
+      //internalTOF->SetRangingMode(frc::TimeOfFlight::kShort, 25);
 
       // setting up the motors
       motorsSRX.at(0)->getMotor()->ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration{true, 5, 10, 1});
@@ -158,17 +158,17 @@ namespace robot
       // handling the falcon bits
 
       // handling the TOFs
-      if (externalTOF->IsRangeValid())
+      if (true /*externalTOF->IsRangeValid()*/)
       {
-         externalTOFDistance.data = externalTOF->GetRange();
+         //externalTOFDistance.data = externalTOF->GetRange();
       }
       else
       {
          externalTOFDistance.data = -1;
       }
-      if (externalTOF->IsRangeValid())
+      if (true /*externalTOF->IsRangeValid()*/)
       {
-         internalTOFDistance.data = internalTOF->GetRange();
+         //internalTOFDistance.data = internalTOF->GetRange();
       }
       else
       {

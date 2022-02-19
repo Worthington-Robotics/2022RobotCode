@@ -4,15 +4,15 @@
 #include "Constants.h"
 
 // msgs used in this package
-#include <std_msgs/msg/Float32.hpp>
-#include <std_msgs/msg/Int16.hpp>
-#include <std_msgs/msg/Bool.hpp>
+#include <std_msgs/msg/float32.hpp>
+#include <std_msgs/msg/int16.hpp>
+#include <std_msgs/msg/bool.hpp>
 #include <can_msgs/msg/motor_msg.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
 
 // motor libs and such
 #include <ctre/Phoenix.h>
-#include <TimeOfFlight.h>
+// #include <TimeOfFlight.h>
 #include <frc/DoubleSolenoid.h>
 #include <robot_lib/motor_abs/talon_brushless.hpp>
 #include <robot_lib/motor_abs/talon_brushed.hpp>
@@ -102,7 +102,7 @@ namespace robot
             std::make_shared<motors::TalonBrushed>(HOOD_MOTOR_ID, "hood_motor")
         };
         std::vector<motors::MotorContainer> motorsSRXC;      
-        std::shared_ptr<frc::TimeOfFlight> internalTOF, externalTOF;
+        //std::shared_ptr<frc::TimeOfFlight> internalTOF, externalTOF;
         std::shared_ptr<frc::DoubleSolenoid> climberSolenoidLR, climberSolenoidC, intakeSolenoid;
     };
 }
