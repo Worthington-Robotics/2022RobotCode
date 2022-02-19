@@ -14,7 +14,7 @@ namespace robot
         std::cout << "Opening version file: " << fileName << std::endl;
 
         FILE* version = std::fopen(fileName.c_str(), "r");
-        std::fscanf(version, "%*s%i", &versionNum);
+        std::fscanf(version, "VERSION_ID=%i", &versionNum);
         std::fclose(version);
         frc::ReportError(frc::warn::Warning, "SubsystemManager.cpp", 19, "ShowVersionData()", std::string("Robot Code Initialized with version ") + std::to_string(versionNum));
     }

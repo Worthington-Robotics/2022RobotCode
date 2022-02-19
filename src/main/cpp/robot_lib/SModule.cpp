@@ -4,12 +4,13 @@
 #include <units/angle.h>
 #include <units/velocity.h>
 #include <frc/geometry/Rotation2d.h>
+#include <frc/smartdashboard/SmartDashboard.h>
 #include <iostream>
 
 namespace robot
 {
 
-    SModule::SModule(int driveID, int angleID, int encodID, double offset, PIDF dValues, PIDF aValues)
+    SModule::SModule(int driveID, int angleID, int encodID, double offset, PIDFDiscriptor dValues, PIDFDiscriptor aValues)
     {
         angle = std::make_shared<TalonFX>(angleID);
         drive = std::make_shared<TalonFX>(driveID);
@@ -18,7 +19,7 @@ namespace robot
         reset();
     }
 
-    void SModule::configMotors(double offset, PIDF dValues, PIDF aValues)
+    void SModule::configMotors(double offset, PIDFDiscriptor dValues, PIDFDiscriptor aValues)
     {
         //to convert from ticks to radians (2 radians per revolution) / (2048 ticks per revolution) * (GEAR REDUCTION)
         //to convert from ticks / 100ms to rps
@@ -71,14 +72,24 @@ namespace robot
         drive->SetInverted(invert);
     }
 
+    void SModule::updateDrivePID(PIDFDiscriptor consts){
+        drive->Config_kF(0, consts.f, 0);
+        drive->Config_kP(0, consts.p, 0);
+        drive->Config_kI(0, consts.i, 0);
+        drive->Config_kD(0, consts.d, 0);
+    }
+
     void SModule::reset()
     {
     }
+
+
 
     frc::SwerveModuleState Optimize(const frc::SwerveModuleState &desiredState,
                                     const frc::Rotation2d &currentAngle)
     {
         auto delta = desiredState.angle - currentAngle;
+        
         if (units::math::abs(delta.Degrees()) >= 90_deg)
         {
             return {-desiredState.speed, desiredState.angle.RotateBy(frc::Rotation2d{180_deg})};
@@ -89,11 +100,47 @@ namespace robot
         }
     }
 
-    void SModule::setMotors(frc::SwerveModuleState ss)
+
+    void SModule::setMotorVelocity(frc::SwerveModuleState ss)
     {
         auto ssO = Optimize(ss, units::degree_t(angle->GetSelectedSensorPosition() / TICKS_PER_DEGREE / (64 / 5)));
         angle->Set(ControlMode::Position, ssO.angle.Degrees().to<double>() * TICKS_PER_DEGREE * (64 / 5));
-        drive->Set(ControlMode::PercentOutput, ssO.speed.to<double>());
+        setpoint =  ssO.speed.to<double>() * (2048 * 39.37 * 6.12) / (4 * M_PI * 10);
+        drive->Set(ControlMode::Velocity, setpoint);
+    }
+
+    rotationalData SModule::setMotors(frc::SwerveModuleState ss)
+    {      
+        double currentTicks = angle->GetSelectedSensorPosition();
+        auto ssO = Optimize(ss, units::degree_t(angle->GetSelectedSensorPosition() / TICKS_PER_DEGREE / (64 / 5)));
+        int rotations = (int)(currentTicks / (TICKS_PER_DEGREE * 360) / (64 / 5));
+        double targetPoint = rotations * (TICKS_PER_DEGREE * 360) / (64 / 5);
+
+        double targetPointOne = targetPoint + ssO.angle.Degrees().to<double>() * TICKS_PER_DEGREE * (64/5);
+        double differenceOne = abs(targetPointOne - currentTicks);
+
+        double targetPointTwo = targetPointOne - (TICKS_PER_DEGREE * 360) / (64 / 5) ; 
+        double differenceTwo = abs(targetPointTwo - currentTicks);
+
+        double targetPointThree = targetPointTwo + 2 * (TICKS_PER_DEGREE * 360) / (64 / 5);
+        double differenceThree = abs(targetPointThree - currentTicks);
+
+        if(differenceOne < differenceTwo && differenceOne < differenceThree){
+            angle->Set(ControlMode::Position, targetPointOne);
+            drive->Set(ControlMode::PercentOutput, ssO.speed.to<double>());
+        } else if (differenceTwo < differenceOne && differenceTwo < differenceThree){
+            angle->Set(ControlMode::Position, targetPointTwo);
+            drive->Set(ControlMode::PercentOutput, ssO.speed.to<double>());
+        } else {
+            angle->Set(ControlMode::Position, targetPointThree);
+            drive->Set(ControlMode::PercentOutput, ssO.speed.to<double>());
+        }
+
+        //auto ssO = Optimize(ss, units::degree_t(angle->GetSelectedSensorPosition() / TICKS_PER_DEGREE / (64 / 5)));
+        //angle->Set(ControlMode::Position, ssO.angle.Degrees().to<double>() * TICKS_PER_DEGREE * (64 / 5));
+        //drive->Set(ControlMode::PercentOutput, ssO.speed.to<double>());
+        return {ssO.angle.Degrees().to<double>()  * (TICKS_PER_DEGREE * 360) / (64 / 5) , ssO.speed.to<double>()};
+        
     }
 
     frc::SwerveModuleState SModule::getState()
@@ -103,20 +150,9 @@ namespace robot
          frc::Rotation2d{units::degree_t{angle->GetSelectedSensorPosition() / TICKS_PER_DEGREE / (64 / 5)}}};
     }
  
-    sSensorData SModule::getData()
-    {
+    sSensorData SModule::getData(){
         return sSensorData{angle->GetSelectedSensorPosition(), drive->GetSelectedSensorPosition(), 
-        drive->GetSelectedSensorVelocity(), encod->GetAbsolutePosition(), std::abs(angle->GetStatorCurrent()), std::abs(drive->GetStatorCurrent())};
+        drive->GetSelectedSensorVelocity(), setpoint, encod->GetAbsolutePosition(), std::abs(angle->GetStatorCurrent()), std::abs(drive->GetStatorCurrent())};
     }
-
-
-
-    // frc::SwerveModuleState optimize(frc::SwerveModuleState ss, double currDegree){
-    //     if(std::abs(ss.angle.Degrees().to<double>() - currDegree) > 90){
-    //         ss.angle = ss.angle.RotateBy(units::degree_t{180});
-    //         ss.speed = ss.speed.
-    //     }
-
-    // }
 
 } // namespace robot

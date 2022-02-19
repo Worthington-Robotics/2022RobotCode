@@ -30,7 +30,7 @@ namespace robot
 
     void UserInput::onStart() {}
 
-    void UserInput::onLoop() {}
+    void UserInput::onLoop(double currentTime) {}
 
     void UserInput::updateSensorData() {}
 

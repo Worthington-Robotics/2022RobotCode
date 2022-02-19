@@ -4,6 +4,7 @@
 #include <frc/kinematics/SwerveModuleState.h>
 #include <frc/kinematics/ChassisSpeeds.h>
 #include <frc/geometry/Rotation2d.h>
+#include "robot_lib/util/PIDF.h"
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -11,19 +12,10 @@
 namespace robot
 {
 
-    /**
-     * A struct for encoding the PIDF gains of a control loop
-     * @param p the proportional response to error (ex. kp * error / 1023 = motor responce)
-     * @param i the integrated response of the error (ex. ki * S error dt / 1023 = motor responce) [This is VERY DANGEROUS and should be used with an iAccum]
-     * @param d the derivative of error (ex. kd * [d/dt] error / 1023 = motor responce)
-     * @param f the feedforward response to the setpoint (ex. kf * setpoint / 1023 = motor responce)
-     */
-    struct PIDF
-    {
-        double p;
-        double i;
-        double d;
-        double f;
+
+    struct rotationalData{
+        double angleTicks;
+        double speed;
     };
 
     /**
@@ -32,12 +24,15 @@ namespace robot
      * @param drivePos the position of the drive motor in ticks, NOT the position of the robot
      * @param driveVel the velocity of the drive motor in ticks / 100ms NOT the speed of the robot
      * @param encAbs the absolute position of the CANcoder, and the refrence point for angleRel
+     * @param angleCurrent provides the power of the motor controlling the angle of the swerve module
+     * @param driveCurrent provides the power of the motor controlling the drive speed for the swerve module
      */
     struct sSensorData
     {
         double angleRel;
         double drivePos;
         double driveVel;
+        double driveGoal;
         double encAbs;
         double angleCurrent;
         double driveCurrent;
@@ -60,14 +55,16 @@ namespace robot
          * @param dValues
          * @param aValues
          */
-        SModule(int driveID, int angleID, int encoderID, double offset, PIDF dValues, PIDF aValues);
+        SModule(int driveID, int angleID, int encoderID, double offset, PIDFDiscriptor dValues, PIDFDiscriptor aValues);
 
         /**
          * Override this function with all the nessecary code needed to reset a subsystem
          **/
         void reset();
 
-        void setMotors(frc::SwerveModuleState);
+        rotationalData setMotors(frc::SwerveModuleState);
+
+        void setMotorVelocity(frc::SwerveModuleState);
 
         frc::SwerveModuleState getState();
 
@@ -75,11 +72,15 @@ namespace robot
 
         void setInvertDrive(bool);
 
+        void updateDrivePID(PIDFDiscriptor);
+
     private:
         /**
          * Configure the associated motor controllers with their settings as specified in constants
          **/ 
-        void configMotors(double, PIDF, PIDF);
+        double setpoint = 0;
+
+        void configMotors(double, PIDFDiscriptor, PIDFDiscriptor);
 
         void updateSensorData();
 
@@ -92,4 +93,3 @@ namespace robot
     };
 
 } // namespace robot
-

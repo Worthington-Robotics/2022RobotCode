@@ -7,9 +7,11 @@
 #include <frc/TimedRobot.h>
 #include <frc/DriverStation.h>
 #include "SubsystemManager.h"
-
+#include "subsystems/drivetrain.h"
+#include "subsystems/userinput.h"
 
 class Robot : public frc::TimedRobot {
+
  public:
   void RobotInit() override;
   void RobotPeriodic() override;
@@ -25,7 +27,11 @@ class Robot : public frc::TimedRobot {
 
   void TestInit() override;
   void TestPeriodic() override;
-  private:
+  
+  static std::shared_ptr<robot::SubsystemManager> getSubManager();
 
+  private:
   std::shared_ptr<robot::SubsystemManager> manager;
+  std::shared_ptr<robot::Drivetrain> drive;
+  std::shared_ptr<robot::UserInput> sticks;
 };
