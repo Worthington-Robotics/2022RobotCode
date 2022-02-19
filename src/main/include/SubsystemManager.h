@@ -8,7 +8,6 @@
 #include "subsystems/Subsystem.h"
 
 #include "std_msgs/msg/bool.hpp"
-#include "robot_lib/Battery.h"
 
 namespace robot
 {
@@ -94,7 +93,6 @@ namespace robot
 
         rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr sysReset;
         rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr sysDebug;
-        robot::Battery battery;
     };
 
 } // namespace robot

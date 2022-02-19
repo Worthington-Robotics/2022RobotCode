@@ -4,6 +4,7 @@
 #include <frc/Errors.h>
 #include "rclcpp/rclcpp.hpp"
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/Timer.h>
 #include <iostream>
 
 using std::placeholders::_1;

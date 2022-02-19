@@ -20,7 +20,7 @@ namespace robot {
     void Battery::onStart() {
 
     }
-    void Battery::onLoop() {
+    void Battery::onLoop(double currentTime) {
         
     }
     void Battery::publishData() {

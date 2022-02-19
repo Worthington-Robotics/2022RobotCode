@@ -27,9 +27,9 @@ namespace robot
       {
          motors::MotorContainer MC;
          MC.motor = motor;
-         MC.pidfSrv = node->create_service<can_msgs::srv::SetPIDFGains>("/externIO/" + motor->getName() + "/pidfset", std::bind(&motors::Motor::configMotorPIDF, motor, _1, _2));
+         MC.pidfSrv = node->create_service<can_msgs::srv::SetPIDFGains>("/externIO/" + motor->getName() + "/pidfset", std::bind(&motors::Motor::configMotorPIDF, std::ref(motor), _1, _2));
          MC.pub = node->create_publisher<sensor_msgs::msg::JointState>("/externIO/" + motor->getName() + "/state", rclcpp::SystemDefaultsQoS());
-         MC.sub = node->create_subscription<can_msgs::msg::MotorMsg>("/externIO/" + motor->getName() + "/demand", rclcpp::SystemDefaultsQoS(), std::bind(&motors::Motor::setValue, motor, _1));
+         MC.sub = node->create_subscription<can_msgs::msg::MotorMsg>("/externIO/" + motor->getName() + "/demand", rclcpp::SystemDefaultsQoS(), std::bind(&motors::Motor::setValue, std::ref(motor), _1));
          motorsFXC.push_back(MC);
       }
       // subscribers of motor demands

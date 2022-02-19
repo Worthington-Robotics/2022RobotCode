@@ -20,9 +20,11 @@ namespace robot {
     void LightBar::onStart() {
 
     }
-    void LightBar::onLoop() {
+    
+    void LightBar::onLoop(double currentTime) {
         
     }
+
     void LightBar::publishData() {
         frc::SmartDashboard::PutNumber("Lights/Mode", lightMode);
         for (int i = 0; i < ledCount; i++) {
