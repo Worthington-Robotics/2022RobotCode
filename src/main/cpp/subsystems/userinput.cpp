@@ -64,7 +64,7 @@ namespace robot
             stickPubs.at(i)->publish(stickData);
 
             } else {
-                frc::ReportError(frc::warn::BadJoystickIndex, "userInput.c", 18, "regSticks", "You're about to be real sad because the joystick you want just *Isn't* there :P");
+                //frc::ReportError(frc::warn::BadJoystickIndex, "userInput.c", 18, "regSticks", "You're about to be real sad because the joystick you want just *Isn't* there :P");
             }
         }
     }
