@@ -21,6 +21,8 @@
 #define DRIVE_RL_ANGLE 8
 #define DRIVE_RL_ENCOD 4
 
+#define LED_BAR 9
+
 #define INTAKE_MOTOR_ID 9
 #define INDEXER_MOTOR_ID 10
 #define DELIVERY_MOTOR_ID 11

@@ -20,12 +20,13 @@ void Robot::RobotInit()
     // construct subsystems
     //drive = std::make_shared<robot::Drivetrain>();
     sticks = std::make_shared<robot::UserInput>();
+  
     sticks->registerSticks(USER_STICKS); //  register which joystick IDs to read
 
     // intialize all subsystems here
     manager = std::make_shared<robot::SubsystemManager>();
     manager->registerSubsystems(std::vector<std::shared_ptr<robot::Subsystem>>{
-        //drive,
+        drive,
         sticks});
 
     // grab the version string

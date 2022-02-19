@@ -4,6 +4,7 @@
 #include <frc/Errors.h>
 #include "rclcpp/rclcpp.hpp"
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <iostream>
 
 using std::placeholders::_1;
 using std::placeholders::_2;
@@ -123,8 +124,6 @@ namespace robot
             }
 
             rclcpp::spin_some(this->shared_from_this());
-            //battery stuff
-            //frc::SmartDashboard::PutNumber("Drive/Pose/Theta", battery.GetPowerUsage());
         }
         catch (const std::exception &e)
         {
@@ -155,7 +154,8 @@ namespace robot
             frc::ReportError(frc::err::Error, "SubsystemManager.cpp", 135, "enabledLoop()", "Looper Thread died with unknown exception");
         }
         //battery stuff
-        //frc::SmartDashboard::PutNumber("Drive/Pose/Theta", battery.GetPowerUsage());
+        //std::cout << battery.getPowerUsage() << std::endl;
+        //frc::SmartDashboard::PutNumber("Battery/Usage", battery.getPowerUsage());
     }
 
     /*
