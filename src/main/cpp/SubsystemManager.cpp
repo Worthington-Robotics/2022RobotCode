@@ -62,6 +62,7 @@ namespace robot
     {
         try
         {
+            isDebug = msg->data;
             for (std::shared_ptr<Subsystem> subsystem : subsystems)
             {
                 subsystem->enableDebug(msg->data);
@@ -104,8 +105,11 @@ namespace robot
                 //frc::DriverStation::ReportWarning("Running first iteration");
                 for (std::shared_ptr<Subsystem> subsystem : subsystems)
                 {
-                    subsystem->onStart();
+                    if(isDebug) std::cout << "Grabbing sensor data" << std::endl;
                     subsystem->updateSensorData();
+                    if(isDebug) std::cout << "Looping subsystem" << std::endl;
+                    subsystem->onStart();
+                    if(isDebug) std::cout << "Publishing data to ros" << std::endl;
                     subsystem->publishData();
                 }
                 isFirstIteration = false;
@@ -116,15 +120,16 @@ namespace robot
                 //frc::DriverStation::ReportWarning("Running onloop iteration");
                 for (std::shared_ptr<Subsystem> subsystem : subsystems)
                 {
-                    subsystem->onLoop(frc::Timer::GetFPGATimestamp().to<double>());
+                    if(isDebug) std::cout << "Grabbing sensor data" << std::endl;
                     subsystem->updateSensorData();
+                    if(isDebug) std::cout << "Looping subsystem" << std::endl;
+                    subsystem->onLoop(frc::Timer::GetFPGATimestamp().to<double>());
+                    if(isDebug) std::cout << "Publishing data to ros" << std::endl;
                     subsystem->publishData();
                 }
             }
 
             rclcpp::spin_some(this->shared_from_this());
-            //battery stuff
-            //frc::SmartDashboard::PutNumber("Drive/Pose/Theta", battery.GetPowerUsage());
         }
         catch (const std::exception &e)
         {
@@ -139,12 +144,14 @@ namespace robot
     void SubsystemManager::disabledLoop()
     {
         try{
-            rclcpp::spin_some(this->shared_from_this());
             for (std::shared_ptr<Subsystem> subsystem : subsystems)
             {
+                if(isDebug) std::cout << "Grabbing sensor data" << std::endl;
                 subsystem->updateSensorData();
+                if(isDebug) std::cout << "Publishing data to ros" << std::endl;
                 subsystem->publishData();
             }
+            rclcpp::spin_some(this->shared_from_this());
         }
         catch (const std::exception &e)
         {
@@ -154,8 +161,6 @@ namespace robot
         {
             frc::ReportError(frc::err::Error, "SubsystemManager.cpp", 135, "enabledLoop()", "Looper Thread died with unknown exception");
         }
-        //battery stuff
-        //frc::SmartDashboard::PutNumber("Drive/Pose/Theta", battery.GetPowerUsage());
     }
 
     /*

@@ -8,8 +8,8 @@ namespace robot
 
    ExternIO::ExternIO()
    {
-      internalTOF = std::make_shared<frc::TimeOfFlight>(INTERNAL_TOF_ID);
-      externalTOF = std::make_shared<frc::TimeOfFlight>(EXTERNAL_TOF_ID);
+      //internalTOF = std::make_shared<frc::TimeOfFlight>(INTERNAL_TOF_ID);
+      //externalTOF = std::make_shared<frc::TimeOfFlight>(EXTERNAL_TOF_ID);
       climberSolenoidLR = std::make_shared<frc::DoubleSolenoid>(frc::PneumaticsModuleType::CTREPCM, CLIMBER_SOLENOID_LR_HIGH_ID, CLIMBER_SOLENOID_LR_LOW_ID);
       climberSolenoidC = std::make_shared<frc::DoubleSolenoid>(frc::PneumaticsModuleType::CTREPCM, CLIMBER_SOLENOID_C_HIGH_ID, CLIMBER_SOLENOID_C_LOW_ID);
       intakeSolenoid = std::make_shared<frc::DoubleSolenoid>(frc::PneumaticsModuleType::CTREPCM, INTAKE_SOLENOID_HIGH_ID, INTAKE_SOLENOID_LOW_ID);
@@ -27,9 +27,9 @@ namespace robot
       {
          motors::MotorContainer MC;
          MC.motor = motor;
-         MC.pidfSrv = node->create_service<can_msgs::srv::SetPIDFGains>("/externIO/" + motor->getName() + "/pidfset", std::bind(&motors::Motor::configMotorPIDF, motor, _1, _2));
+         MC.pidfSrv = node->create_service<can_msgs::srv::SetPIDFGains>("/externIO/" + motor->getName() + "/pidfset", std::bind(&motors::Motor::configMotorPIDF, std::ref(motor), _1, _2));
          MC.pub = node->create_publisher<sensor_msgs::msg::JointState>("/externIO/" + motor->getName() + "/state", rclcpp::SystemDefaultsQoS());
-         MC.sub = node->create_subscription<can_msgs::msg::MotorMsg>("/externIO/" + motor->getName() + "/demand", rclcpp::SystemDefaultsQoS(), std::bind(&motors::Motor::setValue, motor, _1));
+         MC.sub = node->create_subscription<can_msgs::msg::MotorMsg>("/externIO/" + motor->getName() + "/demand", rclcpp::SystemDefaultsQoS(), std::bind(&motors::Motor::setValue, std::ref(motor), _1));
          motorsFXC.push_back(MC);
       }
       // subscribers of motor demands
@@ -50,8 +50,8 @@ namespace robot
    void ExternIO::reset()
    {
       // reset the TOFs
-      externalTOF->SetRangingMode(frc::TimeOfFlight::kShort, 25);
-      internalTOF->SetRangingMode(frc::TimeOfFlight::kShort, 25);
+      // externalTOF->SetRangingMode(frc::TimeOfFlight::kShort, 25);
+      // internalTOF->SetRangingMode(frc::TimeOfFlight::kShort, 25);
 
       // setting up the motors
       motorsSRX.at(0)->getMotor()->ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration{true, 5, 10, 1});
@@ -158,22 +158,22 @@ namespace robot
       // handling the falcon bits
 
       // handling the TOFs
-      if (externalTOF->IsRangeValid())
-      {
-         externalTOFDistance.data = externalTOF->GetRange();
-      }
-      else
-      {
-         externalTOFDistance.data = -1;
-      }
-      if (externalTOF->IsRangeValid())
-      {
-         internalTOFDistance.data = internalTOF->GetRange();
-      }
-      else
-      {
-         internalTOFDistance.data = -1;
-      }
+      // if (externalTOF->IsRangeValid())
+      // {
+      //    externalTOFDistance.data = externalTOF->GetRange();
+      // }
+      // else
+      // {
+      //    externalTOFDistance.data = -1;
+      // }
+      // if (externalTOF->IsRangeValid())
+      // {
+      //    internalTOFDistance.data = internalTOF->GetRange();
+      // }
+      // else
+      // {
+      //    internalTOFDistance.data = -1;
+      // }
 
       // handling the limit switches
       upperHoodLimitSwitch.data = motorsSRX.at(0)->getMotor()->IsFwdLimitSwitchClosed();

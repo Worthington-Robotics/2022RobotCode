@@ -12,7 +12,7 @@ namespace robot
     {
         for (int id : stickIds)
         {
-                sticks.push_back(frc::Joystick(id));
+            sticks.push_back(frc::Joystick(id));
         }
     }
 
@@ -21,8 +21,7 @@ namespace robot
         for (auto stick = sticks.begin(); stick != sticks.end(); ++stick)
         {
             stickPubs.push_back(
-                node->create_publisher<sensor_msgs::msg::Joy>("/sticks/stick" + std::to_string(stick->GetPort()), rclcpp::SensorDataQoS())
-            );
+                node->create_publisher<sensor_msgs::msg::Joy>("/sticks/stick" + std::to_string(stick->GetPort()), rclcpp::SensorDataQoS()));
         }
     }
 
@@ -38,34 +37,35 @@ namespace robot
     {
         for (int i = 0; i < sticks.size(); i++)
         {
-            if(frc::DriverStation::IsJoystickConnected(i)){
-            sensor_msgs::msg::Joy stickData;
-
-            int numAxes = sticks.at(i).GetAxisCount();
-            //std::cout << "Stick " << i << " axis count: " << numAxes << " axis values :[";
-            
-            std::vector<float> axisValues(numAxes);
-            for (int axis = 0; axis < numAxes; axis++)
+            if (frc::DriverStation::IsJoystickConnected(i))
             {
-                axisValues.at(axis) = sticks.at(i).GetRawAxis(axis);
-                //std::cout << axisValues.at(axis) << " ";
-            }
-            stickData.axes = axisValues;
-            //std::cout << "]" << std::endl;
-             
+                sensor_msgs::msg::Joy stickData;
 
-            int numButtons = sticks.at(i).GetButtonCount();
-            std::vector<int> buttonValues(numButtons);
-            for(int button = 0; button < numButtons; button++){
-                buttonValues.at(button) = sticks.at(i).GetRawButton(button + 1)? 1: 0;
-            }
-            stickData.buttons = buttonValues;
+                int numAxes = sticks.at(i).GetAxisCount();
+                // std::cout << "Stick " << i << " axis count: " << numAxes << " axis values :[";
 
-            stickPubs.at(i)->publish(stickData);
+                std::vector<float> axisValues(numAxes);
+                for (int axis = 0; axis < numAxes; axis++)
+                {
+                    axisValues.at(axis) = sticks.at(i).GetRawAxis(axis);
+                    // std::cout << axisValues.at(axis) << " ";
+                }
+                stickData.axes = axisValues;
+                // std::cout << "]" << std::endl;
 
-            } else {
-                frc::ReportError(frc::warn::BadJoystickIndex, "userInput.c", 18, "regSticks", "You're about to be real sad because the joystick you want just *Isn't* there :P");
+                int numButtons = sticks.at(i).GetButtonCount();
+                std::vector<int> buttonValues(numButtons);
+                for (int button = 0; button < numButtons; button++)
+                {
+                    buttonValues.at(button) = sticks.at(i).GetRawButton(button + 1) ? 1 : 0;
+                }
+                stickData.buttons = buttonValues;
+
+                stickPubs.at(i)->publish(stickData);
             }
+            // else {
+            //     frc::ReportError(frc::warn::BadJoystickIndex, "userInput.c", 18, "regSticks", "You're about to be real sad because the joystick you want just *Isn't* there :P");
+            // }
         }
     }
 
@@ -91,7 +91,8 @@ namespace robot
                 }
             }
         }
-        while(output.size() < 7) {
+        while (output.size() < 7)
+        {
             output.push_back(0.0);
         }
         return output;

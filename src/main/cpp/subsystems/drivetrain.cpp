@@ -52,6 +52,7 @@ namespace robot
     {
         // Create sensor data publishers
         imuPub = node->create_publisher<sensor_msgs::msg::Imu>("/drive/imu", rclcpp::SystemDefaultsQoS());
+        inertialAnglePub = node->create_publisher<std_msgs::msg::Float32>("/drive/inertial_heading", rclcpp::SystemDefaultsQoS());
         robotVelPub = node->create_publisher<geometry_msgs::msg::Twist>("/drive/vel", rclcpp::SystemDefaultsQoS());
         robotPosPub = node->create_publisher<geometry_msgs::msg::Pose2D>("/drive/pose", rclcpp::SystemDefaultsQoS());
         goalPub = node->create_publisher<std_msgs::msg::Float32>("/drive/motor_goal",  rclcpp::SystemDefaultsQoS());
@@ -144,8 +145,6 @@ namespace robot
         robotPosMsg.theta = pose.Rotation().Degrees().to<double>();
 
         moduleData = {frontLMod->getData(), frontRMod->getData(), rearLMod->getData(), rearRMod->getData()};
-
-        inertialAnglePub->publish(inertialAngle);
 
         // frc::DriverStation::ReportWarning("Updating drive sensor data");
         //  read the current IMU state
@@ -378,6 +377,7 @@ namespace robot
 
     void Drivetrain::publishData()
     {
+        inertialAnglePub->publish(inertialAngle);
         lookaheadPointPub->publish(lookAheadPoint);
         robotPosPub->publish(robotPosMsg);
         robotVelPub->publish(robotVelMsg);

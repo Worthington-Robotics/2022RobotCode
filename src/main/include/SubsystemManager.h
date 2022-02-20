@@ -84,7 +84,7 @@ namespace robot
         */
 
     private:
-        bool isFirstIteration = false;
+        bool isFirstIteration = false, isDebug = true;
         std::vector<std::shared_ptr<Subsystem>> subsystems;
         frc::Notifier enabledNotif, disabledNotif;
 
@@ -93,7 +93,6 @@ namespace robot
 
         rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr sysReset;
         rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr sysDebug;
-        robot::Battery battery;
     };
 
 } // namespace robot

@@ -23,16 +23,14 @@ void Robot::RobotInit()
     manager = std::make_shared<robot::SubsystemManager>();
     manager->registerSubsystems(std::vector<std::shared_ptr<robot::Subsystem>>{
         drive,
-        sticks});
+        sticks
+    });
 
     // grab the version string
     robot::ShowVersionData();
 }
 
-void Robot::RobotPeriodic()
-{
-    //std::cout << "spinning" << std::endl;
-}
+void Robot::RobotPeriodic(){}
 
 void Robot::AutonomousInit()
 {

@@ -12,7 +12,7 @@
 
 // motor libs and such
 #include <ctre/Phoenix.h>
-#include <TimeOfFlight.h>
+//#include <TimeOfFlight.h>
 #include <frc/DoubleSolenoid.h>
 #include <robot_lib/motor_abs/talon_brushless.hpp>
 #include <robot_lib/motor_abs/talon_brushed.hpp>
@@ -102,7 +102,7 @@ namespace robot
             std::make_shared<motors::TalonBrushed>(HOOD_MOTOR_ID, "hood_motor")
         };
         std::vector<motors::MotorContainer> motorsSRXC;      
-        std::shared_ptr<frc::TimeOfFlight> internalTOF, externalTOF;
+        //std::shared_ptr<frc::TimeOfFlight> internalTOF, externalTOF;
         std::shared_ptr<frc::DoubleSolenoid> climberSolenoidLR, climberSolenoidC, intakeSolenoid;
     };
 }
