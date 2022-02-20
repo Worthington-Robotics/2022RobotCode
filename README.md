@@ -1,4 +1,4 @@
-# Friendly reminder 
-to merge all of your branches to `dev`
+# dear programmers,
+someone should put something here
 
-master is for competition ready stuff only
+sincerely, The President

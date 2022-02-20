@@ -115,7 +115,7 @@ namespace robot
         void trajectoryCallback(const trajectory_msgs::msg::JointTrajectory::SharedPtr msg);
 
         /**
-         * Calbback for streaming the current desired velocity twist of the drivetrain
+         * Callback for streaming the current desired velocity twist of the drivetrain
          **/
         void twistCallback(const geometry_msgs::msg::Twist msg);
 

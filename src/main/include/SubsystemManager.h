@@ -7,7 +7,6 @@
 #include "rclcpp/rclcpp.hpp"
 #include "subsystems/Subsystem.h"
 #include "std_msgs/msg/bool.hpp"
-#include "robot_lib/Battery.h"
 
 namespace robot
 {
@@ -84,7 +83,7 @@ namespace robot
         */
 
     private:
-        bool isFirstIteration = false, isDebug = true;
+        bool isFirstIteration = false, isDebug = false;
         std::vector<std::shared_ptr<Subsystem>> subsystems;
         frc::Notifier enabledNotif, disabledNotif;
 
