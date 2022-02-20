@@ -87,7 +87,7 @@ namespace robot
         //addressable led bar
         frc::AddressableLED leds{LED_BAR};
         //number of leds
-        static constexpr int ledCount = 30;
+        static constexpr int ledCount = 60;
         //buffer used to hold led color information
         std::array<frc::AddressableLED::LEDData, ledCount> buffer;
 
