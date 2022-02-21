@@ -16,6 +16,7 @@
 #include <frc/DoubleSolenoid.h>
 #include <robot_lib/motor_abs/talon_brushless.hpp>
 #include <robot_lib/motor_abs/talon_brushed.hpp>
+#include <robot_lib/motor_abs/solenoidWrapper.hpp>
 
 
 
@@ -64,11 +65,6 @@ namespace robot
         rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr upperHoodLimitSwitchPub;
         rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr lowerHoodLimitSwitchPub;
 
-        // subscribers of motor demands
-        rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr climberSolenoidLRStateSub;
-        rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr climberSolenoidCStateSub;
-        rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr intakeSolenoidStateSub;
-
         // msgs used in the publishers of the listed above
         sensor_msgs::msg::JointState hoodEncoderPosition;
         sensor_msgs::msg::JointState flywheelEncoderVelocity;
@@ -77,20 +73,9 @@ namespace robot
         std_msgs::msg::Bool upperHoodLimitSwitch;
         std_msgs::msg::Bool lowerHoodLimitSwitch;
 
-        // cached data values from the subscribers
-        int climberSolenoidLRState = 0;
-        int climberSolenoidCState = 0;
-        int intakeSolenoidState = 0;
-
-        //subscriber callback functions
-        void setClimberSolenoidLRState(const std_msgs::msg::Int16);
-        void setClimberSolenoidCState(const std_msgs::msg::Int16); 
-        void setIntakeSolenoidState(const std_msgs::msg::Int16);
-
         // motors to be controlled by copro code and other systems
         std::vector<std::shared_ptr<motors::TalonBrushless>> motorsFX {
             std::make_shared<motors::TalonBrushless>(INTAKE_MOTOR_ID, "intake_motor"),
-            std::make_shared<motors::TalonBrushless>(INDEXER_MOTOR_ID, "indexer_motor"),
             std::make_shared<motors::TalonBrushless>(DELIVERY_MOTOR_ID, "delivery_motor"),
             std::make_shared<motors::TalonBrushless>(FLYWHEEL_MOTOR_ID, "flywheel_motor"),
             std::make_shared<motors::TalonBrushless>(CLIMBER_L_MOTOR_ID, "climber_l_motor"),
@@ -99,10 +84,23 @@ namespace robot
             };
         std::vector<motors::MotorContainer> motorsFXC;      
         std::vector<std::shared_ptr<motors::TalonBrushed>> motorsSRX {
-            std::make_shared<motors::TalonBrushed>(HOOD_MOTOR_ID, "hood_motor")
+            std::make_shared<motors::TalonBrushed>(HOOD_MOTOR_ID, "hood_motor"),
+            std::make_shared<motors::TalonBrushed>(INDEXER_MOTOR_ID, "indexer_motor")
         };
         std::vector<motors::MotorContainer> motorsSRXC;      
         //std::shared_ptr<frc::TimeOfFlight> internalTOF, externalTOF;
-        std::shared_ptr<frc::DoubleSolenoid> climberSolenoidLR, climberSolenoidC, intakeSolenoid;
+
+        std::vector<solenoid::Solenoid> solenoids {
+            solenoid::Solenoid{frc::PneumaticsModuleType::CTREPCM, CLIMBER_SOLENOID_L_MAIN_HIGH_ID, CLIMBER_SOLENOID_L_MAIN_LOW_ID, "climber_l_main"},
+            solenoid::Solenoid{frc::PneumaticsModuleType::CTREPCM, CLIMBER_SOLENOID_L_PIN_HIGH_ID, CLIMBER_SOLENOID_L_PIN_LOW_ID, "climber_l_pin"},
+            solenoid::Solenoid{frc::PneumaticsModuleType::CTREPCM, CLIMBER_SOLENOID_C_MAIN_HIGH_ID, CLIMBER_SOLENOID_C_MAIN_LOW_ID, "climber_c_main"},
+            solenoid::Solenoid{frc::PneumaticsModuleType::CTREPCM, CLIMBER_SOLENOID_C_PIN_HIGH_ID, CLIMBER_SOLENOID_C_PIN_LOW_ID, "climber_c_pin"},
+            solenoid::Solenoid{frc::PneumaticsModuleType::CTREPCM, CLIMBER_SOLENOID_R_MAIN_HIGH_ID, CLIMBER_SOLENOID_R_MAIN_LOW_ID, "climber_r_main"},
+            solenoid::Solenoid{frc::PneumaticsModuleType::CTREPCM, CLIMBER_SOLENOID_R_PIN_HIGH_ID, CLIMBER_SOLENOID_R_PIN_LOW_ID, "climber_r_pin"},
+            solenoid::Solenoid{frc::PneumaticsModuleType::CTREPCM, INTAKE_SOLENOID_HIGH_ID, INTAKE_SOLENOID_LOW_ID, "intake"}
+        };
+
+        std::vector<solenoid::SolenoidContainer> solenoidsC;
     };
+
 }

@@ -53,7 +53,7 @@ namespace motors {
         }
 
         std::string getName(){
-            return name;
+            return name + "_motor";
         }
 
         JointState getJointState(){
