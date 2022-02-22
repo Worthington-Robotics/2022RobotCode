@@ -424,19 +424,10 @@ namespace robot
         frc::SmartDashboard::PutString("Drive/Pose/units", sOdom.GetPose().X().name());
         frc::SmartDashboard::PutNumber("Drive/Pose/X", sOdom.GetPose().X().to<double>());
         frc::SmartDashboard::PutNumber("Drive/Pose/Y", sOdom.GetPose().Y().to<double>());
-        frc::SmartDashboard::PutNumber("Drive/Pose/Theta", yaw.data);
-
-        frc::SmartDashboard::PutNumber("Drive/Front/Right/Angle/Current", moduleData.frontRight.angleCurrent);
-        frc::SmartDashboard::PutNumber("Drive/Front/Left/Angle/Current", moduleData.frontLeft.angleCurrent);
-        frc::SmartDashboard::PutNumber("Drive/Rear/Right/Angle/Current", moduleData.rearRight.angleCurrent);
-        frc::SmartDashboard::PutNumber("Drive/Rear/Left/Angle/Current", moduleData.rearLeft.angleCurrent);
-
-        frc::SmartDashboard::PutNumber("Drive/Front/Right/Drive/Current", moduleData.frontRight.driveCurrent);
-        frc::SmartDashboard::PutNumber("Drive/Front/Left/Drive/Current", moduleData.frontLeft.driveCurrent);
-        frc::SmartDashboard::PutNumber("Drive/Rear/Right/Drive/Current", moduleData.rearRight.driveCurrent);
-        frc::SmartDashboard::PutNumber("Drive/Rear/Left/Drive/Current", moduleData.rearLeft.driveCurrent);
-
-        frc::SmartDashboard::PutNumber("Drive/Front/Right/Drive/Vel", moduleData.frontRight.driveVel);
+        frc::SmartDashboard::PutNumber("Drive
+                path.pop_back();
+            }
+            std::cout << "Following path " << name << std::endl;ont/Right/Drive/Vel", moduleData.frontRight.driveVel);
         frc::SmartDashboard::PutNumber("Drive/Front/Left/Drive/Vel", moduleData.frontLeft.driveVel);
         frc::SmartDashboard::PutNumber("Drive/Rear/Right/Drive/Vel", moduleData.rearRight.driveVel);
         frc::SmartDashboard::PutNumber("Drive/Rear/Left/Drive/Vel", moduleData.rearLeft.driveVel);
