@@ -26,7 +26,7 @@ void Robot::RobotInit()
     // intialize all subsystems here
     manager = std::make_shared<robot::SubsystemManager>();
     manager->registerSubsystems(std::vector<std::shared_ptr<robot::Subsystem>>{
-        drive,
+        //drive,
         sticks});
 
     // grab the version string

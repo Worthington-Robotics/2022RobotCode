@@ -29,10 +29,10 @@
 #define CLIMBER_L_MOTOR_ID 12
 #define CLIMBER_C_MOTOR_ID 13
 #define CLIMBER_R_MOTOR_ID 14
+#define HOOD_MOTOR_ID 16
 
 // TALON SRX
-#define HOOD_MOTOR_ID 1
-#define INDEXER_MOTOR_ID 2
+#define INDEXER_MOTOR_ID 22
 
 //Motor defines
 #define VOLTAGE_COMP 11

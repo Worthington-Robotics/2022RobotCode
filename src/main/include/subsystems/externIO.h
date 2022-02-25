@@ -80,11 +80,11 @@ namespace robot
             std::make_shared<motors::TalonBrushless>(FLYWHEEL_MOTOR_ID, "flywheel_motor"),
             std::make_shared<motors::TalonBrushless>(CLIMBER_L_MOTOR_ID, "climber_l_motor"),
             std::make_shared<motors::TalonBrushless>(CLIMBER_C_MOTOR_ID, "climber_c_motor"),
-            std::make_shared<motors::TalonBrushless>(CLIMBER_R_MOTOR_ID, "climber_r_motor")
+            std::make_shared<motors::TalonBrushless>(CLIMBER_R_MOTOR_ID, "climber_r_motor"),
+            std::make_shared<motors::TalonBrushed>(HOOD_MOTOR_ID, "hood_motor")
             };
         std::vector<motors::MotorContainer> motorsFXC;      
         std::vector<std::shared_ptr<motors::TalonBrushed>> motorsSRX {
-            std::make_shared<motors::TalonBrushed>(HOOD_MOTOR_ID, "hood_motor"),
             std::make_shared<motors::TalonBrushed>(INDEXER_MOTOR_ID, "indexer_motor")
         };
         std::vector<motors::MotorContainer> motorsSRXC;      

@@ -52,9 +52,11 @@ namespace robot
     {
         // Create sensor data publishers
         imuPub = node->create_publisher<sensor_msgs::msg::Imu>("/drive/imu", rclcpp::SystemDefaultsQoS());
+        yawPub = node->create_publisher<std_msgs::msg::Float32>("/pleasehelp/me",  rclcpp::SystemDefaultsQoS());
         robotVelPub = node->create_publisher<geometry_msgs::msg::Twist>("/drive/vel", rclcpp::SystemDefaultsQoS());
         robotPosPub = node->create_publisher<geometry_msgs::msg::Pose2D>("/drive/pose", rclcpp::SystemDefaultsQoS());
         goalPub = node->create_publisher<std_msgs::msg::Float32>("/drive/motor_goal",  rclcpp::SystemDefaultsQoS());
+        inertialAnglePub = node->create_publisher<std_msgs::msg::Float32>("/canada/pleasechangethis",  rclcpp::SystemDefaultsQoS());
         autoTwistDemandPub = node->create_publisher<geometry_msgs::msg::Twist>("/drive/auto_twist_demand",  rclcpp::SystemDefaultsQoS());
         lookaheadPointPub = node->create_publisher<rospathmsgs::msg::Waypoint>("/drive/lookahead_point",  rclcpp::SystemDefaultsQoS());
         #ifdef DEBUG_enable
@@ -424,10 +426,7 @@ namespace robot
         frc::SmartDashboard::PutString("Drive/Pose/units", sOdom.GetPose().X().name());
         frc::SmartDashboard::PutNumber("Drive/Pose/X", sOdom.GetPose().X().to<double>());
         frc::SmartDashboard::PutNumber("Drive/Pose/Y", sOdom.GetPose().Y().to<double>());
-        frc::SmartDashboard::PutNumber("Drive
-                path.pop_back();
-            }
-            std::cout << "Following path " << name << std::endl;ont/Right/Drive/Vel", moduleData.frontRight.driveVel);
+        frc::SmartDashboard::PutNumber("Drive/Right/Drive/Vel", moduleData.frontRight.driveVel);
         frc::SmartDashboard::PutNumber("Drive/Front/Left/Drive/Vel", moduleData.frontLeft.driveVel);
         frc::SmartDashboard::PutNumber("Drive/Rear/Right/Drive/Vel", moduleData.rearRight.driveVel);
         frc::SmartDashboard::PutNumber("Drive/Rear/Left/Drive/Vel", moduleData.rearLeft.driveVel);

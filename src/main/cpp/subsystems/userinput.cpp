@@ -36,6 +36,7 @@ namespace robot
 
     void UserInput::publishData()
     {
+        //std::cout << "why me" << std::endl;
         for (int i = 0; i < sticks.size(); i++)
         {
             if(frc::DriverStation::IsJoystickConnected(i)){
@@ -64,7 +65,7 @@ namespace robot
             stickPubs.at(i)->publish(stickData);
 
             } else {
-                //frc::ReportError(frc::warn::BadJoystickIndex, "userInput.c", 18, "regSticks", "You're about to be real sad because the joystick you want just *Isn't* there :P");
+                frc::ReportError(frc::warn::BadJoystickIndex, "userInput.c", 18, "regSticks", "You're about to be real sad because the joystick you want just *Isn't* there :P");
             }
         }
     }

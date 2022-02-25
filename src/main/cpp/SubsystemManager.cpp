@@ -118,7 +118,7 @@ namespace robot
                 //frc::DriverStation::ReportWarning("Running onloop iteration");
                 for (std::shared_ptr<Subsystem> subsystem : subsystems)
                 {
-                    subsystem->onLoop(frc::Timer::GetFPGATimestamp().to<double>());
+                    //subsystem->onLoop(frc::Timer::GetFPGATimestamp().to<double>());
                     subsystem->updateSensorData();
                     subsystem->publishData();
                 }
