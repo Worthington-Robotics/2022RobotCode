@@ -22,11 +22,42 @@ namespace motors {
             resp->success = motor->GetLastError() == OK;
         }
 
+        void muzzleMotor() {
+            motor->SetStatusFramePeriod(StatusFrameEnhanced::Status_1_General, 255, 0);
+            motor->SetStatusFramePeriod(StatusFrameEnhanced::Status_2_Feedback0, 255, 0);
+            motor->SetStatusFramePeriod(StatusFrameEnhanced::Status_4_AinTempVbat, 255, 0);
+            motor->SetStatusFramePeriod(StatusFrameEnhanced::Status_6_Misc, 255, 0);
+            motor->SetStatusFramePeriod(StatusFrameEnhanced::Status_7_CommStatus, 255, 0);
+            motor->SetStatusFramePeriod(StatusFrameEnhanced::Status_9_MotProfBuffer, 255, 0);
+            motor->SetStatusFramePeriod(StatusFrameEnhanced::Status_10_MotionMagic, 255, 0);
+            motor->SetStatusFramePeriod(StatusFrameEnhanced::Status_12_Feedback1, 255, 0);
+            motor->SetStatusFramePeriod(StatusFrameEnhanced::Status_13_Base_PIDF0, 255, 0);
+            motor->SetStatusFramePeriod(StatusFrameEnhanced::Status_14_Turn_PIDF1, 255, 0);
+            motor->SetStatusFramePeriod(StatusFrameEnhanced::Status_15_FirmareApiStatus, 255, 0);
+            motor->SetStatusFramePeriod(StatusFrameEnhanced::Status_17_Targets1, 255, 0);
+        }
+
+        void unmuzzleMotor() {
+            motor->SetStatusFramePeriod(StatusFrameEnhanced::Status_1_General, 10, 0);
+            motor->SetStatusFramePeriod(StatusFrameEnhanced::Status_2_Feedback0, 10, 0);
+            motor->SetStatusFramePeriod(StatusFrameEnhanced::Status_4_AinTempVbat, 255, 0);
+            motor->SetStatusFramePeriod(StatusFrameEnhanced::Status_6_Misc, 255, 0);
+            motor->SetStatusFramePeriod(StatusFrameEnhanced::Status_7_CommStatus, 255, 0);
+            motor->SetStatusFramePeriod(StatusFrameEnhanced::Status_9_MotProfBuffer, 255, 0);
+            motor->SetStatusFramePeriod(StatusFrameEnhanced::Status_10_MotionMagic, 255, 0);
+            motor->SetStatusFramePeriod(StatusFrameEnhanced::Status_12_Feedback1, 255, 0);
+            motor->SetStatusFramePeriod(StatusFrameEnhanced::Status_13_Base_PIDF0, 10, 0);
+            motor->SetStatusFramePeriod(StatusFrameEnhanced::Status_14_Turn_PIDF1, 255, 0);
+            motor->SetStatusFramePeriod(StatusFrameEnhanced::Status_15_FirmareApiStatus, 255, 0);
+            motor->SetStatusFramePeriod(StatusFrameEnhanced::Status_17_Targets1, 255, 0);
+        }
+
         void setValue(std::shared_ptr<can_msgs::msg::MotorMsg> msg) override {
+            // std::cout << "motor " << name << " got data" << std::endl;
             auto controlMode = static_cast<ctre::phoenix::motorcontrol::ControlMode>(msg->control_mode);
             switch(controlMode) {
                 case ControlMode::PercentOutput:
-                motor->Set(controlMode, msg->demand  * 1024.0 / M_PI);
+                motor->Set(controlMode, msg->demand);
                 break;
 
                 case ControlMode::Velocity:

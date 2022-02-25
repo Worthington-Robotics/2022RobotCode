@@ -9,6 +9,7 @@
 #include "SubsystemManager.h"
 #include "subsystems/drivetrain.h"
 #include "subsystems/userinput.h"
+#include "subsystems/externIO.h"
 
 
 class Robot : public frc::TimedRobot {
@@ -33,6 +34,7 @@ class Robot : public frc::TimedRobot {
 
   private:
   std::shared_ptr<robot::SubsystemManager> manager;
-  //std::shared_ptr<robot::Drivetrain> drive;
+  //std::shared_ptr<robot::ExternIO> externIO;
+  std::shared_ptr<robot::Drivetrain> drive;
   std::shared_ptr<robot::UserInput> sticks;
 };

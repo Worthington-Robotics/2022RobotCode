@@ -103,6 +103,14 @@ namespace robot
         // default values to zero
         imu->SetFusedHeading(0);
 
+        imu->SetStatusFramePeriod(PigeonIMU_StatusFrame::PigeonIMU_RawStatus_4_Mag, 255, 0);
+        imu->SetStatusFramePeriod(PigeonIMU_StatusFrame::PigeonIMU_CondStatus_3_GeneralAccel, 255, 0);
+        imu->SetStatusFramePeriod(PigeonIMU_StatusFrame::PigeonIMU_CondStatus_2_GeneralCompass, 255, 0);
+        imu->SetStatusFramePeriod(PigeonIMU_StatusFrame::PigeonIMU_CondStatus_1_General, 255, 0);
+        imu->SetStatusFramePeriod(PigeonIMU_StatusFrame::PigeonIMU_BiasedStatus_6_Accel, 255, 0);
+        imu->SetStatusFramePeriod(PigeonIMU_StatusFrame::PigeonIMU_CondStatus_11_GyroAccum, 255, 0);
+        imu->SetStatusFramePeriod(PigeonIMU_StatusFrame::PigeonIMU_CondStatus_10_SixDeg_Quat, 255, 0);
+
         imuMsg.linear_acceleration.x = 0;
         imuMsg.linear_acceleration.y = 0;
         imuMsg.linear_acceleration.z = 0;
@@ -151,26 +159,26 @@ namespace robot
 
         // frc::DriverStation::ReportWarning("Updating drive sensor data");
         //  read the current IMU state
-        int16_t accelData[3];
-        imu->GetBiasedAccelerometer(accelData);
-        // Convert from 2^14 = 1g = 9.8 m/s^2
-        imuMsg.linear_acceleration.x = accelData[0] * .000598784;
-        imuMsg.linear_acceleration.y = accelData[1] * .000598784;
-        imuMsg.linear_acceleration.z = accelData[2] * .000598784;
+        // int16_t accelData[3];
+        // imu->GetBiasedAccelerometer(accelData);
+        // // Convert from 2^14 = 1g = 9.8 m/s^2
+        // imuMsg.linear_acceleration.x = accelData[0] * .000598784;
+        // imuMsg.linear_acceleration.y = accelData[1] * .000598784;
+        // imuMsg.linear_acceleration.z = accelData[2] * .000598784;
 
-        double gyroData[3];
-        imu->GetRawGyro(gyroData);
-        // Convert from deg/s to rad/s
-        imuMsg.angular_velocity.x = gyroData[0] * 0.01745329;
-        imuMsg.angular_velocity.y = gyroData[1] * 0.01745329;
-        imuMsg.angular_velocity.z = gyroData[2] * 0.01745329;
+        // double gyroData[3];
+        // imu->GetRawGyro(gyroData);
+        // // Convert from deg/s to rad/s
+        // imuMsg.angular_velocity.x = gyroData[0] * 0.01745329;
+        // imuMsg.angular_velocity.y = gyroData[1] * 0.01745329;
+        // imuMsg.angular_velocity.z = gyroData[2] * 0.01745329;
 
-        double orientData[4];
-        imu->Get6dQuaternion(orientData);
-        imuMsg.orientation.w = orientData[0];
-        imuMsg.orientation.x = orientData[1];
-        imuMsg.orientation.y = orientData[2];
-        imuMsg.orientation.z = orientData[3];
+        // double orientData[4];
+        // imu->Get6dQuaternion(orientData);
+        // imuMsg.orientation.w = orientData[0];
+        // imuMsg.orientation.x = orientData[1];
+        // imuMsg.orientation.y = orientData[2];
+        // imuMsg.orientation.z = orientData[3];
 
         yaw.data = -(std::fmod((imu->GetFusedHeading() + 360), 360));
         sOdom.Update(frc::Rotation2d{units::degree_t{yaw.data}}, frontRMod->getState(),
@@ -322,7 +330,7 @@ namespace robot
         }
         if (headingControl)
         {
-            speed.omega = units::radians_per_second_t{headingController.update(imu->GetFusedHeading())};
+            speed.omega = units::radians_per_second_t{headingController.update(yaw.data)};
         }
         moduleStates = sKinematics.ToSwerveModuleStates(speed);
         rotationalData moduleOne;
@@ -391,20 +399,20 @@ namespace robot
             desiredAnglePub->publish(desiredAngle);
         #endif
 
-        frc::SmartDashboard::PutNumber("Drive/Front/Left/AngleABS", moduleData.frontLeft.encAbs);
-        frc::SmartDashboard::PutNumber("Drive/Front/Right/AngleABS", moduleData.frontRight.encAbs);
-        frc::SmartDashboard::PutNumber("Drive/Rear/Left/AngleABS", moduleData.rearLeft.encAbs);
-        frc::SmartDashboard::PutNumber("Drive/Rear/Right/AngleABS", moduleData.rearRight.encAbs);
+        // frc::SmartDashboard::PutNumber("Drive/Front/Left/AngleABS", moduleData.frontLeft.encAbs);
+        // frc::SmartDashboard::PutNumber("Drive/Front/Right/AngleABS", moduleData.frontRight.encAbs);
+        // frc::SmartDashboard::PutNumber("Drive/Rear/Left/AngleABS", moduleData.rearLeft.encAbs);
+        // frc::SmartDashboard::PutNumber("Drive/Rear/Right/AngleABS", moduleData.rearRight.encAbs);
 
         frc::SmartDashboard::PutNumber("Drive/Front/Right/Desired", moduleStates[0].angle.Degrees().to<double>());
         frc::SmartDashboard::PutNumber("Drive/Front/Left/Desired", moduleStates[1].angle.Degrees().to<double>());
         frc::SmartDashboard::PutNumber("Drive/Rear/Right/Desired", moduleStates[2].angle.Degrees().to<double>());
         frc::SmartDashboard::PutNumber("Drive/Rear/Left/Desired", moduleStates[3].angle.Degrees().to<double>());
 
-        frc::SmartDashboard::PutNumber("Drive/Front/Left/UncalABS", std::fmod(moduleData.frontLeft.encAbs - FR_ABS_OFFSET + 360, 360.0));
-        frc::SmartDashboard::PutNumber("Drive/Front/Right/UncalABS", std::fmod(moduleData.frontRight.encAbs - FL_ABS_OFFSET + 360, 360.0));
-        frc::SmartDashboard::PutNumber("Drive/Rear/Left/UncalABS", std::fmod(moduleData.rearLeft.encAbs - RL_ABS_OFFSET + 360, 360.0));
-        frc::SmartDashboard::PutNumber("Drive/Rear/Right/UncalABS", std::fmod(moduleData.rearRight.encAbs - RR_ABS_OFFSET + 360, 360.0));
+        // frc::SmartDashboard::PutNumber("Drive/Front/Left/UncalABS", std::fmod(moduleData.frontLeft.encAbs - FR_ABS_OFFSET + 360, 360.0));
+        // frc::SmartDashboard::PutNumber("Drive/Front/Right/UncalABS", std::fmod(moduleData.frontRight.encAbs - FL_ABS_OFFSET + 360, 360.0));
+        // frc::SmartDashboard::PutNumber("Drive/Rear/Left/UncalABS", std::fmod(moduleData.rearLeft.encAbs - RL_ABS_OFFSET + 360, 360.0));
+        // frc::SmartDashboard::PutNumber("Drive/Rear/Right/UncalABS", std::fmod(moduleData.rearRight.encAbs - RR_ABS_OFFSET + 360, 360.0));
 
         frc::SmartDashboard::PutNumber("Drive/Front/Left/AngleRel", moduleData.frontLeft.angleRel);
         frc::SmartDashboard::PutNumber("Drive/Front/Right/AngleRel", moduleData.frontRight.angleRel);

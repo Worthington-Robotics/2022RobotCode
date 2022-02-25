@@ -49,6 +49,8 @@ namespace robot
          **/
         void onLoop(double currentTime) override;
 
+        void updateSensorData() override;
+
         /**
          * Override this function with code needed to publish all data out to the ros network
          **/
@@ -74,30 +76,30 @@ namespace robot
         std_msgs::msg::Bool lowerHoodLimitSwitch;
 
         // motors to be controlled by copro code and other systems
-        std::vector<std::shared_ptr<motors::TalonBrushless>> motorsFX {
-            std::make_shared<motors::TalonBrushless>(INTAKE_MOTOR_ID, "intake_motor"),
-            std::make_shared<motors::TalonBrushless>(DELIVERY_MOTOR_ID, "delivery_motor"),
-            std::make_shared<motors::TalonBrushless>(FLYWHEEL_MOTOR_ID, "flywheel_motor"),
-            std::make_shared<motors::TalonBrushless>(CLIMBER_L_MOTOR_ID, "climber_l_motor"),
-            std::make_shared<motors::TalonBrushless>(CLIMBER_C_MOTOR_ID, "climber_c_motor"),
-            std::make_shared<motors::TalonBrushless>(CLIMBER_R_MOTOR_ID, "climber_r_motor"),
-            std::make_shared<motors::TalonBrushed>(HOOD_MOTOR_ID, "hood_motor")
+        std::vector<motors::TalonBrushless *> motorsFX {
+            new motors::TalonBrushless(HOOD_MOTOR_ID, "hood"),
+            new motors::TalonBrushless(INTAKE_MOTOR_ID, "intake"),
+            new motors::TalonBrushless(FLYWHEEL_MOTOR_ID, "flywheel"),
+            new motors::TalonBrushless(CLIMBER_L_MOTOR_ID, "climber_l"),
+            new motors::TalonBrushless(CLIMBER_C_MOTOR_ID, "climber_c"),
+            new motors::TalonBrushless(CLIMBER_R_MOTOR_ID, "climber_r"),
+            new motors::TalonBrushless(DELIVERY_MOTOR_ID, "delivery")
             };
         std::vector<motors::MotorContainer> motorsFXC;      
-        std::vector<std::shared_ptr<motors::TalonBrushed>> motorsSRX {
-            std::make_shared<motors::TalonBrushed>(INDEXER_MOTOR_ID, "indexer_motor")
+        std::vector<motors::TalonBrushed *> motorsSRX {
+            new motors::TalonBrushed(INDEXER_MOTOR_ID, "indexer")
         };
         std::vector<motors::MotorContainer> motorsSRXC;      
         //std::shared_ptr<frc::TimeOfFlight> internalTOF, externalTOF;
 
         std::vector<solenoid::Solenoid> solenoids {
-            solenoid::Solenoid{frc::PneumaticsModuleType::CTREPCM, CLIMBER_SOLENOID_L_MAIN_HIGH_ID, CLIMBER_SOLENOID_L_MAIN_LOW_ID, "climber_l_main"},
-            solenoid::Solenoid{frc::PneumaticsModuleType::CTREPCM, CLIMBER_SOLENOID_L_PIN_HIGH_ID, CLIMBER_SOLENOID_L_PIN_LOW_ID, "climber_l_pin"},
-            solenoid::Solenoid{frc::PneumaticsModuleType::CTREPCM, CLIMBER_SOLENOID_C_MAIN_HIGH_ID, CLIMBER_SOLENOID_C_MAIN_LOW_ID, "climber_c_main"},
-            solenoid::Solenoid{frc::PneumaticsModuleType::CTREPCM, CLIMBER_SOLENOID_C_PIN_HIGH_ID, CLIMBER_SOLENOID_C_PIN_LOW_ID, "climber_c_pin"},
-            solenoid::Solenoid{frc::PneumaticsModuleType::CTREPCM, CLIMBER_SOLENOID_R_MAIN_HIGH_ID, CLIMBER_SOLENOID_R_MAIN_LOW_ID, "climber_r_main"},
-            solenoid::Solenoid{frc::PneumaticsModuleType::CTREPCM, CLIMBER_SOLENOID_R_PIN_HIGH_ID, CLIMBER_SOLENOID_R_PIN_LOW_ID, "climber_r_pin"},
-            solenoid::Solenoid{frc::PneumaticsModuleType::CTREPCM, INTAKE_SOLENOID_HIGH_ID, INTAKE_SOLENOID_LOW_ID, "intake"}
+            // solenoid::Solenoid{frc::PneumaticsModuleType::REVPH, CLIMBER_SOLENOID_L_MAIN_HIGH_ID, CLIMBER_SOLENOID_L_MAIN_LOW_ID, "climber_l_main"},
+            // solenoid::Solenoid{frc::PneumaticsModuleType::REVPH, CLIMBER_SOLENOID_L_PIN_HIGH_ID, CLIMBER_SOLENOID_L_PIN_LOW_ID, "climber_l_pin"},
+            // solenoid::Solenoid{frc::PneumaticsModuleType::REVPH, CLIMBER_SOLENOID_C_MAIN_HIGH_ID, CLIMBER_SOLENOID_C_MAIN_LOW_ID, "climber_c_main"},
+            // solenoid::Solenoid{frc::PneumaticsModuleType::REVPH, CLIMBER_SOLENOID_C_PIN_HIGH_ID, CLIMBER_SOLENOID_C_PIN_LOW_ID, "climber_c_pin"},
+            // solenoid::Solenoid{frc::PneumaticsModuleType::REVPH, CLIMBER_SOLENOID_R_MAIN_HIGH_ID, CLIMBER_SOLENOID_R_MAIN_LOW_ID, "climber_r_main"},
+            // solenoid::Solenoid{frc::PneumaticsModuleType::REVPH, CLIMBER_SOLENOID_R_PIN_HIGH_ID, CLIMBER_SOLENOID_R_PIN_LOW_ID, "climber_r_pin"},
+            // solenoid::Solenoid{frc::PneumaticsModuleType::REVPH, INTAKE_SOLENOID_HIGH_ID, INTAKE_SOLENOID_LOW_ID, "intake"}
         };
 
         std::vector<solenoid::SolenoidContainer> solenoidsC;

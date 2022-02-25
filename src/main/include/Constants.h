@@ -43,10 +43,10 @@
 #define HOOD_KF 0
 #define HOOD_IMAX 0
 
-#define FLYWHEEL_KP 0
+#define FLYWHEEL_KP 0.17
 #define FLYWHEEL_KI 0
 #define FLYWHEEL_KD 0
-#define FLYWHEEL_KF 1
+#define FLYWHEEL_KF .046
 #define FLYWHEEL_IMAX 0
 
 #define INTAKE_KP 0

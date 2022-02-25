@@ -33,7 +33,6 @@ namespace robot
         double drivePos;
         double driveVel;
         double driveGoal;
-        double encAbs;
         double angleCurrent;
         double driveCurrent;
     };

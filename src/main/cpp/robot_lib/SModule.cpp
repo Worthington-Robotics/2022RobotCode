@@ -26,7 +26,18 @@ namespace robot
         double bootPos = 0;
         // Configure front left drive falcon
         drive->ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, 0, 100);
-        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_2_Feedback0, 5, 0);
+        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_2_Feedback0, 8, 0);
+        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_1_General, 20, 0);
+        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_4_AinTempVbat, 255, 0);
+        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_6_Misc, 255, 0);
+        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_7_CommStatus, 255, 0);
+        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_9_MotProfBuffer, 255, 0);
+        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_10_MotionMagic, 255, 0);
+        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_12_Feedback1, 255, 0);
+        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_13_Base_PIDF0, 255, 0);
+        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_14_Turn_PIDF1, 255, 0);
+        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_15_FirmareApiStatus, 255, 0);
+        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_17_Targets1, 255, 0);
         drive->SetSensorPhase(true);
         drive->SetInverted(true);
         drive->SetNeutralMode(NeutralMode::Brake);
@@ -41,7 +52,7 @@ namespace robot
         drive->ConfigStatorCurrentLimit(StatorCurrentLimitConfiguration(true, 40, 0, 0.02));
 
         // Configure front left angle falcon
-        encod->SetStatusFramePeriod(CANCoderStatusFrame::CANCoderStatusFrame_SensorData, 10, 0);
+        encod->SetStatusFramePeriod(CANCoderStatusFrame::CANCoderStatusFrame_SensorData, 100, 0);
         encod->ConfigSensorDirection(false, 0);
         encod->ConfigAbsoluteSensorRange(AbsoluteSensorRange::Unsigned_0_to_360);
         encod->ConfigMagnetOffset(offset);
@@ -51,7 +62,18 @@ namespace robot
         //std::cout << angleOffset << std::endl;
 
         angle->ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, 0, 100);
-        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_2_Feedback0, 5, 0);
+        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_2_Feedback0, 8, 0);
+        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_1_General, 20, 0);
+        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_4_AinTempVbat, 255, 0);
+        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_6_Misc, 255, 0);
+        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_7_CommStatus, 255, 0);
+        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_9_MotProfBuffer, 255, 0);
+        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_10_MotionMagic, 255, 0);
+        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_12_Feedback1, 255, 0);
+        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_13_Base_PIDF0, 255, 0);
+        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_14_Turn_PIDF1, 255, 0);
+        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_15_FirmareApiStatus, 255, 0);
+        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_17_Targets1, 255, 0);
         angle->SetSensorPhase(true);
         angle->SetInverted(true);
         angle->SetNeutralMode(NeutralMode::Brake);
@@ -152,7 +174,7 @@ namespace robot
  
     sSensorData SModule::getData(){
         return sSensorData{angle->GetSelectedSensorPosition(), drive->GetSelectedSensorPosition(), 
-        drive->GetSelectedSensorVelocity(), setpoint, encod->GetAbsolutePosition(), std::abs(angle->GetStatorCurrent()), std::abs(drive->GetStatorCurrent())};
+        drive->GetSelectedSensorVelocity(), setpoint, std::abs(angle->GetStatorCurrent()), std::abs(drive->GetStatorCurrent())};
     }
 
 } // namespace robot
