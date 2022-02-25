@@ -256,6 +256,8 @@ namespace robot
 
    void ExternIO::enableDebug(bool debug) {}
 
+   void ExternIO::updateSensorData() {}
+
    void ExternIO::setClimberSolenoidLRState(const std_msgs::msg::Int16 msg)
    {
       climberSolenoidLRState = msg.data;

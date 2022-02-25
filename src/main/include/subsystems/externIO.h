@@ -48,6 +48,9 @@ namespace robot
          **/
         void onLoop(double currentTime) override;
 
+        
+        void updateSensorData() override;
+
         /**
          * Override this function with code needed to publish all data out to the ros network
          **/

@@ -18,7 +18,8 @@ void Robot::RobotInit()
     frc::ReportError(frc::warn::Warning, "Robot.cpp", 14, "RobotInit()", "ROS Sucessfully Init!");
 
     // construct subsystems
-    //drive = std::make_shared<robot::Drivetrain>();
+    externIO = std::make_shared<robot::ExternIO>();
+    drive = std::make_shared<robot::Drivetrain>();
     sticks = std::make_shared<robot::UserInput>();
   
     sticks->registerSticks(USER_STICKS); //  register which joystick IDs to read
@@ -27,7 +28,8 @@ void Robot::RobotInit()
     manager = std::make_shared<robot::SubsystemManager>();
     manager->registerSubsystems(std::vector<std::shared_ptr<robot::Subsystem>>{
         drive,
-        sticks});
+        sticks,
+        externIO});
 
     // grab the version string
     robot::ShowVersionData();
