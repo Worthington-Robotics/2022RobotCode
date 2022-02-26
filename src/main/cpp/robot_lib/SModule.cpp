@@ -29,15 +29,15 @@ namespace robot
         drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_2_Feedback0, 8, 0);
         drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_1_General, 20, 0);
         drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_4_AinTempVbat, 255, 0);
-        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_6_Misc, 255, 0);
-        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_7_CommStatus, 255, 0);
-        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_9_MotProfBuffer, 255, 0);
-        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_10_MotionMagic, 255, 0);
+        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_6_Misc, 253, 0);
+        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_7_CommStatus, 251, 0);
+        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_9_MotProfBuffer, 249, 0);
+        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_10_MotionMagic, 247, 0);
         drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_12_Feedback1, 255, 0);
-        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_13_Base_PIDF0, 255, 0);
-        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_14_Turn_PIDF1, 255, 0);
-        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_15_FirmareApiStatus, 255, 0);
-        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_17_Targets1, 255, 0);
+        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_13_Base_PIDF0, 253, 0);
+        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_14_Turn_PIDF1, 251, 0);
+        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_15_FirmareApiStatus, 249, 0);
+        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_17_Targets1, 247, 0);
         drive->SetSensorPhase(true);
         drive->SetInverted(true);
         drive->SetNeutralMode(NeutralMode::Brake);
@@ -65,15 +65,15 @@ namespace robot
         angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_2_Feedback0, 8, 0);
         angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_1_General, 20, 0);
         angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_4_AinTempVbat, 255, 0);
-        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_6_Misc, 255, 0);
-        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_7_CommStatus, 255, 0);
-        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_9_MotProfBuffer, 255, 0);
-        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_10_MotionMagic, 255, 0);
+        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_6_Misc, 253, 0);
+        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_7_CommStatus, 251, 0);
+        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_9_MotProfBuffer, 249, 0);
+        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_10_MotionMagic, 247, 0);
         angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_12_Feedback1, 255, 0);
-        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_13_Base_PIDF0, 255, 0);
-        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_14_Turn_PIDF1, 255, 0);
-        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_15_FirmareApiStatus, 255, 0);
-        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_17_Targets1, 255, 0);
+        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_13_Base_PIDF0, 253, 0);
+        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_14_Turn_PIDF1, 251, 0);
+        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_15_FirmareApiStatus, 249, 0);
+        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_17_Targets1, 247, 0);
         angle->SetSensorPhase(true);
         angle->SetInverted(true);
         angle->SetNeutralMode(NeutralMode::Brake);
@@ -99,6 +99,13 @@ namespace robot
         drive->Config_kP(0, consts.p, 0);
         drive->Config_kI(0, consts.i, 0);
         drive->Config_kD(0, consts.d, 0);
+    }
+    
+    void SModule::updateAnglePID(PIDFDiscriptor consts){
+        angle->Config_kF(0, consts.f, 0);
+        angle->Config_kP(0, consts.p, 0);
+        angle->Config_kI(0, consts.i, 0);
+        angle->Config_kD(0, consts.d, 0);
     }
 
     void SModule::reset()

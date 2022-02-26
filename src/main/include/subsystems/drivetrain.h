@@ -22,6 +22,8 @@
 #include <sensor_msgs/msg/joy.hpp>
 #include <geometry_msgs/msg/twist.hpp>
 #include <geometry_msgs/msg/pose2_d.hpp>
+#include <can_msgs/srv/set_pidf_gains.hpp>
+#include <can_msgs/msg/motor_msg.hpp>
 #include <std_msgs/msg/int16.hpp>
 #include <rospathmsgs/srv/get_path.hpp>
 #include <std_msgs/msg/float32.hpp>
@@ -104,6 +106,9 @@ namespace robot
 
         void setHeadingControl(std_msgs::msg::Float32 setpoint);
 
+        void setLimelightRanging(const std_msgs::msg::Float32 setpoint);
+        void setLimelightAngleOffset(const std_msgs::msg::Float32 setpoint);
+
 
         /**
          * Callbacks for ROS Subscribers 
@@ -122,7 +127,12 @@ namespace robot
         /**
          * Callback for streaming joystick input into the drivetrain
          **/ 
-        void stickCallback(const sensor_msgs::msg::Joy msg);
+        void stickCallback0(const sensor_msgs::msg::Joy msg);
+
+        /**
+         * Callback for streaming joystick input into the drivetrain
+         **/ 
+        void stickCallback1(const sensor_msgs::msg::Joy msg);
 
         /**
          * Callback for setting drivetrain modes. Selects between the control modes
@@ -138,8 +148,12 @@ namespace robot
 
         void checkDeltaCurrent(double, double, double, double);
 
-        frc::ChassisSpeeds twistDrive(const geometry_msgs::msg::Twist & twist, const frc::Rotation2d & orientation );
-        frc::ChassisSpeeds twistDrive(const geometry_msgs::msg::Twist & twist );
+        void setHoodReset(const std_msgs::msg::Bool);
+
+        frc::ChassisSpeeds twistDrive(const geometry_msgs::msg::Twist & twist, const frc::Rotation2d & orientation0);
+        frc::ChassisSpeeds twistDrive(const geometry_msgs::msg::Twist & twist);
+        void updateAnglePIDGains(const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request>, std::shared_ptr<can_msgs::srv::SetPIDFGains::Response>);
+        void updateGyroPIDGains(const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request> ping, std::shared_ptr<can_msgs::srv::SetPIDFGains::Response> pong);
 
         //IO devices
         std::shared_ptr<SModule> frontRMod, frontLMod, rearRMod, rearLMod;
@@ -149,6 +163,7 @@ namespace robot
         rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imuPub;
         rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr yawPub;
         rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr goalPub;
+        rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr posexPub;
         #ifdef DEBUG_enable
             rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr currentAnglePub;
             rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr desiredAnglePub;
@@ -158,9 +173,26 @@ namespace robot
         rclcpp::Publisher<geometry_msgs::msg::Pose2D>::SharedPtr robotPosPub;
         rclcpp::Publisher<rospathmsgs::msg::Waypoint>::SharedPtr lookaheadPointPub;
         rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr inertialAnglePub;
+        
+        //Controller publishing
+        rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr intakeDemandPublisher;
+        rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr indexerDemandPublisher;
+        rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr deliveryDemandPublisher;
+        rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr flywheelDemandPublisher;
+        rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr hoodDemandPublisher;
 
         //Ros services
         rclcpp::Service<autobt_msgs::srv::StringService>::SharedPtr startPath;
+        rclcpp::Service<can_msgs::srv::SetPIDFGains>::SharedPtr setAngleGains;
+        rclcpp::Service<can_msgs::srv::SetPIDFGains>::SharedPtr setGyroGains;
+
+
+        //Controller Msgs
+        can_msgs::msg::MotorMsg intakeDemandMsg;
+        can_msgs::msg::MotorMsg indexerDemandMsg;
+        can_msgs::msg::MotorMsg deliveryDemandMsg;
+        can_msgs::msg::MotorMsg flywheelDemandMsg;
+        can_msgs::msg::MotorMsg hoodDemandMsg;
 
         // ROS Messages for publishing
         std_msgs::msg::Float32 goal;
@@ -180,10 +212,14 @@ namespace robot
         // ROS Subscibers
         rclcpp::Subscription<trajectory_msgs::msg::JointTrajectory>::SharedPtr trajectorySub;
         rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr twistSub;
-        rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr stickSub;
+        rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr stickSub0;
+        rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr stickSub1;
         rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr DriveModeSub;
         rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr HeadingSetpointSub;
         rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr HeadingControlSub;
+        rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr limelightAngleOffsetSub;
+        rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr limelightRangeSub;
+        rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr hoodResetSub;
 
         // ROS SRV REQUESTS
         rclcpp::Client<rospathmsgs::srv::GetPath>::SharedPtr GPClient;
@@ -192,7 +228,8 @@ namespace robot
         // ROS Messages for storing subscription data
         geometry_msgs::msg::Twist stickTwist;
         geometry_msgs::msg::Twist lastTwist;
-        sensor_msgs::msg::Joy lastStick;
+        sensor_msgs::msg::Joy lastStick0;
+        sensor_msgs::msg::Joy lastStick1;
 
         // underlying controllers
         frc::Translation2d sFrontRight{CHASSIS_LENGTH, CHASSIS_LENGTH};
@@ -228,7 +265,7 @@ namespace robot
 
         //
         bool headingControl = false;
-        PIDF headingController = PIDF(PIDFDiscriptor{.033, 0, .0025, 0});
+        PIDF headingController = PIDF(PIDFDiscriptor{.013, .0001, 0, 0});
 
         //button bool for robot relitive drive
         bool isRobotRel = false;
@@ -238,10 +275,30 @@ namespace robot
         bool tankLockButton = false;
         //button bool for spin lock (NO GYRO PID, MAY DRIFT, FIX?)
         bool spinLock = false;
+        //button bool for spin lock (NO GYRO PID, MAY DRIFT, FIX?)
+        bool untargetShot = false;
+        bool targetShot = false;
+        //target shot
+        double range = 0;
+        double angleOffset = 0;
         //button for gyro reset
         bool gyroReset = false;
+        //button for intake
+        bool intake = false;
+        bool unintake = false;
+        bool shoot = false;
+
+        bool hoodReset = 0;
+        double hoodDemand = 0;
+
+
+        bool flywheelState = false;
+        bool flywheelHeld = false;
+        bool flywheelButton = false;
 
         frc::Pose2d pose;
+
+        
 
         //vector of iterators to check if currents values are too high
         std::vector<double> iterators = {0, 0, 0, 0};

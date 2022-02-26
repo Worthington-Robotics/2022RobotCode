@@ -32,7 +32,7 @@ namespace robot
         double angleRel;
         double drivePos;
         double driveVel;
-        double driveGoal;
+        double angleGoal;
         double angleCurrent;
         double driveCurrent;
     };
@@ -72,6 +72,8 @@ namespace robot
         void setInvertDrive(bool);
 
         void updateDrivePID(PIDFDiscriptor);
+        
+        void updateAnglePID(PIDFDiscriptor);
 
     private:
         /**

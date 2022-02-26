@@ -37,7 +37,7 @@
 //Motor defines
 #define VOLTAGE_COMP 11
 
-#define HOOD_KP 1
+#define HOOD_KP .1
 #define HOOD_KI 0
 #define HOOD_KD 0
 #define HOOD_KF 0
@@ -61,19 +61,19 @@
 #define INDEXER_KF 1
 #define INDEXER_IMAX 0
 
-#define CLIMBER_L_KP 0
+#define CLIMBER_L_KP .05
 #define CLIMBER_L_KI 0
 #define CLIMBER_L_KD 0
 #define CLIMBER_L_KF 0
 #define CLIMBER_L_IMAX 0
 
-#define CLIMBER_C_KP 0
+#define CLIMBER_C_KP .05
 #define CLIMBER_C_KI 0
 #define CLIMBER_C_KD 0
 #define CLIMBER_C_KF 0
 #define CLIMBER_C_IMAX 0
 
-#define CLIMBER_R_KP 0
+#define CLIMBER_R_KP .05
 #define CLIMBER_R_KI 0
 #define CLIMBER_R_KD 0
 #define CLIMBER_R_KF 0
@@ -123,10 +123,10 @@
 #define DRIVE_SHIFT_HIGH 3
 
 // Which sticks to watch from the driverstation
-#define USER_STICKS {0}
+#define USER_STICKS {0, 1}
 
 #define DRIVE_STICK_TOPIC "/sticks/stick0" 
-#define DRIVE_STICK_SCALAR {1, -1, 1, 1, 1, 1}
+#define DRIVE_STICK_SCALAR {.75, -.75, .75, .75, .75, .75}
 #define DRIVE_STICK_DEADBAND 0.2
 #define DRIVE_STICK_POWER 4
 

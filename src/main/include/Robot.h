@@ -34,7 +34,7 @@ class Robot : public frc::TimedRobot {
 
   private:
   std::shared_ptr<robot::SubsystemManager> manager;
-  //std::shared_ptr<robot::ExternIO> externIO;
+  std::shared_ptr<robot::ExternIO> externIO;
   std::shared_ptr<robot::Drivetrain> drive;
   std::shared_ptr<robot::UserInput> sticks;
 };

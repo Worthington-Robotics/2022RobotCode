@@ -20,6 +20,8 @@ namespace robot
    void ExternIO::createRosBindings(rclcpp::Node *node)
    {
 
+
+      hoodLimitSwitchResetPub = node->create_publisher<std_msgs::msg::Bool>("/externIO/hood_motor/is_reset", rclcpp::SystemDefaultsQoS());
       for (motors::TalonBrushless * motor : motorsFX)
       {
          motors::MotorContainer MC = {
@@ -82,7 +84,7 @@ namespace robot
       motorsFX.at(0)->getMotor()->SetIntegralAccumulator(HOOD_IMAX);
       motorsFX.at(0)->getMotor()->ConfigReverseLimitSwitchSource(LimitSwitchSource_FeedbackConnector, LimitSwitchNormal_NormallyOpen, 0);
       motorsFX.at(0)->getMotor()->ConfigForwardLimitSwitchSource(LimitSwitchSource_FeedbackConnector, LimitSwitchNormal_NormallyOpen, 0);
-      motorsFX.at(0)->muzzleMotor();
+      motorsFX.at(0)->unmuzzleMotor();
 
       motorsFX.at(1)->getMotor()->ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration{true, 5, 10, 1});
       motorsFX.at(1)->getMotor()->ConfigVoltageCompSaturation(VOLTAGE_COMP);
@@ -181,7 +183,10 @@ namespace robot
    /**
     * Overrride this function with any code needed to be called only once on the first onloop iteration
     **/
-   void ExternIO::onStart() {}
+   void ExternIO::onStart() {
+      
+      
+   }
 
    void ExternIO::updateSensorData() {}
 
@@ -190,6 +195,15 @@ namespace robot
     **/
    void ExternIO::onLoop(double currentTime)
    {
+      if(!motorsFX.at(0)->getMotor()->IsRevLimitSwitchClosed() && !hoodReset){
+         motorsFX.at(0)->getMotor()->Set(ControlMode::PercentOutput, -.5);
+         motorsFX.at(0)->getMotor()->SetSelectedSensorPosition(0);
+      } else if (motorsFX.at(0)->getMotor()->IsRevLimitSwitchClosed()) {
+         hoodReset = true;
+         std_msgs::msg::Bool limit;
+         limit.data = true;
+         hoodLimitSwitchResetPub->publish(limit);
+      }
       // handling the falcon bits
 
       // handling the TOFs
