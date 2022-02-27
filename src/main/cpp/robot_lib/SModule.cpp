@@ -105,18 +105,22 @@ namespace robot
         drive->SetInverted(invert);
     }
 
-    void SModule::updateDrivePID(PIDFDiscriptor consts){
-        drive->Config_kF(0, consts.f, 0);
-        drive->Config_kP(0, consts.p, 0);
-        drive->Config_kI(0, consts.i, 0);
-        drive->Config_kD(0, consts.d, 0);
+    void SModule::updateDrivePID(const can_msgs::srv::SetPIDFGains::Request::SharedPtr req, can_msgs::srv::SetPIDFGains::Response::SharedPtr resp){
+        drive->Config_kF(0, req->k_f, 0);
+        drive->Config_kP(0, req->k_p, 0);
+        drive->Config_kI(0, req->k_i, 0);
+        drive->Config_kD(0, req->k_d, 0);
+
+        resp->success = true;
     }
     
-    void SModule::updateAnglePID(PIDFDiscriptor consts){
-        angle->Config_kF(0, consts.f, 0);
-        angle->Config_kP(0, consts.p, 0);
-        angle->Config_kI(0, consts.i, 0);
-        angle->Config_kD(0, consts.d, 0);
+    void SModule::updateAnglePID(const can_msgs::srv::SetPIDFGains::Request::SharedPtr req, can_msgs::srv::SetPIDFGains::Response::SharedPtr resp){
+        drive->Config_kF(0, req->k_f, 0);
+        drive->Config_kP(0, req->k_p, 0);
+        drive->Config_kI(0, req->k_i, 0);
+        drive->Config_kD(0, req->k_d, 0);
+
+        resp->success = true;
     }
 
     void SModule::reset()
