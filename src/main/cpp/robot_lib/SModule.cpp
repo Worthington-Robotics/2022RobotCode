@@ -7,6 +7,9 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <iostream>
 
+using std::placeholders::_1;
+using std::placeholders::_2;
+
 namespace robot
 {
 
@@ -93,6 +96,9 @@ namespace robot
 
     void SModule::createRosBindings(rclcpp::Node * nodeHandle){
         jointStatePub = nodeHandle->create_publisher<sensor_msgs::msg::JointState>("/drive/" + name + "/joint_state", rclcpp::SystemDefaultsQoS());
+
+        anglePDIF = nodeHandle->create_service<can_msgs::srv::SetPIDFGains>("/drive/" + name + "/angle/pidfset", std::bind(&SModule::anglePDIF, this, _1, _2));
+        drivePIDF = nodeHandle->create_service<can_msgs::srv::SetPIDFGains>("/drive/" + name + "/drive/pidfset", std::bind(&SModule::anglePDIF, this, _1, _2));
     }
 
     void SModule::setInvertDrive(bool invert){

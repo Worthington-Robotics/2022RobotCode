@@ -8,6 +8,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
+#include <can_msgs/srv/set_pidf_gains.hpp>
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -73,6 +74,7 @@ namespace robot
         std::string name;
 
         rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr jointStatePub;
+        rclcpp::Service<can_msgs::srv::SetPIDFGains>::SharedPtr anglePDIF, drivePIDF;
         
     };
 
