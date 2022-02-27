@@ -113,5 +113,6 @@
     "cinttypes": "cpp",
     "filesystem": "cpp",
     "*.inc": "cpp"
-  }
+  },
+  "ros.distro": "galactic"
 }

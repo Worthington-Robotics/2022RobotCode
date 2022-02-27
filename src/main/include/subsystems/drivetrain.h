@@ -96,140 +96,18 @@ namespace robot
          */
         bool enablePathFollower(std::string name);
 
-        void enablePathFollowerS(std::shared_ptr<autobt_msgs::srv::StringService_Request> ping, std::shared_ptr<autobt_msgs::srv::StringService_Response> pong);
-        
         void enableOpenLoop();
         
         void resetPose();
 
-        void engageHeadingControl(std_msgs::msg::Bool engaged);
-
-        void setHeadingControl(std_msgs::msg::Float32 setpoint);
-
-        void setLimelightRanging(const std_msgs::msg::Float32 setpoint);
-        void setLimelightAngleOffset(const std_msgs::msg::Float32 setpoint);
-
-
-        /**
-         * Callbacks for ROS Subscribers 
-         **/
-
-        /**
-         * Callback for streaming generated trajectories into the trajectory follower
-         **/
-        void trajectoryCallback(const trajectory_msgs::msg::JointTrajectory::SharedPtr msg);
-
-        /**
-         * Callback for streaming the current desired velocity twist of the drivetrain
-         **/
-        void twistCallback(const geometry_msgs::msg::Twist msg);
-
-        /**
-         * Callback for streaming joystick input into the drivetrain
-         **/ 
-        void stickCallback0(const sensor_msgs::msg::Joy msg);
-
-        /**
-         * Callback for streaming joystick input into the drivetrain
-         **/ 
-        void stickCallback1(const sensor_msgs::msg::Joy msg);
-
-        /**
-         * Callback for setting drivetrain modes. Selects between the control modes
-         * enumerated in the ControlState enum.
-         **/
-        void driveModeCallback(const std_msgs::msg::Int16 msg);
 
     private:
 
-        void execActions();
-
-        void updateSensorData();
-
-        void checkDeltaCurrent(double, double, double, double);
-
-        void setHoodReset(const std_msgs::msg::Bool);
-
-        frc::ChassisSpeeds twistDrive(const geometry_msgs::msg::Twist & twist, const frc::Rotation2d & orientation0);
-        frc::ChassisSpeeds twistDrive(const geometry_msgs::msg::Twist & twist);
-        void updateAnglePIDGains(const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request>, std::shared_ptr<can_msgs::srv::SetPIDFGains::Response>);
-        void updateGyroPIDGains(const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request> ping, std::shared_ptr<can_msgs::srv::SetPIDFGains::Response> pong);
+        bool DEBUG = true;
 
         //IO devices
         std::shared_ptr<SModule> frontRMod, frontLMod, rearRMod, rearLMod;
         std::shared_ptr<PigeonIMU> imu;
-
-        // ROS Publishers
-        rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imuPub;
-        rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr yawPub;
-        rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr goalPub;
-        rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr posexPub;
-        #ifdef DEBUG_enable
-            rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr currentAnglePub;
-            rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr desiredAnglePub;
-        #endif
-        rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr autoTwistDemandPub;
-        rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr robotVelPub;
-        rclcpp::Publisher<geometry_msgs::msg::Pose2D>::SharedPtr robotPosPub;
-        rclcpp::Publisher<rospathmsgs::msg::Waypoint>::SharedPtr lookaheadPointPub;
-        rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr inertialAnglePub;
-        
-        //Controller publishing
-        rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr intakeDemandPublisher;
-        rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr indexerDemandPublisher;
-        rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr deliveryDemandPublisher;
-        rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr flywheelDemandPublisher;
-        rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr hoodDemandPublisher;
-
-        //Ros services
-        rclcpp::Service<autobt_msgs::srv::StringService>::SharedPtr startPath;
-        rclcpp::Service<can_msgs::srv::SetPIDFGains>::SharedPtr setAngleGains;
-        rclcpp::Service<can_msgs::srv::SetPIDFGains>::SharedPtr setGyroGains;
-
-
-        //Controller Msgs
-        can_msgs::msg::MotorMsg intakeDemandMsg;
-        can_msgs::msg::MotorMsg indexerDemandMsg;
-        can_msgs::msg::MotorMsg deliveryDemandMsg;
-        can_msgs::msg::MotorMsg flywheelDemandMsg;
-        can_msgs::msg::MotorMsg hoodDemandMsg;
-
-        // ROS Messages for publishing
-        std_msgs::msg::Float32 goal;
-        #ifdef DEBUG_enable
-            std_msgs::msg::Float32 currentAngle;
-            std_msgs::msg::Float32 desiredAngle;
-        #endif
-        geometry_msgs::msg::Twist autoTwistDemand;
-        std_msgs::msg::Float32 yaw;
-        sensor_msgs::msg::Imu imuMsg;
-        geometry_msgs::msg::Pose2D robotPosMsg;
-        geometry_msgs::msg::Twist robotVelMsg;
-        rospathmsgs::msg::Waypoint lookAheadPoint;
-        std_msgs::msg::Float32 inertialAngle;
-
-
-        // ROS Subscibers
-        rclcpp::Subscription<trajectory_msgs::msg::JointTrajectory>::SharedPtr trajectorySub;
-        rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr twistSub;
-        rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr stickSub0;
-        rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr stickSub1;
-        rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr DriveModeSub;
-        rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr HeadingSetpointSub;
-        rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr HeadingControlSub;
-        rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr limelightAngleOffsetSub;
-        rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr limelightRangeSub;
-        rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr hoodResetSub;
-
-        // ROS SRV REQUESTS
-        rclcpp::Client<rospathmsgs::srv::GetPath>::SharedPtr GPClient;
-        rospathmsgs::srv::GetPath::Request::SharedPtr GPReq;
-
-        // ROS Messages for storing subscription data
-        geometry_msgs::msg::Twist stickTwist;
-        geometry_msgs::msg::Twist lastTwist;
-        sensor_msgs::msg::Joy lastStick0;
-        sensor_msgs::msg::Joy lastStick1;
 
         // underlying controllers
         frc::Translation2d sFrontRight{CHASSIS_LENGTH, CHASSIS_LENGTH};
@@ -239,33 +117,105 @@ namespace robot
         frc::SwerveDriveKinematics<4> sKinematics {sFrontRight, sFrontLeft, sRearRight, sRearLeft};
         frc::SwerveDriveOdometry<4> sOdom {sKinematics, frc::Rotation2d{units::degree_t{0}}};
         std::array<frc::SwerveModuleState, 4> moduleStates; //fr, fl, rr, rl
-        //std::shared_ptr<PurePursuitController> PPC;
-        
-
-        bool DEBUG = true;
-
-        bool resetPIDVals = false;
-
-        double kF;
-        double kP;
-        double kI;
-        double kD;
 
         // Control states for the DT
         ControlState driveState = OPEN_LOOP_ROBOT_REL;
-        SwerveSensorData moduleData;
         APPCDiscriptor params;
         std::shared_ptr<PurePursuitController> PPC;
+
+
+
+        void execActions();
+
+        void updateSensorData();
+
+        void checkDeltaCurrent(double, double, double, double);
+
+        frc::ChassisSpeeds twistDrive(const geometry_msgs::msg::Twist & twist, const frc::Rotation2d & orientation0);
+        frc::ChassisSpeeds twistDrive(const geometry_msgs::msg::Twist & twist);
+    
+
+        // ROS Publishers
+
+        rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr drivetrainHeadingPub;
+        std_msgs::msg::Float32 drivetrainHeadingMsg;
+
+        rclcpp::Publisher<geometry_msgs::msg::Pose2D>::SharedPtr robotPositionPub;
+        geometry_msgs::msg::Pose2D robotPositionMsg;
+        frc::Pose2d pose;
+
+        rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr robotVelocityPub;
+        geometry_msgs::msg::Twist robotVelocityMsg;
+
+        rclcpp::Publisher<rospathmsgs::msg::Waypoint>::SharedPtr autoLookaheadPointPub;
+        rospathmsgs::msg::Waypoint lookAheadPoint;
+
+        rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr autoToLookaheadAnglePub;
+        std_msgs::msg::Float32 autoToLookaheadAngleMsg;
+
+        rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr driveControlModePub;
+        std_msgs::msg::Int16 driveControlModeMsg;
+
+        //Controller publishing (system independent only!)
+        #ifdef SystemIndependent
+        rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr intakeDemandPublisher;
+        can_msgs::msg::MotorMsg intakeDemandMsg;
+
+        rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr indexerDemandPublisher;
+        can_msgs::msg::MotorMsg indexerDemandMsg;
+
+        rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr deliveryDemandPublisher;
+        can_msgs::msg::MotorMsg deliveryDemandMsg;
+
+        rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr flywheelDemandPublisher;
+        can_msgs::msg::MotorMsg flywheelDemandMsg;
+
+        rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr hoodDemandPublisher;
+        can_msgs::msg::MotorMsg hoodDemandMsg;
+        #endif
+
+        // ROS Subscibers
+        rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr stickSub0;
+        void setStick0(const sensor_msgs::msg::Joy);
+        geometry_msgs::msg::Twist stickTwist;
+        sensor_msgs::msg::Joy lastStick0;
+
+        rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr stickSub1;
+        void setStick1(const sensor_msgs::msg::Joy);
+        sensor_msgs::msg::Joy lastStick1;
+
+        rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr DriveModeSub;
+        void setDriveMode(const std_msgs::msg::Int16);
+
+        rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr HeadingSetpointSub;
+        void setHeadingControlAngle(const std_msgs::msg::Float32);
+        PIDF headingController = PIDF(PIDFDiscriptor{.013, .0001, 0, 0});
+
+        rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr HeadingControlSub;
+        void setHeadingControlEnabled(const std_msgs::msg::Bool);
+        bool headingControl = false;
+
+        rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr limelightAngleOffsetSub;
+        void setLimelightAngleOffset(const std_msgs::msg::Float32);
+
+        rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr hoodResetSub;
+        void setHoodReset(const std_msgs::msg::Bool);
+
+        //Ros services
+        rclcpp::Service<autobt_msgs::srv::StringService>::SharedPtr startPath;
+        void enablePathFollowerS(std::shared_ptr<autobt_msgs::srv::StringService_Request>, std::shared_ptr<autobt_msgs::srv::StringService_Response>);
+
+        rclcpp::Service<can_msgs::srv::SetPIDFGains>::SharedPtr setGyroGains;
+        void updateGyroPIDGains(const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request>, 
+            std::shared_ptr<can_msgs::srv::SetPIDFGains::Response>);
+
+        //Ros clients
+        rclcpp::Client<rospathmsgs::srv::GetPath>::SharedPtr GPClient;
+        rospathmsgs::srv::GetPath::Request::SharedPtr GPReq;
 
         // last update time for safety critical topics
         double lastTwistTime, lastStickTime;
 
-        // Demand variables
-        double leftDemand, rightDemand;
-
-        //
-        bool headingControl = false;
-        PIDF headingController = PIDF(PIDFDiscriptor{.013, .0001, 0, 0});
 
         //button bool for robot relitive drive
         bool isRobotRel = false;
@@ -278,12 +228,13 @@ namespace robot
         //button bool for spin lock (NO GYRO PID, MAY DRIFT, FIX?)
         bool untargetShot = false;
         bool targetShot = false;
-        //target shot
-        double range = 0;
+
         double angleOffset = 0;
         //button for gyro reset
         bool gyroReset = false;
         //button for intake
+
+        #ifdef SystemIndependent
         bool intake = false;
         bool unintake = false;
         bool shoot = false;
@@ -291,17 +242,13 @@ namespace robot
         bool hoodReset = 0;
         double hoodDemand = 0;
 
-
         bool flywheelState = false;
         bool flywheelHeld = false;
         bool flywheelButton = false;
-
-        frc::Pose2d pose;
-
-        
+        #endif
 
         //vector of iterators to check if currents values are too high
-        std::vector<double> iterators = {0, 0, 0, 0};
+        std::vector<double> currentIterators = {0, 0, 0, 0};
     };
 
 } // namespace robot

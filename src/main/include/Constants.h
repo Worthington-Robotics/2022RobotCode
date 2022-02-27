@@ -2,6 +2,8 @@
 #include <units/time.h>
 #include <units/velocity.h>
 #include <rospathmsgs/msg/waypoint.hpp>
+#define SystemIndependent
+
 // Canbus ID mappings
 
 // TALON FX
