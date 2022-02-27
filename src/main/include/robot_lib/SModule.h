@@ -6,37 +6,15 @@
 #include <frc/geometry/Rotation2d.h>
 #include "robot_lib/util/PIDF.h"
 
+#include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/joint_state.hpp>
+#include <can_msgs/srv/set_pidf_gains.hpp>
+
 #define _USE_MATH_DEFINES
 #include <cmath>
 
 namespace robot
 {
-
-
-    struct rotationalData{
-        double angleTicks;
-        double speed;
-    };
-
-    /**
-     * A struct for encoding the sensor data of a give swerve module, including information for the angle, drive, and CANcoder sections
-     * @param angleRel the relative ticks of the given motor, should boot to zero if inline after being adjusted by startup offsets
-     * @param drivePos the position of the drive motor in ticks, NOT the position of the robot
-     * @param driveVel the velocity of the drive motor in ticks / 100ms NOT the speed of the robot
-     * @param encAbs the absolute position of the CANcoder, and the refrence point for angleRel
-     * @param angleCurrent provides the power of the motor controlling the angle of the swerve module
-     * @param driveCurrent provides the power of the motor controlling the drive speed for the swerve module
-     */
-    struct sSensorData
-    {
-        double angleRel;
-        double drivePos;
-        double driveVel;
-        double angleGoal;
-        double angleCurrent;
-        double driveCurrent;
-    };
-
     /**
      * SModule is a class designed to house all information assosiated with a single swerve module on the robot
      * It contains two CTRE TalonFX motors, and one CTRE CANcoder working in tandem to excecute swerveStates
@@ -54,33 +32,33 @@ namespace robot
          * @param dValues
          * @param aValues
          */
-        SModule(int driveID, int angleID, int encoderID, double offset, PIDFDiscriptor dValues, PIDFDiscriptor aValues);
+        SModule(int driveID, int angleID, int encoderID, std::string name, double offset, PIDFDiscriptor dValues, PIDFDiscriptor aValues);
 
         /**
          * Override this function with all the nessecary code needed to reset a subsystem
          **/
         void reset();
 
-        rotationalData setMotors(frc::SwerveModuleState);
+        void setMotors(frc::SwerveModuleState);
 
         void setMotorVelocity(frc::SwerveModuleState);
 
+        void createRosBindings(rclcpp::Node *);
+
         frc::SwerveModuleState getState();
 
-        sSensorData getData();
+        void publishModuleInfo();
 
         void setInvertDrive(bool);
 
-        void updateDrivePID(PIDFDiscriptor);
+        void updateDrivePID(const can_msgs::srv::SetPIDFGains::Request::SharedPtr, can_msgs::srv::SetPIDFGains::Response::SharedPtr);
         
-        void updateAnglePID(PIDFDiscriptor);
+        void updateAnglePID(const can_msgs::srv::SetPIDFGains::Request::SharedPtr, can_msgs::srv::SetPIDFGains::Response::SharedPtr);
 
     private:
         /**
          * Configure the associated motor controllers with their settings as specified in constants
          **/ 
-        double setpoint = 0;
-
         void configMotors(double, PIDFDiscriptor, PIDFDiscriptor);
 
         void updateSensorData();
@@ -90,6 +68,13 @@ namespace robot
         //IO devices
         std::shared_ptr<TalonFX> drive, angle;
         std::shared_ptr<CANCoder> encod;
+
+        double desiredAngle, desiredVelocity;
+
+        std::string name;
+
+        rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr jointStatePub;
+        rclcpp::Service<can_msgs::srv::SetPIDFGains>::SharedPtr anglePDIF, drivePIDF;
         
     };
 
