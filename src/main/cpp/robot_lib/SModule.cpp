@@ -97,8 +97,8 @@ namespace robot
     void SModule::createRosBindings(rclcpp::Node * nodeHandle){
         jointStatePub = nodeHandle->create_publisher<sensor_msgs::msg::JointState>("/drive/" + name + "/joint_state", rclcpp::SystemDefaultsQoS());
 
-        anglePDIF = nodeHandle->create_service<can_msgs::srv::SetPIDFGains>("/drive/" + name + "/angle/pidfset", std::bind(&SModule::anglePDIF, this, _1, _2));
-        drivePIDF = nodeHandle->create_service<can_msgs::srv::SetPIDFGains>("/drive/" + name + "/drive/pidfset", std::bind(&SModule::anglePDIF, this, _1, _2));
+        anglePDIF = nodeHandle->create_service<can_msgs::srv::SetPIDFGains>("/drive/" + name + "/angle/pidfset", std::bind(&SModule::updateAnglePID, this, _1, _2));
+        drivePIDF = nodeHandle->create_service<can_msgs::srv::SetPIDFGains>("/drive/" + name + "/drive/pidfset", std::bind(&SModule::updateDrivePID, this, _1, _2));
     }
 
     void SModule::setInvertDrive(bool invert){

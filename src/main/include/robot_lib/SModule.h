@@ -51,9 +51,11 @@ namespace robot
 
         void setInvertDrive(bool);
 
-        void updateDrivePID(const can_msgs::srv::SetPIDFGains::Request::SharedPtr, can_msgs::srv::SetPIDFGains::Response::SharedPtr);
+        void updateDrivePID(const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request>,
+                         std::shared_ptr<can_msgs::srv::SetPIDFGains::Response>);
         
-        void updateAnglePID(const can_msgs::srv::SetPIDFGains::Request::SharedPtr, can_msgs::srv::SetPIDFGains::Response::SharedPtr);
+        void updateAnglePID(const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request>,
+                         std::shared_ptr<can_msgs::srv::SetPIDFGains::Response>);
 
     private:
         /**
