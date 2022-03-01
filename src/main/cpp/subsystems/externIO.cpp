@@ -46,10 +46,10 @@ namespace robot
       }
 
       // subscribers of motor demands
-      for (solenoid::Solenoid solenoid : solenoids){
+      for (solenoid::Solenoid* solenoid : solenoids){
          solenoid::SolenoidContainer SC{
-            solenoid,
-            node->create_subscription<std_msgs::msg::Int16>("/externIO/" + solenoid.getName() + "/state", rclcpp::SystemDefaultsQoS(), std::bind(&solenoid::Solenoid::set, std::ref(solenoid), _1))
+            *solenoid,
+            node->create_subscription<std_msgs::msg::Int16>("/externIO/" + solenoid->getName() + "/state", rclcpp::SystemDefaultsQoS(), std::bind(&solenoid::Solenoid::set, std::ref(*solenoid), _1))
          };
          solenoidsC.push_back(SC);
       }
@@ -178,6 +178,9 @@ namespace robot
       motorsFX.at(6)->muzzleMotor();
       motorsFXC.at(6).shutUp = true;
 
+      for(solenoid::Solenoid* solenoid : solenoids){
+         solenoid->getSolenoid()->Set(frc::DoubleSolenoid::Value::kReverse);
+      }
    }
 
    /**

@@ -248,7 +248,7 @@ namespace robot
         driveControlModePub->publish(driveControlModeMsg);
         drivetrainHeadingPub->publish(drivetrainHeadingMsg);
 
-        #ifdef SystemIndepedent
+        #ifdef SystemIndependent
         intakeDemandPublisher->publish(intakeDemandMsg);
         indexerDemandPublisher->publish(indexerDemandMsg);
         deliveryDemandPublisher->publish(deliveryDemandMsg);
@@ -401,7 +401,7 @@ namespace robot
 
         if (targetShot)
         {
-            headingController.setSetpoint(drivetrainHeadingMsg.data - angleOffset - 5);
+            headingController.setSetpoint(drivetrainHeadingMsg.data - angleOffset);
             headingControl = true;
         }
         else

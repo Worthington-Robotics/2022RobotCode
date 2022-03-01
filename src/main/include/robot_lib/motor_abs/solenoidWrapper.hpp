@@ -13,7 +13,7 @@ namespace solenoid
     public:
         Solenoid(frc::PneumaticsModuleType type, int highID, int lowID, const std::string& solenoidName)
         {
-            solenoid = std::make_shared<frc::DoubleSolenoid>(type, highID, lowID);
+            solenoid = std::make_shared<frc::DoubleSolenoid>(1, type, highID, lowID);
             name = solenoidName;
         }
 
@@ -35,6 +35,10 @@ namespace solenoid
 
         std::string getName(){
             return name + "_solenoid";
+        }
+
+        std::shared_ptr<frc::DoubleSolenoid> getSolenoid(){
+            return solenoid;
         }
 
     private:

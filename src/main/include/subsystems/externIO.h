@@ -94,14 +94,14 @@ namespace robot
         //std::shared_ptr<frc::TimeOfFlight> internalTOF, externalTOF;
 
 
-        std::vector<solenoid::Solenoid> solenoids {
-            solenoid::Solenoid{frc::PneumaticsModuleType::REVPH, CLIMBER_SOLENOID_L_MAIN_HIGH_ID, CLIMBER_SOLENOID_L_MAIN_LOW_ID, "climber_l_main"},
-            solenoid::Solenoid{frc::PneumaticsModuleType::REVPH, CLIMBER_SOLENOID_L_PIN_HIGH_ID, CLIMBER_SOLENOID_L_PIN_LOW_ID, "climber_l_pin"},
-            solenoid::Solenoid{frc::PneumaticsModuleType::REVPH, CLIMBER_SOLENOID_C_MAIN_HIGH_ID, CLIMBER_SOLENOID_C_MAIN_LOW_ID, "climber_c_main"},
-            solenoid::Solenoid{frc::PneumaticsModuleType::REVPH, CLIMBER_SOLENOID_C_PIN_HIGH_ID, CLIMBER_SOLENOID_C_PIN_LOW_ID, "climber_c_pin"},
-            solenoid::Solenoid{frc::PneumaticsModuleType::REVPH, CLIMBER_SOLENOID_R_MAIN_HIGH_ID, CLIMBER_SOLENOID_R_MAIN_LOW_ID, "climber_r_main"},
-            solenoid::Solenoid{frc::PneumaticsModuleType::REVPH, CLIMBER_SOLENOID_R_PIN_HIGH_ID, CLIMBER_SOLENOID_R_PIN_LOW_ID, "climber_r_pin"},
-            solenoid::Solenoid{frc::PneumaticsModuleType::REVPH, INTAKE_SOLENOID_HIGH_ID, INTAKE_SOLENOID_LOW_ID, "intake"}
+        std::vector<solenoid::Solenoid*> solenoids {
+            new solenoid::Solenoid(frc::PneumaticsModuleType::REVPH, CLIMBER_SOLENOID_L_MAIN_HIGH_ID, CLIMBER_SOLENOID_L_MAIN_LOW_ID, "climber_l_main"),
+            new solenoid::Solenoid(frc::PneumaticsModuleType::REVPH, CLIMBER_SOLENOID_L_PIN_HIGH_ID, CLIMBER_SOLENOID_L_PIN_LOW_ID, "climber_l_pin"),
+            new solenoid::Solenoid(frc::PneumaticsModuleType::REVPH, CLIMBER_SOLENOID_C_MAIN_HIGH_ID, CLIMBER_SOLENOID_C_MAIN_LOW_ID, "climber_c_main"),
+            new solenoid::Solenoid(frc::PneumaticsModuleType::REVPH, CLIMBER_SOLENOID_C_PIN_HIGH_ID, CLIMBER_SOLENOID_C_PIN_LOW_ID, "climber_c_pin"),
+            new solenoid::Solenoid(frc::PneumaticsModuleType::REVPH, CLIMBER_SOLENOID_R_MAIN_HIGH_ID, CLIMBER_SOLENOID_R_MAIN_LOW_ID, "climber_r_main"),
+            new solenoid::Solenoid(frc::PneumaticsModuleType::REVPH, CLIMBER_SOLENOID_R_PIN_HIGH_ID, CLIMBER_SOLENOID_R_PIN_LOW_ID, "climber_r_pin"),
+            new solenoid::Solenoid(frc::PneumaticsModuleType::REVPH, INTAKE_SOLENOID_HIGH_ID, INTAKE_SOLENOID_LOW_ID, "intake")
         };
 
         std::vector<solenoid::SolenoidContainer> solenoidsC;
