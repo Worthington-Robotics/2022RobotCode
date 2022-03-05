@@ -98,6 +98,8 @@ namespace robot
 
     void SubsystemManager::enabledLoop()
     {
+        double now = frc::Timer::GetFPGATimestamp().to<double>();
+        //std::cout << "enabledLoop has began at: " << now << std::endl;
         try
         {
             // For the first iteration, run onstart
@@ -134,6 +136,9 @@ namespace robot
         {
             frc::ReportError(frc::err::Error, "SubsystemManager.cpp", 135, "enabledLoop()", "Looper Thread died with unknown exception");
         }
+        double previousTime = frc::Timer::GetFPGATimestamp().to<double>();
+        dt = now - previousTime;
+        //std::cout << "enabledLoop has ended at: " << previousTime << " || dt = " << dt << std::endl;
     }
 
     void SubsystemManager::disabledLoop()

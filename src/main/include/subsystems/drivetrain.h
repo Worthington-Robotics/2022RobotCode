@@ -165,26 +165,35 @@ namespace robot
         geometry_msgs::msg::Twist stickTwist;
         sensor_msgs::msg::Joy lastStick0;
 
+
+        #ifdef SystemIndependent
         rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr stickSub1;
         void setStick1(const sensor_msgs::msg::Joy);
         sensor_msgs::msg::Joy lastStick1;
+        #endif
 
         rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr DriveModeSub;
         void setDriveMode(const std_msgs::msg::Int16);
 
-        rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr HeadingSetpointSub;
-        void setHeadingControlAngle(const std_msgs::msg::Float32);
-        PIDF headingController = PIDF(PIDFDiscriptor{.013, .0001, 0, 0});
-
-        rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr HeadingControlSub;
-        void setHeadingControlEnabled(const std_msgs::msg::Bool);
-        bool headingControl = false;
+        rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr HeadingControlSub;
+        rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr HeadingControlErrorPub;
+        rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr HeadingControlPowerPub;
+        rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr HeadingControlDTPub;
+        void setHeadingControlEnabled(const std_msgs::msg::Int16);
+        std_msgs::msg::Float32 headingControlErrorMsg;
+        std_msgs::msg::Float32 headingControlPowerMsg;
+        std_msgs::msg::Float32 headingControlDTMsg;
+        PIDF headingController = PIDF(PIDFDiscriptor{.012, .0005, 0, 0});
+        int headingControl = 0; //(0, disabled), (1, gyroLock), (2, limelightAngle)
+        double headingControlSetpoint = 0;
 
         rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr limelightAngleOffsetSub;
         void setLimelightAngleOffset(const std_msgs::msg::Float32);
 
+        #ifdef SystemIndependent
         rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr hoodResetSub;
         void setHoodReset(const std_msgs::msg::Bool);
+        #endif
 
         // Ros services
         rclcpp::Service<autobt_msgs::srv::StringService>::SharedPtr startPath;
@@ -207,11 +216,6 @@ namespace robot
         bool tankLockState = false;
         bool tankLockHeld = false;
         bool tankLockButton = false;
-        // button bool for spin lock (NO GYRO PID, MAY DRIFT, FIX?)
-        bool spinLock = false;
-        // button bool for spin lock (NO GYRO PID, MAY DRIFT, FIX?)
-        bool untargetShot = false;
-        bool targetShot = false;
 
         double angleOffset = 0;
         // button for gyro reset

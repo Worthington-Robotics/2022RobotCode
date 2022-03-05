@@ -2,7 +2,7 @@
 #include <units/time.h>
 #include <units/velocity.h>
 #include <rospathmsgs/msg/waypoint.hpp>
-#define SystemIndependent
+//#define SystemIndependent
 
 // Canbus ID mappings
 
@@ -150,9 +150,9 @@
 
 // PID constants for left and right transmission velocity control
 #define ANGLE_KF 0
-#define ANGLE_KP 2.75
-#define ANGLE_KI 0.03
-#define ANGLE_KD 2 // originally 1, at 2 for debug
+#define ANGLE_KP .75
+#define ANGLE_KI 0.00002
+#define ANGLE_KD 0 // originally 1, at 2 for debug
 #define DRIVE_LEFT_IACCUM 300
 #define DRIVE_KF 0.0522
 #define DRIVE_KP 0.2
@@ -160,11 +160,6 @@
 #define DRIVE_KD 2
 #define DRIVE_RIGHT_IACCUM 300
 
-//HEADING LOCKOUT PID VALUES
-#define HEADING_KF 0
-#define HEADING_KP 0.0001
-#define HEADING_KI 0
-#define HEADING_KD 0.002
 // voltage compensation voltage
 #define DRIVE_VCOMP_VOLTAGE 11.0
 

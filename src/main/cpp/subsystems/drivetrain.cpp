@@ -48,7 +48,7 @@ namespace robot
 
         headingController.setContinuous(true);
         headingController.setInputRange(360);
-        headingController.setIMax(10);
+        headingController.setIMax(100);
     }
 
     void Drivetrain::createRosBindings(rclcpp::Node *node)
@@ -62,6 +62,9 @@ namespace robot
         drivetrainHeadingPub = node->create_publisher<std_msgs::msg::Float32>("/drive/dt/heading", rclcpp::SystemDefaultsQoS());
         autoLookaheadPointPub = node->create_publisher<rospathmsgs::msg::Waypoint>("/drive/auto/lookahead_point", rclcpp::SystemDefaultsQoS());
         autoToLookaheadAnglePub = node->create_publisher<std_msgs::msg::Float32>("/drive/auto/lookahead_point_angle", rclcpp::SystemDefaultsQoS());
+        HeadingControlErrorPub = node->create_publisher<std_msgs::msg::Float32>("/drive/heading_control/error", rclcpp::SystemDefaultsQoS());
+        HeadingControlPowerPub = node->create_publisher<std_msgs::msg::Float32>("/drive/heading_control/power", rclcpp::SystemDefaultsQoS());
+        HeadingControlDTPub = node->create_publisher<std_msgs::msg::Float32>("/drive/heading_control/dt", rclcpp::SystemDefaultsQoS());
         driveControlModePub = node->create_publisher<std_msgs::msg::Int16>("/drive/control_mode_echo", rclcpp::SystemDefaultsQoS());
 
 #ifdef SystemIndependent
@@ -74,20 +77,24 @@ namespace robot
 
         // Create subscribers
         stickSub0 = node->create_subscription<sensor_msgs::msg::Joy>("/sticks/stick0", rclcpp::SensorDataQoS(), std::bind(&Drivetrain::setStick0, this, _1));
+        
+#ifdef SystemIndependent
         stickSub1 = node->create_subscription<sensor_msgs::msg::Joy>("/sticks/stick1", rclcpp::SensorDataQoS(), std::bind(&Drivetrain::setStick1, this, _1));
+#endif
 
         DriveModeSub = node->create_subscription<std_msgs::msg::Int16>("/drive/control_mode", rclcpp::SystemDefaultsQoS(), std::bind(&Drivetrain::setDriveMode, this, _1));
 
-        HeadingSetpointSub = node->create_subscription<std_msgs::msg::Float32>("/drive/heading_setpoint", rclcpp::SystemDefaultsQoS(), std::bind(&Drivetrain::setHeadingControlAngle, this, _1));
-        HeadingControlSub = node->create_subscription<std_msgs::msg::Bool>("/drive/heading_control", rclcpp::SystemDefaultsQoS(), std::bind(&Drivetrain::setHeadingControlEnabled, this, _1));
-        limelightAngleOffsetSub = node->create_subscription<std_msgs::msg::Float32>("/limelight/range", rclcpp::SensorDataQoS(), std::bind(&Drivetrain::setLimelightAngleOffset, this, _1));
+        HeadingControlSub = node->create_subscription<std_msgs::msg::Int16>("/actions/heading_control", rclcpp::SystemDefaultsQoS(), std::bind(&Drivetrain::setHeadingControlEnabled, this, _1));
+        limelightAngleOffsetSub = node->create_subscription<std_msgs::msg::Float32>("/limelight/angle_offset", rclcpp::SensorDataQoS(), std::bind(&Drivetrain::setLimelightAngleOffset, this, _1));
 
+        #ifdef SystemIndependent
         hoodResetSub = node->create_subscription<std_msgs::msg::Bool>("/externIO/hood_motor/is_reset", rclcpp::SystemDefaultsQoS(), std::bind(&Drivetrain::setHoodReset, this, _1));
-
+        #endif
+        
         // creating clients and services
 
         startPath = node->create_service<autobt_msgs::srv::StringService>("/drive/start_path", std::bind(&Drivetrain::enablePathFollowerS, this, _1, _2));
-        setGyroGains = node->create_service<can_msgs::srv::SetPIDFGains>("/drive/set_gyro_gains", std::bind(&Drivetrain::updateGyroPIDGains, this, _1, _2));
+        setGyroGains = node->create_service<can_msgs::srv::SetPIDFGains>("/drive/heading_control/setPIDF", std::bind(&Drivetrain::updateGyroPIDGains, this, _1, _2));
 
         GPClient = node->create_client<rospathmsgs::srv::GetPath>("/get_path");
     }
@@ -123,6 +130,9 @@ namespace robot
         drivetrainHeadingMsg.data = -(std::fmod((imu->GetFusedHeading() + 360), 360));
         sOdom.Update(frc::Rotation2d{units::degree_t{drivetrainHeadingMsg.data}}, frontRMod->getState(),
                      frontLMod->getState(), rearRMod->getState(), rearLMod->getState());
+        headingControlErrorMsg.data = headingController.getError();
+        headingControlPowerMsg.data = headingController.getPower();
+        headingControlDTMsg.data = headingController.getDT();
 
         pose = sOdom.GetPose();
         robotPositionMsg.x = pose.X().to<double>();
@@ -204,7 +214,7 @@ namespace robot
             speed = frc::ChassisSpeeds{0_mps, 0_mps, 0_rad_per_s};
         }
 
-        if (headingControl)
+        if (headingControl > 0)
         {
             speed.omega = -units::radians_per_second_t{headingController.update(drivetrainHeadingMsg.data)};
         }
@@ -247,12 +257,15 @@ namespace robot
         robotVelocityPub->publish(robotVelocityMsg);
         driveControlModePub->publish(driveControlModeMsg);
         drivetrainHeadingPub->publish(drivetrainHeadingMsg);
+        HeadingControlErrorPub->publish(headingControlErrorMsg);
+        HeadingControlPowerPub->publish(headingControlPowerMsg);
+        HeadingControlDTPub->publish(headingControlDTMsg);
 
         #ifdef SystemIndependent
         intakeDemandPublisher->publish(intakeDemandMsg);
         indexerDemandPublisher->publish(indexerDemandMsg);
         deliveryDemandPublisher->publish(deliveryDemandMsg);
-        flywheelDemandPublisher->publish(flywheelDemandMsg);
+        //flywheelDemandPublisher->publish(flywheelDemandMsg);
         if (hoodReset)
         {
             hoodDemandPublisher->publish(hoodDemandMsg);
@@ -266,11 +279,12 @@ namespace robot
     {
         angleOffset = setpoint.data;
     }
-
+    #ifdef SystemIndependent
     void Drivetrain::setHoodReset(const std_msgs::msg::Bool msg)
     {
         hoodReset = msg.data;
     }
+    #endif
 
     void Drivetrain::setDriveMode(const std_msgs::msg::Int16 msg)
     {
@@ -278,14 +292,16 @@ namespace robot
         driveState = static_cast<ControlState>(msg.data);
     }
 
-    void Drivetrain::setHeadingControlEnabled(const std_msgs::msg::Bool engaged)
+    void Drivetrain::setHeadingControlEnabled(const std_msgs::msg::Int16 engaged)
     {
         headingControl = engaged.data;
-    }
-
-    void Drivetrain::setHeadingControlAngle(const std_msgs::msg::Float32 setpoint)
-    {
-        headingController.setSetpoint(setpoint.data);
+        if(headingControl == 1){
+            headingControlSetpoint = drivetrainHeadingMsg.data;
+        }
+        else if(headingControl == 2){
+            headingControlSetpoint = drivetrainHeadingMsg.data - angleOffset;
+        }
+        headingController.setSetpoint(headingControlSetpoint, true);
     }
 
     void Drivetrain::setStick0(const sensor_msgs::msg::Joy msg)
@@ -294,25 +310,23 @@ namespace robot
         lastStick0 = msg;
         // update this in disabled? or just init publish empty data? (null ptr on boot)
         isRobotRel = lastStick0.buttons.at(0);
-        spinLock = lastStick0.buttons.at(1);
         gyroReset = lastStick0.buttons.at(4);
         tankLockButton = lastStick0.buttons.at(5);
-        targetShot = lastStick0.buttons.at(2);
     }
 
+    #ifdef SystemIndependent
     void Drivetrain::setStick1(const sensor_msgs::msg::Joy msg)
     {
         lastStickTime = frc::Timer::GetFPGATimestamp().to<double>();
         lastStick1 = msg;
-        #ifdef SystemIndependent
         shoot = lastStick1.buttons.at(0);
         flywheelButton = lastStick1.buttons.at(1);
         intake = lastStick1.buttons.at(2);
         unintake = lastStick1.buttons.at(5);
         // remaps -1 to 1 axis to 0 to 1
         hoodDemand = ((-lastStick1.axes.at(3) + 1) / 2);
-        #endif
     }
+    #endif
 
     // Services
 
@@ -392,22 +406,10 @@ namespace robot
         {
             imu->SetFusedHeading(0);
         }
-        // Apply a spin lock based on button 2 (set when the raw joystick message is recieved)
-        if (spinLock)
-        {
-            // set spin to zero, pretty straight forward (maybe add z axis dumb pid?)
-            stickTwist.angular.z = 0;
-        }
-
-        if (targetShot)
-        {
-            headingController.setSetpoint(drivetrainHeadingMsg.data - angleOffset);
-            headingControl = true;
-        }
-        else
-        {
-            headingControl = false;
-        }
+        if(headingControl == 2){
+            headingControlSetpoint = drivetrainHeadingMsg.data - angleOffset;
+            headingController.setSetpoint(headingControlSetpoint, false);
+        }   
 
         // factor this out into a stuct/class thing!
         // setup for toggle button that puts robot into tankdrive mode!
@@ -440,7 +442,7 @@ namespace robot
         if (intake)
         {
             intakeDemandMsg.control_mode = 0;
-            intakeDemandMsg.demand = .5;
+            intakeDemandMsg.demand = .3;
             intakeDemandMsg.arb_feedforward = 0;
             indexerDemandMsg.control_mode = 0;
             indexerDemandMsg.demand = .5;
@@ -502,54 +504,6 @@ namespace robot
         }
 #endif
     }
-
-    /*
-    void Drivetrain::checkDeltaCurrent(double currentOne, double currentTwo, double currentThree, double currentFour)
-    {
-        std::vector<double> arr = {currentOne, currentTwo, currentThree, currentFour};
-
-        // frc::SmartDashboard::PutNumber("Drive/Current1", currentOne);
-        // frc::SmartDashboard::PutNumber("Drive/Current2", currentTwo);
-        // frc::SmartDashboard::PutNumber("Drive/Current3", currentThree);
-        // frc::SmartDashboard::PutNumber("Drive/Current4", currentFour);
-
-        for (int i = 0; i < 4; i++)
-        {
-            double average = 0;
-            for (int k = 0; k < 4; k++)
-            {
-                if (i != k)
-                {
-                    average += arr.at(k);
-                }
-            }
-            average /= 3.0;
-
-            // frc::SmartDashboard::PutNumber("Drive/CurrentAvg" + i, average);
-
-            if (arr.at(i) > average + DELTA_CURRENT_THRESHOLD)
-            {
-                currentIterators.at(i)++;
-            }
-            else
-            {
-                currentIterators.at(i)--;
-            }
-
-            if (currentIterators.at(i) > 50 && currentIterators.at(i) < 55)
-            {
-                if (i == 0)
-                    frc::ReportError(frc::err::ParameterOutOfRange, "drivetrain.cpp", 362, "currentDelta", "Drivetrain current is too high in the front left. Current is " + std::to_string(arr.at(i)) + ". The average current of the other three modules is " + std::to_string(average));
-                if (i == 1)
-                    frc::ReportError(frc::err::ParameterOutOfRange, "drivetrain.cpp", 362, "currentDelta", "Drivetrain current is too high in the front right. Current is " + std::to_string(arr.at(i)) + ". The average current of the other three modules is " + std::to_string(average));
-                if (i == 2)
-                    frc::ReportError(frc::err::ParameterOutOfRange, "drivetrain.cpp", 362, "currentDelta", "Drivetrain current is too high in the rear left. Current is " + std::to_string(arr.at(i)) + ". The average current of the other three modules is " + std::to_string(average));
-                if (i == 3)
-                    frc::ReportError(frc::err::ParameterOutOfRange, "drivetrain.cpp", 362, "currentDelta", "Drivetrain current is too high in the rear right. Current is " + std::to_string(arr.at(i)) + ". The average current of the other three modules is " + std::to_string(average));
-            }
-        }
-    }
-    */
     
     frc::ChassisSpeeds Drivetrain::twistDrive(const geometry_msgs::msg::Twist &twist, const frc::Rotation2d &orientation)
     {

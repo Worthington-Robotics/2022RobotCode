@@ -85,6 +85,8 @@ namespace robot
 
     private:
         bool isFirstIteration = false;
+        double previousTime = 0.0;
+        double dt = 0.0;
         std::vector<std::shared_ptr<Subsystem>> subsystems;
         frc::Notifier enabledNotif, disabledNotif;
 

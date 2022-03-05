@@ -1,4 +1,7 @@
 #pragma once
+#include <rclcpp/rclcpp.hpp>
+#include <string>
+#include <units/time.h>
 
 namespace robot
 {
@@ -25,19 +28,24 @@ namespace robot
         void setPIDFDisc(PIDFDiscriptor);
         void setInputRange(double inputRange);
         void setContinuous(bool continuous);
-        void setSetpoint(double setpoint);
+        void setSetpoint(double setpoint, bool resetIAccum);
         void setIMax(double nIMax);
         double update(double reading);
+        double getContinuousError(double error);
+        double getError();
+        double getPower();
+        double getDT();
         double setpoint = 0.0;
     private:
-        double getContinuousError(double error);
         double getI(double error);
         double getD(double error);
+        double error = 0.0;
+        double power = 0.0;
         double iMax = 0.0;
         double inputRange = 0.0;
         double previousE = 0.0; //result of the last GetPowerUsage() call
         double errorSum = 0.0;
-        double previousTime = 0.0; //timestamp of the last GetPowerUsage() call
+        units::second_t previousTime; //timestamp of the last GetPowerUsage() call
         double dt = 0.0;
         bool continuous = false;
         PIDFDiscriptor mParams = {0, 0, 0, 0};

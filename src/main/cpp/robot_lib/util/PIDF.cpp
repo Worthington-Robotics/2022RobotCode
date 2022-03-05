@@ -28,12 +28,14 @@ namespace robot
             continuous = nContinuous;
         }
 
-        void PIDF::setSetpoint(double nSetpoint)
+        void PIDF::setSetpoint(double nSetpoint, bool resetID)
         {
             setpoint = nSetpoint;
-            previousTime = frc::Timer::GetFPGATimestamp().to<double>();
-            errorSum = 0;
-            dt = 0;
+            if(resetID){
+                previousTime = frc::Timer::GetFPGATimestamp();
+                errorSum = 0;
+                dt = 0;
+            }
         }
 
         /**
@@ -44,11 +46,10 @@ namespace robot
          */
         double PIDF::update(double reading)
         {
-            double now = frc::Timer::GetFPGATimestamp().to<double>();
-            double error = getContinuousError(reading - setpoint);
-            std::cout << error << std::endl;
-            double power = (mParams.f * setpoint + mParams.p * error + mParams.i * getI(error) + mParams.d * getD(error));
-            dt = now - previousTime;
+            units::second_t now = frc::Timer::GetFPGATimestamp();
+            error = getContinuousError(reading - setpoint);
+            dt = now.to<double>() - previousTime.to<double>();
+            power = (mParams.f * setpoint + mParams.p * error + mParams.i * getI(error) + mParams.d * getD(error));
             previousTime = now;
             previousE = error;
             return power;
@@ -101,5 +102,17 @@ namespace robot
             }
         }
         return error;
+    }
+
+    double PIDF::getError(){
+        return error;
+    }
+
+    double PIDF::getPower(){
+        return power;
+    }
+
+    double PIDF::getDT(){
+        return dt;
     }
 } // namespace robot
