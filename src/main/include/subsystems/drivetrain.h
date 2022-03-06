@@ -111,6 +111,10 @@ namespace robot
         std::shared_ptr<PurePursuitController> PPC;
         frc::ChassisSpeeds currState;
 
+        std::shared_future<std::shared_ptr<rospathmsgs::srv::GetPath_Response>> future;
+        bool hasPathStart = true;
+        std::string pathQueued = "";
+
         void execActions();
 
         void updateSensorData();
@@ -180,6 +184,7 @@ namespace robot
         rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr HeadingControlPowerPub;
         rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr HeadingControlDTPub;
         void setHeadingControlEnabled(const std_msgs::msg::Int16);
+        void setHeadingControlSetpoint(double newHeadingSetpoint);
         std_msgs::msg::Float32 headingControlErrorMsg;
         std_msgs::msg::Float32 headingControlPowerMsg;
         std_msgs::msg::Float32 headingControlDTMsg;

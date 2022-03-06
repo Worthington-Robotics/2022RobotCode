@@ -16,11 +16,13 @@ namespace robot
     SubsystemManager::SubsystemManager() : Node("roborio"),
                                            subsystems(),
                                            enabledNotif(std::bind(&SubsystemManager::enabledLoop, this)),
-                                           disabledNotif(std::bind(&SubsystemManager::disabledLoop, this))
+                                           disabledNotif(std::bind(&SubsystemManager::disabledLoop, this)),
+                                           spinNotif(std::bind(&SubsystemManager::spinRos, this))
     {
         sysReset = this->create_subscription<std_msgs::msg::Bool>("/sys/reset", rclcpp::SystemDefaultsQoS(), std::bind(&SubsystemManager::serviceReset, this, _1));
         sysDebug = this->create_subscription<std_msgs::msg::Bool>("/sys/debug", rclcpp::SystemDefaultsQoS(), std::bind(&SubsystemManager::serviceDebug, this, _1));
         //battery = robot::Battery();
+        spinNotif.StartSingle(0_ms);
     }
 
     void SubsystemManager::registerSubsystems(std::vector<std::shared_ptr<Subsystem>> subsystems)
@@ -96,12 +98,17 @@ namespace robot
         disabledNotif.Stop();
     }
 
+    void SubsystemManager::spinRos(){
+        rclcpp::spin(this->shared_from_this());
+    }
+
     void SubsystemManager::enabledLoop()
     {
-        double now = frc::Timer::GetFPGATimestamp().to<double>();
+        //double now = frc::Timer::GetFPGATimestamp().to<double>();
         //std::cout << "enabledLoop has began at: " << now << std::endl;
         try
         {
+            // rclcpp::spin_some(this->shared_from_this());
             // For the first iteration, run onstart
             if (isFirstIteration)
             {
@@ -125,8 +132,6 @@ namespace robot
                     subsystem->publishData();
                 }
             }
-
-            rclcpp::spin_some(this->shared_from_this());
         }
         catch (const std::exception &e)
         {
@@ -136,15 +141,15 @@ namespace robot
         {
             frc::ReportError(frc::err::Error, "SubsystemManager.cpp", 135, "enabledLoop()", "Looper Thread died with unknown exception");
         }
-        double previousTime = frc::Timer::GetFPGATimestamp().to<double>();
-        dt = now - previousTime;
+        //double previousTime = frc::Timer::GetFPGATimestamp().to<double>();
+        //dt = now - previousTime;
         //std::cout << "enabledLoop has ended at: " << previousTime << " || dt = " << dt << std::endl;
     }
 
     void SubsystemManager::disabledLoop()
     {
         try{
-            rclcpp::spin_some(this->shared_from_this());
+            // rclcpp::spin_some(this->shared_from_this());
             for (std::shared_ptr<Subsystem> subsystem : subsystems)
             {
                 subsystem->updateSensorData();

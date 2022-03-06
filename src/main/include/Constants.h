@@ -128,7 +128,7 @@
 #define USER_STICKS {0, 1}
 
 #define DRIVE_STICK_TOPIC "/sticks/stick0" 
-#define DRIVE_STICK_SCALAR {.75, -.75, .75, .75, .75, .75}
+#define DRIVE_STICK_SCALAR {.5, -.5, .5, .5, .33, .5}
 #define DRIVE_STICK_DEADBAND 0.2
 #define DRIVE_STICK_POWER 4
 
@@ -150,8 +150,8 @@
 
 // PID constants for left and right transmission velocity control
 #define ANGLE_KF 0
-#define ANGLE_KP .75
-#define ANGLE_KI 0.00002
+#define ANGLE_KP .7
+#define ANGLE_KI 0.00001
 #define ANGLE_KD 0 // originally 1, at 2 for debug
 #define DRIVE_LEFT_IACCUM 300
 #define DRIVE_KF 0.0522

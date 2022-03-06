@@ -53,7 +53,8 @@ namespace robot
 
     void Drivetrain::createRosBindings(rclcpp::Node *node)
     {
-        for(std::shared_ptr<SModule> mod : sModules){
+        for (std::shared_ptr<SModule> mod : sModules)
+        {
             mod->createRosBindings(node);
         }
         // Create sensor data publishers
@@ -77,7 +78,7 @@ namespace robot
 
         // Create subscribers
         stickSub0 = node->create_subscription<sensor_msgs::msg::Joy>("/sticks/stick0", rclcpp::SensorDataQoS(), std::bind(&Drivetrain::setStick0, this, _1));
-        
+
 #ifdef SystemIndependent
         stickSub1 = node->create_subscription<sensor_msgs::msg::Joy>("/sticks/stick1", rclcpp::SensorDataQoS(), std::bind(&Drivetrain::setStick1, this, _1));
 #endif
@@ -87,10 +88,10 @@ namespace robot
         HeadingControlSub = node->create_subscription<std_msgs::msg::Int16>("/actions/heading_control", rclcpp::SystemDefaultsQoS(), std::bind(&Drivetrain::setHeadingControlEnabled, this, _1));
         limelightAngleOffsetSub = node->create_subscription<std_msgs::msg::Float32>("/limelight/angle_offset", rclcpp::SensorDataQoS(), std::bind(&Drivetrain::setLimelightAngleOffset, this, _1));
 
-        #ifdef SystemIndependent
+#ifdef SystemIndependent
         hoodResetSub = node->create_subscription<std_msgs::msg::Bool>("/externIO/hood_motor/is_reset", rclcpp::SystemDefaultsQoS(), std::bind(&Drivetrain::setHoodReset, this, _1));
-        #endif
-        
+#endif
+
         // creating clients and services
 
         startPath = node->create_service<autobt_msgs::srv::StringService>("/drive/start_path", std::bind(&Drivetrain::enablePathFollowerS, this, _1, _2));
@@ -155,6 +156,40 @@ namespace robot
 
     void Drivetrain::onLoop(double currentTime)
     {
+        if (pathQueued != "")
+        {
+            GPReq = std::make_shared<rospathmsgs::srv::GetPath::Request>();
+            GPReq->path_name = pathQueued;
+            if (GPClient->service_is_ready())
+            {
+                std::cout << "Making async request" << std::endl;
+                hasPathStart = false;
+                future = GPClient->async_send_request(GPReq);
+            }
+            else
+            {
+                frc::ReportError(frc::err::UnsupportedInSimulation, "drivetrain.cpp", 400, "enablePathFollower", "You have somehow made a request to the path generation server that it was unable to process, please try again later ;-;");
+            }
+            pathQueued = "";
+        }
+        // check if the future is valid from the path service
+        if (!hasPathStart && future.valid())
+        {
+            std::vector<rospathmsgs::msg::Waypoint> path = future.get()->path;
+            std::cout << "the total number of points in the ARRAY is: " << path.size() << std::endl;
+            std::stack<rospathmsgs::msg::Waypoint> pathStack;
+            PPC->mLastpoint = path.back();
+            while (path.size() > 1)
+            {
+                pathStack.push(path.back());
+                path.pop_back();
+            }
+            PPC->setPath(pathStack);
+
+            hasPathStart = true;
+            driveState = PURSUIT;
+        }
+
         execActions();
 
         frc::ChassisSpeeds speed;
@@ -218,6 +253,13 @@ namespace robot
         {
             speed.omega = -units::radians_per_second_t{headingController.update(drivetrainHeadingMsg.data)};
         }
+        else if (driveState == PURSUIT)
+        {
+            headingController.setSetpoint(lookAheadPoint.heading, false);
+            speed.omega = -units::radians_per_second_t{headingController.update(drivetrainHeadingMsg.data)};
+        }
+
+        //speed = frc::ChassisSpeeds{0_mps, 0_mps, 0_rad_per_s};
 
         moduleStates = sKinematics.ToSwerveModuleStates(speed);
 
@@ -225,8 +267,9 @@ namespace robot
         {
         case OPEN_LOOP_FIELD_REL:
         case OPEN_LOOP_ROBOT_REL:
-            // FR, FL, RR, RL
-            for(int i = 0; i < sModules.size(); i++){
+            //FR, FL, RR, RL
+            for (int i = 0; i < sModules.size(); i++)
+            {
                 sModules[i]->setMotors(moduleStates[i]);
             }
             break;
@@ -234,7 +277,9 @@ namespace robot
         case VELOCITY_TWIST:
             // FR, FL, RR, RL
             // std::cout << "requested speed is: " << moduleStates[0].speed.to<double>() << std::endl;
-            for(int i = 0; i < sModules.size(); i++){
+
+            for (int i = 0; i < sModules.size(); i++)
+            {
                 sModules[i]->setMotorVelocity(moduleStates[i]);
             }
             break;
@@ -243,13 +288,14 @@ namespace robot
             frc::ReportError(frc::err::InvalidParameter, "drivetrain.cpp", 208, "onLoop()", "Invalid drive state, fuck you");
             speed = frc::ChassisSpeeds{0_mps, 0_mps, 0_rad_per_s};
         }
-        //checkDeltaCurrent(moduleData.frontLeft.angleCurrent, moduleData.frontRight.angleCurrent, moduleData.rearLeft.angleCurrent, moduleData.rearRight.angleCurrent);
-        //checkDeltaCurrent(moduleData.frontLeft.driveCurrent, moduleData.frontRight.driveCurrent, moduleData.rearLeft.driveCurrent, moduleData.rearRight.driveCurrent);
+        // checkDeltaCurrent(moduleData.frontLeft.angleCurrent, moduleData.frontRight.angleCurrent, moduleData.rearLeft.angleCurrent, moduleData.rearRight.angleCurrent);
+        // checkDeltaCurrent(moduleData.frontLeft.driveCurrent, moduleData.frontRight.driveCurrent, moduleData.rearLeft.driveCurrent, moduleData.rearRight.driveCurrent);
     }
 
     void Drivetrain::publishData()
     {
-        for(std::shared_ptr<SModule> mod : sModules){
+        for (std::shared_ptr<SModule> mod : sModules)
+        {
             mod->publishModuleInfo();
         }
         autoLookaheadPointPub->publish(lookAheadPoint);
@@ -261,16 +307,16 @@ namespace robot
         HeadingControlPowerPub->publish(headingControlPowerMsg);
         HeadingControlDTPub->publish(headingControlDTMsg);
 
-        #ifdef SystemIndependent
+#ifdef SystemIndependent
         intakeDemandPublisher->publish(intakeDemandMsg);
         indexerDemandPublisher->publish(indexerDemandMsg);
         deliveryDemandPublisher->publish(deliveryDemandMsg);
-        //flywheelDemandPublisher->publish(flywheelDemandMsg);
+        // flywheelDemandPublisher->publish(flywheelDemandMsg);
         if (hoodReset)
         {
             hoodDemandPublisher->publish(hoodDemandMsg);
         }
-        #endif
+#endif
     }
 
     // Setters
@@ -279,12 +325,12 @@ namespace robot
     {
         angleOffset = setpoint.data;
     }
-    #ifdef SystemIndependent
+#ifdef SystemIndependent
     void Drivetrain::setHoodReset(const std_msgs::msg::Bool msg)
     {
         hoodReset = msg.data;
     }
-    #endif
+#endif
 
     void Drivetrain::setDriveMode(const std_msgs::msg::Int16 msg)
     {
@@ -295,10 +341,12 @@ namespace robot
     void Drivetrain::setHeadingControlEnabled(const std_msgs::msg::Int16 engaged)
     {
         headingControl = engaged.data;
-        if(headingControl == 1){
+        if (headingControl == 1)
+        {
             headingControlSetpoint = drivetrainHeadingMsg.data;
         }
-        else if(headingControl == 2){
+        else if (headingControl == 2)
+        {
             headingControlSetpoint = drivetrainHeadingMsg.data - angleOffset;
         }
         headingController.setSetpoint(headingControlSetpoint, true);
@@ -314,7 +362,7 @@ namespace robot
         tankLockButton = lastStick0.buttons.at(5);
     }
 
-    #ifdef SystemIndependent
+#ifdef SystemIndependent
     void Drivetrain::setStick1(const sensor_msgs::msg::Joy msg)
     {
         lastStickTime = frc::Timer::GetFPGATimestamp().to<double>();
@@ -326,7 +374,7 @@ namespace robot
         // remaps -1 to 1 axis to 0 to 1
         hoodDemand = ((-lastStick1.axes.at(3) + 1) / 2);
     }
-    #endif
+#endif
 
     // Services
 
@@ -338,38 +386,13 @@ namespace robot
 
     void Drivetrain::enablePathFollowerS(std::shared_ptr<autobt_msgs::srv::StringService_Request> ping, std::shared_ptr<autobt_msgs::srv::StringService_Response> pong)
     {
-        pong->success = enablePathFollower(ping->request_string);
+        enablePathFollower(ping->request_string);
+        pong->success = true;
     }
 
     bool Drivetrain::enablePathFollower(std::string name)
     {
-        GPReq = std::make_shared<rospathmsgs::srv::GetPath::Request>();
-        GPReq->path_name = name;
-        if (GPClient->service_is_ready())
-        {
-            auto future = GPClient->async_send_request(GPReq);
-            while (rclcpp::ok() && !future.valid())
-            {
-                std::cout << "Waiting for path" << std::endl;
-            }
-            std::vector<rospathmsgs::msg::Waypoint> path = future.get()->path;
-            std::cout << "the total number of points in the ARRAY is: " << path.size() << std::endl;
-            std::stack<rospathmsgs::msg::Waypoint> pathStack;
-            PPC->mLastpoint = path.back();
-            while (path.size() > 1)
-            {
-                pathStack.push(path.back());
-                path.pop_back();
-            }
-            std::cout << "Following path " << name << std::endl;
-            PPC->setPath(pathStack);
-            driveState = PURSUIT;
-        }
-        else
-        {
-            frc::ReportError(frc::err::UnsupportedInSimulation, "drivetrain.cpp", 400, "enablePathFollower", "You have somehow made a request to the path generation server that it was unable to process, please try again later ;-;");
-            return false;
-        }
+        pathQueued = name;
         return true;
     }
 
@@ -393,43 +416,44 @@ namespace robot
 
     void Drivetrain::execActions()
     {
-        if (isRobotRel && (driveState == OPEN_LOOP_FIELD_REL || driveState == OPEN_LOOP_ROBOT_REL))
-        {
-            driveState = OPEN_LOOP_ROBOT_REL;
-        }
-        else if (driveState == OPEN_LOOP_FIELD_REL || driveState == OPEN_LOOP_ROBOT_REL)
-        {
-            driveState = OPEN_LOOP_FIELD_REL;
-        }
+        // if (isRobotRel && (driveState == OPEN_LOOP_FIELD_REL || driveState == OPEN_LOOP_ROBOT_REL))
+        // {
+        //     driveState = OPEN_LOOP_ROBOT_REL;
+        // }
+        // else if (driveState == OPEN_LOOP_FIELD_REL || driveState == OPEN_LOOP_ROBOT_REL)
+        // {
+        //     driveState = OPEN_LOOP_FIELD_REL;
+        // }
 
         if (gyroReset)
         {
             imu->SetFusedHeading(0);
         }
-        if(headingControl == 2){
+        if (headingControl == 2)
+        {
             headingControlSetpoint = drivetrainHeadingMsg.data - angleOffset;
             headingController.setSetpoint(headingControlSetpoint, false);
-        }   
+        }
 
         // factor this out into a stuct/class thing!
         // setup for toggle button that puts robot into tankdrive mode!
 
-        // first, if the button state changes to true change the states to HELD
-        if (tankLockButton && !tankLockHeld)
-        {
-            tankLockState = !tankLockState;
-            tankLockHeld = true;
-        }
-        else if (!tankLockButton)
-        {
-            tankLockHeld = false;
-        }
-        // if in tank drive, overwrite the drive state and set strafing to zero
-        if (tankLockState)
-        {
-            driveState = OPEN_LOOP_ROBOT_REL;
-            stickTwist.linear.y = 0;
-        }
+        // // first, if the button state changes to true change the states to HELD
+        // if (tankLockButton && !tankLockHeld)
+        // {
+        //     tankLockState = !tankLockState;
+        //     tankLockHeld = true;
+        // }
+        // else if (!tankLockButton)
+        // {
+        //     tankLockHeld = false;
+        // }
+        // // if in tank drive, overwrite the drive state and set strafing to zero
+        // if (tankLockState)
+        // {
+        //     driveState = OPEN_LOOP_ROBOT_REL;
+        //     stickTwist.linear.y = 0;
+        // }
 
 #ifdef SystemIndependent
         if (hoodReset)
@@ -504,7 +528,7 @@ namespace robot
         }
 #endif
     }
-    
+
     frc::ChassisSpeeds Drivetrain::twistDrive(const geometry_msgs::msg::Twist &twist, const frc::Rotation2d &orientation)
     {
         double xSpeed = twist.linear.x;
@@ -528,6 +552,11 @@ namespace robot
             units::meters_per_second_t{ySpeed},
             units::radians_per_second_t{zTurn}};
         return speeds;
+    }
+
+    void Drivetrain::setHeadingControlSetpoint(double newHeadingSetpoint)
+    {
+        headingControlSetpoint = newHeadingSetpoint;
     }
 
 } // namespace robot
