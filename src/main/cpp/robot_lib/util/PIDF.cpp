@@ -2,14 +2,17 @@
 #include <frc/Timer.h>
 #include <cmath>
 #include <iostream>
+using std::placeholders::_1;
+using std::placeholders::_2;
 
 namespace robot
 {
 
         //constructor!!
-        PIDF::PIDF(PIDFDiscriptor disc)
+        PIDF::PIDF(PIDFDiscriptor disc, std::string rosName)
         {
             mParams = disc;
+            name = rosName;
         }
 
         //getters and setters, pretty self explainitory
@@ -28,12 +31,14 @@ namespace robot
             continuous = nContinuous;
         }
 
-        void PIDF::setSetpoint(double nSetpoint)
+        void PIDF::setSetpoint(double nSetpoint, bool resetID)
         {
             setpoint = nSetpoint;
-            previousTime = frc::Timer::GetFPGATimestamp().to<double>();
-            errorSum = 0;
-            dt = 0;
+            if(resetID){
+                previousTime = frc::Timer::GetFPGATimestamp();
+                errorSum = 0;
+                dt = 0;
+            }
         }
 
         /**
@@ -44,13 +49,20 @@ namespace robot
          */
         double PIDF::update(double reading)
         {
-            double now = frc::Timer::GetFPGATimestamp().to<double>();
-            double error = getContinuousError(reading - setpoint);
-            std::cout << error << std::endl;
-            double power = (mParams.f * setpoint + mParams.p * error + mParams.i * getI(error) + mParams.d * getD(error));
-            dt = now - previousTime;
+            units::second_t now = frc::Timer::GetFPGATimestamp();
+            error = getContinuousError(reading - setpoint);
+            dt = now.to<double>() - previousTime.to<double>();
+            power = (mParams.f * setpoint + mParams.p * error + mParams.i * getI(error) + mParams.d * getD(error));
             previousTime = now;
             previousE = error;
+
+            std_msgs::msg::Float32 errorMsg, powerMsg;
+
+            errorMsg.data = error;
+            powerMsg.data = power;
+
+            errorPub->publish(errorMsg);
+            effortPub->publish(powerMsg);
             return power;
         }
 
@@ -101,5 +113,24 @@ namespace robot
             }
         }
         return error;
+    }
+
+    void PIDF::setPIDGains(const can_msgs::srv::SetPIDFGains::Request::SharedPtr req, can_msgs::srv::SetPIDFGains::Response::SharedPtr resp){
+        PIDFDiscriptor descriptor;
+        descriptor.f = req->k_f;
+        descriptor.p = req->k_p;
+        descriptor.i = req->k_i;
+        descriptor.d = req->k_d;
+
+        resp->success = true;
+    }
+
+
+    void PIDF::createRosBindings(rclcpp::Node * nodeHandle){
+        //error, effort, setpoint
+        errorPub = nodeHandle->create_publisher<std_msgs::msg::Float32>("/drive/" + name + "/error/pidfset", rclcpp::SystemDefaultsQoS());
+        effortPub = nodeHandle->create_publisher<std_msgs::msg::Float32>("/drive/" + name + "/effort/pidfset", rclcpp::SystemDefaultsQoS());
+
+        gainService = nodeHandle->create_service<can_msgs::srv::SetPIDFGains>("/drive/" + name + "/setPoint/pidfset", std::bind(&PIDF::setPIDGains, this, _1, _2));
     }
 } // namespace robot

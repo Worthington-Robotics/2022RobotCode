@@ -6,6 +6,12 @@
 namespace motors {
     class TalonBrushless : public Motor {
         public:
+
+        TalonBrushless(int id, std::string canBus, std::string motorName) {
+            motor = std::make_shared<TalonFX>(id, canBus);
+            name = motorName;
+        }
+
         TalonBrushless(int id, std::string motorName) {
             motor = std::make_shared<TalonFX>(id);
             name = motorName;
