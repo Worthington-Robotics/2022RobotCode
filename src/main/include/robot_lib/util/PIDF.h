@@ -1,4 +1,7 @@
 #pragma once
+#include <can_msgs/srv/set_pidf_gains.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <std_msgs/msg/float32.hpp>
 
 namespace robot
 {
@@ -21,14 +24,16 @@ namespace robot
         
 
     public:
-        PIDF(PIDFDiscriptor);
+        PIDF(PIDFDiscriptor, std::string name);
         void setPIDFDisc(PIDFDiscriptor);
         void setInputRange(double inputRange);
         void setContinuous(bool continuous);
         void setSetpoint(double setpoint);
         void setIMax(double nIMax);
         double update(double reading);
+        void createRosBindings(rclcpp::Node * nodeHandle);
         double setpoint = 0.0;
+        void setPIDGains(const can_msgs::srv::SetPIDFGains::Request::SharedPtr req, can_msgs::srv::SetPIDFGains::Response::SharedPtr resp);
     private:
         double getContinuousError(double error);
         double getI(double error);
@@ -40,6 +45,9 @@ namespace robot
         double previousTime = 0.0; //timestamp of the last GetPowerUsage() call
         double dt = 0.0;
         bool continuous = false;
+        std::string name;
         PIDFDiscriptor mParams = {0, 0, 0, 0};
+        rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr errorPub, effortPub;
+        rclcpp::Service<can_msgs::srv::SetPIDFGains>::SharedPtr gainService;
 };
 } // namespace robot
