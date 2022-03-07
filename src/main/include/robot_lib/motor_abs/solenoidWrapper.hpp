@@ -11,6 +11,8 @@ namespace solenoid
     class Solenoid
     {
     public:
+        frc::DoubleSolenoid::Value state = frc::DoubleSolenoid::kReverse;
+
         Solenoid(frc::PneumaticsModuleType type, int highID, int lowID, const std::string& solenoidName)
         {
             solenoid = std::make_shared<frc::DoubleSolenoid>(1, type, highID, lowID);
@@ -21,15 +23,15 @@ namespace solenoid
         {
             if (msg->data < 0)
             {
-                solenoid->Set(frc::DoubleSolenoid::kReverse);
+                state = frc::DoubleSolenoid::kReverse;
             }
             else if (msg->data > 0)
             {
-                solenoid->Set(frc::DoubleSolenoid::kForward);
+                state = frc::DoubleSolenoid::kForward;
             }
             else
             {
-                solenoid->Set(frc::DoubleSolenoid::kOff);
+                state = frc::DoubleSolenoid::kOff;
             }
         }
 

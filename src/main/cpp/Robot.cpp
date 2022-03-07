@@ -46,7 +46,7 @@ void Robot::AutonomousInit()
     manager->stopDisabledLoop();
     drive->resetPose();
     manager->startEnabledLoop();
-    drive->enablePathFollower("six");
+    drive->enablePathFollower("forwardToBallOne");
 }
 void Robot::AutonomousPeriodic() {}
 

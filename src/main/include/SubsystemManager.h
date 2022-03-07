@@ -85,11 +85,14 @@ namespace robot
 
     private:
         bool isFirstIteration = false;
+        double previousTime = 0.0;
+        double dt = 0.0;
         std::vector<std::shared_ptr<Subsystem>> subsystems;
-        frc::Notifier enabledNotif, disabledNotif;
+        frc::Notifier enabledNotif, disabledNotif, spinNotif;
 
         void enabledLoop();
         void disabledLoop();
+        void spinRos();
 
         rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr sysReset;
         rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr sysDebug;

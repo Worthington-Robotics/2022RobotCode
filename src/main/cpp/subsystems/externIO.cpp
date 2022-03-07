@@ -109,7 +109,8 @@ namespace robot
       motorsSRX.at(0)->getMotor()->Config_kD(0, INDEXER_KD);
       motorsSRX.at(0)->getMotor()->Config_kF(0, INDEXER_KF);
       motorsSRX.at(0)->getMotor()->SetIntegralAccumulator(INDEXER_IMAX);
-      motorsSRX.at(0)->muzzleMotor();
+      motorsSRX.at(0)->unmuzzleMotor();
+      motorsSRX.at(0)->getMotor()->SetStatusFramePeriod(Status_1_General, 20);
       motorsSRXC.at(0).shutUp = true;
 
       motorsFX.at(2)->getMotor()->ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration{true, 5, 10, 1});
@@ -231,6 +232,10 @@ namespace robot
       upperHoodLimitSwitch.data = motorsSRX.at(0)->getMotor()->IsFwdLimitSwitchClosed();
       lowerHoodLimitSwitch.data = motorsSRX.at(0)->getMotor()->IsRevLimitSwitchClosed();
 
+      for(solenoid::Solenoid* solenoid : solenoids){
+         solenoid->getSolenoid()->Set(solenoid->state);
+      }
+
       
 
       
@@ -271,8 +276,8 @@ namespace robot
          }
       }      
 
-      externalTOFDistancePub->publish(externalTOFDistance);
-      internalTOFDistancePub->publish(internalTOFDistance);
+      //externalTOFDistancePub->publish(externalTOFDistance);
+      //internalTOFDistancePub->publish(internalTOFDistance);
       upperHoodLimitSwitchPub->publish(upperHoodLimitSwitch);
       lowerHoodLimitSwitchPub->publish(lowerHoodLimitSwitch);
    }
