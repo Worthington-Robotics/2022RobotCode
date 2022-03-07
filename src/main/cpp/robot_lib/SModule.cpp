@@ -32,9 +32,9 @@ namespace robot
         drive->ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, 0, 100);
         drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_2_Feedback0, 8, 0);
         drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_1_General, 20, 0);
-        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_4_AinTempVbat, 255, 0);
-        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_6_Misc, 253, 0);
-        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_7_CommStatus, 251, 0);
+        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_4_AinTempVbat, 20, 0);
+        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_6_Misc, 20, 0);
+        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_7_CommStatus, 20, 0);
         drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_9_MotProfBuffer, 249, 0);
         drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_10_MotionMagic, 247, 0);
         drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_12_Feedback1, 255, 0);
@@ -53,7 +53,7 @@ namespace robot
         drive->Config_IntegralZone(0, 300, 0);
         drive->ConfigVoltageCompSaturation(11, 0);
         drive->EnableVoltageCompensation(true);
-        drive->ConfigStatorCurrentLimit(StatorCurrentLimitConfiguration(true, 40, 0, 0.02));
+        drive->ConfigStatorCurrentLimit(StatorCurrentLimitConfiguration(true, 40, 70, 1));
 
         // Configure front left angle falcon
         encod->SetStatusFramePeriod(CANCoderStatusFrame::CANCoderStatusFrame_SensorData, 100, 0);
@@ -68,9 +68,9 @@ namespace robot
         angle->ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, 0, 100);
         angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_2_Feedback0, 8, 0);
         angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_1_General, 20, 0);
-        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_4_AinTempVbat, 255, 0);
-        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_6_Misc, 253, 0);
-        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_7_CommStatus, 251, 0);
+        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_4_AinTempVbat, 20, 0);
+        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_6_Misc, 20, 0);
+        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_7_CommStatus, 20, 0);
         angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_9_MotProfBuffer, 249, 0);
         angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_10_MotionMagic, 247, 0);
         angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_12_Feedback1, 255, 0);
@@ -195,6 +195,8 @@ namespace robot
  
     void SModule::publishModuleInfo(){
         auto msg = sensor_msgs::msg::JointState();
+
+        frc::SmartDashboard::PutNumber("swerve_module/" + name + "/module_angle", angle->GetSelectedSensorPosition() / TICKS_PER_DEGREE / (64 / 5));
 
         // push in the names
         msg.name = {"angle", "angle_goal", "drive", "drive_goal"};

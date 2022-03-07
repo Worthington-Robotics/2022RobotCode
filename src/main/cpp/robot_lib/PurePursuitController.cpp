@@ -101,6 +101,15 @@ namespace robot
         return lookAhead;
     }
 
+    
+    void PurePursuitController::setXPIDF(PIDFDiscriptor disc){
+        xPID.setPIDFDisc(disc);
+    }
+
+    void PurePursuitController::setYPIDF(PIDFDiscriptor disc){
+        yPID.setPIDFDisc(disc);
+    }
+
     frc::Rotation2d PurePursuitController::joinPath(frc::Pose2d currPos, rospathmsgs::msg::Waypoint lookAheadPoint)
     {
         Circle arcDebug;
@@ -112,36 +121,8 @@ namespace robot
         double deltaX = (x2 - x1);
         double deltaY = (y2 - y1);
 
-        // std::cout << "deltas: " << deltaX << ", " << deltaY << std::endl;
-
         frc::Rotation2d angle = frc::Rotation2d(deltaX, deltaY);
         return angle;
-
-        // frc::Translation2d poseToLookahead = -(currPos.Translation()) + frc::Translation2d{units::meter_t{lookAheadPoint.point.x}, units::meter_t{lookAheadPoint.point.y}};
-        // double cross_product = poseToLookahead.X().to<double>() * inertialHeading.Sin()
-        //         - poseToLookahead.Y().to<double>() * inertialHeading.Cos();
-        // if (std::abs(cross_product) < kEpsilon) {
-        //     arcDebug.exsists = false;
-        //     return arcDebug;
-        // }
-
-        // double dx = x1 - x2;
-        // double dy = y1 - y2;
-        // double my = (cross_product > 0 ? -1 : 1) * inertialHeading.Cos();
-        // double mx = (cross_product > 0 ? 1 : -1) * inertialHeading.Sin();
-
-        // double cross_term = mx * dx + my * dy;
-
-        // if (std::abs(cross_term) < kEpsilon) {
-        //     arcDebug.exsists = false;
-        //     return arcDebug;
-        // }
-        // arcDebug.center = frc::Translation2d{units::meter_t{(mx * (x1 * x1 - x2 * x2 - dy * dy) + 2 * my * x1 * dy) / (2 * cross_term)},
-        //                 units::meter_t{(-my * (-y1 * y1 + y2 * y2 + dx * dx) + 2 * mx * y1 * dx) / (2 * cross_term)}};
-        // arcDebug.radius = .5 * std::abs((dx * dx + dy * dy) / cross_term);
-        // arcDebug.isRight = cross_product > 0;
-        // arcDebug.exsists = true;
-        // return arcDebug;
     }
 
     updateReturnType PurePursuitController::update(frc::Pose2d currPos, frc::ChassisSpeeds currState, double now)
@@ -160,11 +141,13 @@ namespace robot
         //get the angle to our lookahead point, this is where we're going
         frc::Rotation2d angleToNextPoint = joinPath(currPos, lookAheadPoint); 
         //figure out how fast we're supposed to be going, this is encoded within the path
-        double speed = lookAheadPoint.velocity;
+        xPID.setSetpoint(lookAheadPoint.point.x, false);
+        yPID.setSetpoint(lookAheadPoint.point.y, false);
+        double xSpeed = xPID.update(currPos.Translation().X().to<double>());
+        double ySpeed = yPID.update(currPos.Translation().Y().to<double>());
         //convert where we should be going to relitive to the robot, so we can actually get there
-        inertialHeading = angleToNextPoint - currPos.Rotation();
         //TRIG ;-; (used to turn the speed into a vector)
-        frc::ChassisSpeeds rv = frc::ChassisSpeeds{units::meters_per_second_t{speed * inertialHeading.Cos()}, units::meters_per_second_t{speed * inertialHeading.Sin()}, units::radians_per_second_t{0}};
+        frc::ChassisSpeeds rv = frc::ChassisSpeeds::FromFieldRelativeSpeeds(units::meters_per_second_t{lookAheadPoint.velocity * angleToNextPoint.Cos() + xSpeed}, units::meters_per_second_t{lookAheadPoint.velocity * angleToNextPoint.Sin() + ySpeed}, units::radians_per_second_t{0}, currPos.Rotation());
         //std::cout << totalVel << std::endl;
         return {rv, lookAheadPoint, inertialHeading};
     }

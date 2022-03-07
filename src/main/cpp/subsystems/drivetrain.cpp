@@ -96,6 +96,8 @@ namespace robot
 
         startPath = node->create_service<autobt_msgs::srv::StringService>("/drive/start_path", std::bind(&Drivetrain::enablePathFollowerS, this, _1, _2));
         setGyroGains = node->create_service<can_msgs::srv::SetPIDFGains>("/drive/heading_control/setPIDF", std::bind(&Drivetrain::updateGyroPIDGains, this, _1, _2));
+        setXGains = node->create_service<can_msgs::srv::SetPIDFGains>("/drive/pure_pursuit/setXPIDF", std::bind(&Drivetrain::updateXPIDGains, this, _1, _2));
+        setYGains = node->create_service<can_msgs::srv::SetPIDFGains>("/drive/pure_pursuit/setYPIDF", std::bind(&Drivetrain::updateYPIDGains, this, _1, _2));
 
         GPClient = node->create_client<rospathmsgs::srv::GetPath>("/get_path");
     }
@@ -381,6 +383,18 @@ namespace robot
     void Drivetrain::updateGyroPIDGains(const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request> ping, std::shared_ptr<can_msgs::srv::SetPIDFGains::Response> pong)
     {
         headingController.setPIDFDisc(PIDFDiscriptor{ping->k_p, ping->k_i, ping->k_d, ping->k_f});
+        pong->success = true;
+    }
+
+    void Drivetrain::updateXPIDGains(const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request> ping, std::shared_ptr<can_msgs::srv::SetPIDFGains::Response> pong)
+    {
+        PPC->setXPIDF(PIDFDiscriptor{ping->k_p, ping->k_i, ping->k_d, ping->k_f});
+        pong->success = true;
+    }
+
+    void Drivetrain::updateYPIDGains(const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request> ping, std::shared_ptr<can_msgs::srv::SetPIDFGains::Response> pong)
+    {
+        PPC->setYPIDF(PIDFDiscriptor{ping->k_p, ping->k_i, ping->k_d, ping->k_f});
         pong->success = true;
     }
 

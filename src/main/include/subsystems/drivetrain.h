@@ -207,6 +207,12 @@ namespace robot
         rclcpp::Service<can_msgs::srv::SetPIDFGains>::SharedPtr setGyroGains;
         void updateGyroPIDGains(const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request>,
                                 std::shared_ptr<can_msgs::srv::SetPIDFGains::Response>);
+        rclcpp::Service<can_msgs::srv::SetPIDFGains>::SharedPtr setXGains;
+        void updateXPIDGains(const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request>,
+                                std::shared_ptr<can_msgs::srv::SetPIDFGains::Response>);
+        rclcpp::Service<can_msgs::srv::SetPIDFGains>::SharedPtr setYGains;
+        void updateYPIDGains(const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request>,
+                                std::shared_ptr<can_msgs::srv::SetPIDFGains::Response>);
 
         // Ros clients
         rclcpp::Client<rospathmsgs::srv::GetPath>::SharedPtr GPClient;

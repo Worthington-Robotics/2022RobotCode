@@ -7,6 +7,7 @@
 #include <frc/geometry/Pose2d.h>
 #include <rclcpp/rclcpp.hpp>
 #include <stack>
+#include <robot_lib/util/PIDF.h>
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -47,11 +48,15 @@ namespace robot
         PurePursuitController(APPCDiscriptor params);
         void setPath(std::stack<rospathmsgs::msg::Waypoint> mPath);
         bool isDone(frc::Pose2d pos);
+        void setXPIDF(PIDFDiscriptor);
+        void setYPIDF(PIDFDiscriptor);
         updateReturnType update(frc::Pose2d currPos, frc::ChassisSpeeds currState, double now);
         rospathmsgs::msg::Waypoint mLastpoint;
         
 
     private:
+        PIDF xPID = (PIDFDiscriptor{0, 0, 0, 0});
+        PIDF yPID = (PIDFDiscriptor{0, 0, 0, 0});
         rclcpp::Publisher<rospathmsgs::msg::Waypoint>::SharedPtr lookaheadPub;
 
         APPCDiscriptor mParams;
