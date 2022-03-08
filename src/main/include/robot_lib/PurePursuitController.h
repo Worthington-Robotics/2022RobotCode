@@ -50,13 +50,14 @@ namespace robot
         bool isDone(frc::Pose2d pos);
         void setXPIDF(PIDFDiscriptor);
         void setYPIDF(PIDFDiscriptor);
+        void createRosBindings(rclcpp::Node*);
         updateReturnType update(frc::Pose2d currPos, frc::ChassisSpeeds currState, double now);
         rospathmsgs::msg::Waypoint mLastpoint;
         
 
     private:
-        PIDF xPID = (PIDFDiscriptor{0, 0, 0, 0});
-        PIDF yPID = (PIDFDiscriptor{0, 0, 0, 0});
+        PIDF xPID = PIDF(PIDFDiscriptor{.02, 0, 0, 0}, "xPID");
+        PIDF yPID = PIDF(PIDFDiscriptor{.02, 0, 0, 0}, "yPID");
         rclcpp::Publisher<rospathmsgs::msg::Waypoint>::SharedPtr lookaheadPub;
 
         APPCDiscriptor mParams;

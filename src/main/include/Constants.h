@@ -120,15 +120,11 @@
 
 #define IMU_ID 0
 
-// Solenoid ID mappings
-#define DRIVE_SHIFT_LOW 2
-#define DRIVE_SHIFT_HIGH 3
-
 // Which sticks to watch from the driverstation
 #define USER_STICKS {0, 1}
 
 #define DRIVE_STICK_TOPIC "/sticks/stick0" 
-#define DRIVE_STICK_SCALAR {.5, -.5, .5, .5, .33, .5}
+#define DRIVE_STICK_SCALAR {.6666, -.6666, .6666, .6666, .333, .6666}
 #define DRIVE_STICK_DEADBAND 0.2
 #define DRIVE_STICK_POWER 4
 

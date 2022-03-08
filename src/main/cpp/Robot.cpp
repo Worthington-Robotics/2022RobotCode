@@ -32,6 +32,9 @@ void Robot::RobotInit()
         externIO
     });
 
+    autoSel = std::make_shared<AutoSelect>(std::vector<std::string>({""}));
+    autoSel->createRosBindings(manager.get());
+
     // grab the version string
     robot::ShowVersionData();
 }
@@ -47,6 +50,7 @@ void Robot::AutonomousInit()
     drive->resetPose();
     manager->startEnabledLoop();
     drive->enablePathFollower("forwardToBallOne");
+    autoSel->selectAuto("PosOneTest");
 }
 void Robot::AutonomousPeriodic() {}
 

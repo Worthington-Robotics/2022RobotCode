@@ -144,7 +144,7 @@ namespace robot
         double currentTicks = angle->GetSelectedSensorPosition();
         auto ssO = frc::SwerveModuleState::Optimize(ss, units::degree_t(currentTicks / TICKS_PER_DEGREE / (64 / 5)));
 
-        desiredVelocity =  ssO.speed.to<double>() * (2048 * 39.37 * 6.12) / (4 * M_PI * 10);
+        desiredVelocity =  ssO.speed.to<double>();
         desiredAngle = ssO.angle.Degrees().to<double>() * TICKS_PER_DEGREE * (64 / 5);
 
         // int rotations = (int)(currentTicks / (TICKS_PER_DEGREE * 360) / (64 / 5));

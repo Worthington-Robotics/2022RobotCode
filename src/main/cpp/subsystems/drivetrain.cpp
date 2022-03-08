@@ -58,14 +58,13 @@ namespace robot
             mod->createRosBindings(node);
         }
         // Create sensor data publishers
+        headingController.createRosBindings(node);
+        PPC->createRosBindings(node);
         robotVelocityPub = node->create_publisher<geometry_msgs::msg::Twist>("/drive/dt/velocity", rclcpp::SystemDefaultsQoS());
         robotPositionPub = node->create_publisher<geometry_msgs::msg::Pose2D>("/drive/dt/pose", rclcpp::SystemDefaultsQoS());
         drivetrainHeadingPub = node->create_publisher<std_msgs::msg::Float32>("/drive/dt/heading", rclcpp::SystemDefaultsQoS());
         autoLookaheadPointPub = node->create_publisher<rospathmsgs::msg::Waypoint>("/drive/auto/lookahead_point", rclcpp::SystemDefaultsQoS());
         autoToLookaheadAnglePub = node->create_publisher<std_msgs::msg::Float32>("/drive/auto/lookahead_point_angle", rclcpp::SystemDefaultsQoS());
-        HeadingControlErrorPub = node->create_publisher<std_msgs::msg::Float32>("/drive/heading_control/error", rclcpp::SystemDefaultsQoS());
-        HeadingControlPowerPub = node->create_publisher<std_msgs::msg::Float32>("/drive/heading_control/power", rclcpp::SystemDefaultsQoS());
-        HeadingControlDTPub = node->create_publisher<std_msgs::msg::Float32>("/drive/heading_control/dt", rclcpp::SystemDefaultsQoS());
         driveControlModePub = node->create_publisher<std_msgs::msg::Int16>("/drive/control_mode_echo", rclcpp::SystemDefaultsQoS());
 
 #ifdef SystemIndependent
@@ -95,9 +94,6 @@ namespace robot
         // creating clients and services
 
         startPath = node->create_service<autobt_msgs::srv::StringService>("/drive/start_path", std::bind(&Drivetrain::enablePathFollowerS, this, _1, _2));
-        setGyroGains = node->create_service<can_msgs::srv::SetPIDFGains>("/drive/heading_control/setPIDF", std::bind(&Drivetrain::updateGyroPIDGains, this, _1, _2));
-        setXGains = node->create_service<can_msgs::srv::SetPIDFGains>("/drive/pure_pursuit/setXPIDF", std::bind(&Drivetrain::updateXPIDGains, this, _1, _2));
-        setYGains = node->create_service<can_msgs::srv::SetPIDFGains>("/drive/pure_pursuit/setYPIDF", std::bind(&Drivetrain::updateYPIDGains, this, _1, _2));
 
         GPClient = node->create_client<rospathmsgs::srv::GetPath>("/get_path");
     }
@@ -133,9 +129,6 @@ namespace robot
         drivetrainHeadingMsg.data = -(std::fmod((imu->GetFusedHeading() + 360), 360));
         sOdom.Update(frc::Rotation2d{units::degree_t{drivetrainHeadingMsg.data}}, frontRMod->getState(),
                      frontLMod->getState(), rearRMod->getState(), rearLMod->getState());
-        headingControlErrorMsg.data = headingController.getError();
-        headingControlPowerMsg.data = headingController.getPower();
-        headingControlDTMsg.data = headingController.getDT();
 
         pose = sOdom.GetPose();
         robotPositionMsg.x = pose.X().to<double>();
@@ -305,9 +298,6 @@ namespace robot
         robotVelocityPub->publish(robotVelocityMsg);
         driveControlModePub->publish(driveControlModeMsg);
         drivetrainHeadingPub->publish(drivetrainHeadingMsg);
-        HeadingControlErrorPub->publish(headingControlErrorMsg);
-        HeadingControlPowerPub->publish(headingControlPowerMsg);
-        HeadingControlDTPub->publish(headingControlDTMsg);
 
 #ifdef SystemIndependent
         intakeDemandPublisher->publish(intakeDemandMsg);
@@ -379,24 +369,6 @@ namespace robot
 #endif
 
     // Services
-
-    void Drivetrain::updateGyroPIDGains(const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request> ping, std::shared_ptr<can_msgs::srv::SetPIDFGains::Response> pong)
-    {
-        headingController.setPIDFDisc(PIDFDiscriptor{ping->k_p, ping->k_i, ping->k_d, ping->k_f});
-        pong->success = true;
-    }
-
-    void Drivetrain::updateXPIDGains(const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request> ping, std::shared_ptr<can_msgs::srv::SetPIDFGains::Response> pong)
-    {
-        PPC->setXPIDF(PIDFDiscriptor{ping->k_p, ping->k_i, ping->k_d, ping->k_f});
-        pong->success = true;
-    }
-
-    void Drivetrain::updateYPIDGains(const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request> ping, std::shared_ptr<can_msgs::srv::SetPIDFGains::Response> pong)
-    {
-        PPC->setYPIDF(PIDFDiscriptor{ping->k_p, ping->k_i, ping->k_d, ping->k_f});
-        pong->success = true;
-    }
 
     void Drivetrain::enablePathFollowerS(std::shared_ptr<autobt_msgs::srv::StringService_Request> ping, std::shared_ptr<autobt_msgs::srv::StringService_Response> pong)
     {

@@ -180,15 +180,9 @@ namespace robot
         void setDriveMode(const std_msgs::msg::Int16);
 
         rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr HeadingControlSub;
-        rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr HeadingControlErrorPub;
-        rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr HeadingControlPowerPub;
-        rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr HeadingControlDTPub;
         void setHeadingControlEnabled(const std_msgs::msg::Int16);
         void setHeadingControlSetpoint(double newHeadingSetpoint);
-        std_msgs::msg::Float32 headingControlErrorMsg;
-        std_msgs::msg::Float32 headingControlPowerMsg;
-        std_msgs::msg::Float32 headingControlDTMsg;
-        PIDF headingController = PIDF(PIDFDiscriptor{.012, .0005, 0, 0});
+        PIDF headingController = PIDF(PIDFDiscriptor{.018, .001, 0, 0}, "gyro_pid");
         int headingControl = 0; //(0, disabled), (1, gyroLock), (2, limelightAngle)
         double headingControlSetpoint = 0;
 

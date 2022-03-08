@@ -109,6 +109,11 @@ namespace robot
     void PurePursuitController::setYPIDF(PIDFDiscriptor disc){
         yPID.setPIDFDisc(disc);
     }
+    
+    void PurePursuitController::createRosBindings(rclcpp::Node* node){
+        xPID.createRosBindings(node);
+        yPID.createRosBindings(node);
+    }
 
     frc::Rotation2d PurePursuitController::joinPath(frc::Pose2d currPos, rospathmsgs::msg::Waypoint lookAheadPoint)
     {

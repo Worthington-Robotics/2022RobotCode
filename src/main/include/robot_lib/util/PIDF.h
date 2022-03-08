@@ -1,4 +1,5 @@
 #pragma once
+#include <units/time.h>
 #include <can_msgs/srv/set_pidf_gains.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/float32.hpp>
@@ -35,6 +36,7 @@ namespace robot
         double setpoint = 0.0;
         void setPIDGains(const can_msgs::srv::SetPIDFGains::Request::SharedPtr req, can_msgs::srv::SetPIDFGains::Response::SharedPtr resp);
     private:
+        double getContinuousError(double error);
         double getI(double error);
         double getD(double error);
         double error = 0.0;
