@@ -9,6 +9,18 @@ void AutoSelect::createRosBindings(rclcpp::Node * node){
     treeRunner = node->create_client<autobt_msgs::srv::RunTree>("/auto/exec");
 }
 
+void AutoSelect::saveAuto(const std_msgs::msg::String msg){
+    std::string autoList = msg.data
+    size_t delimE = autoList.find('~');
+    size_t delimB = 0;
+    while(delimE != std::string::npos){
+        autos.push_back(autoList.substr(delimB, delimE));
+        delimB = delimE
+        delimE = autoList.find(delim, '~');
+    }
+    autos.push_back(autoList.substr(delimB));
+}
+
 void AutoSelect::selectAuto(std::string name){
     std::string pathName = name + ".xml";
 
