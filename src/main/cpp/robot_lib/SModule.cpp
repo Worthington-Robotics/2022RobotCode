@@ -19,7 +19,11 @@ namespace robot
         angle = std::make_shared<TalonFX>(angleID, "Default Name");
         drive = std::make_shared<TalonFX>(driveID, "Default Name");
         encod = std::make_shared<CANCoder>(encodID, "Default Name");
-        configMotors(offset, dValues, aValues);
+        
+        angleConfig = aValues;
+        driveConfig = dValues;
+        magnetOffset = offset;
+
         reset();
     }
 
@@ -42,8 +46,8 @@ namespace robot
         drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_14_Turn_PIDF1, 251, 0);
         drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_15_FirmareApiStatus, 249, 0);
         drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_17_Targets1, 247, 0);
-        drive->SetSensorPhase(true);
-        drive->SetInverted(true);
+        drive->SetSensorPhase(false);
+        drive->SetInverted(false);
         drive->SetNeutralMode(NeutralMode::Brake);
         drive->SelectProfileSlot(0, 0);
         drive->Config_kF(0, dValues.f, 0);
@@ -125,6 +129,7 @@ namespace robot
 
     void SModule::reset()
     {
+        configMotors(magnetOffset, driveConfig, angleConfig);
     }
 
     void SModule::setMotorVelocity(frc::SwerveModuleState ss)
@@ -183,7 +188,8 @@ namespace robot
     void SModule::publishModuleInfo(){
         auto msg = sensor_msgs::msg::JointState();
 
-        frc::SmartDashboard::PutNumber("swerve_module/" + name + "/module_angle", angle->GetSelectedSensorPosition() / TICKS_PER_DEGREE / (64 / 5));
+        frc::SmartDashboard::PutNumber("swerve_module/" + name + "/module_angle", std::fmod(angle->GetSelectedSensorPosition() / TICKS_PER_DEGREE / (64 / 5) + 360, 360));
+        frc::SmartDashboard::PutNumber("swerve_module/" + name + "/module_velocity", (drive->GetSelectedSensorVelocity() / (2048 * 39.37 * 6.12)) * (4 * M_PI * 10));
 
         // push in the names
         msg.name = {"angle", "angle_goal", "drive", "drive_goal"};

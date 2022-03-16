@@ -2,7 +2,9 @@
 #include <units/time.h>
 #include <units/velocity.h>
 #include <rospathmsgs/msg/waypoint.hpp>
+#include "robot_lib/util/PIDF.h"
 //#define SystemIndependent
+//#define PNU_DEBUG
 
 // Canbus ID mappings
 
@@ -169,10 +171,16 @@
 #define SWERVE_ANGLE_POS_TTR (2 * 3.14159 / 2048.0 * SWERVE_ANGLE_GEARING)
 #define SWERVE_ANGLE_VEL_TTR (SWERVE_ANGLE_POS_TTR * 10)
 
-#define FR_ABS_OFFSET -292.1
-#define FL_ABS_OFFSET -84.58
-#define RR_ABS_OFFSET -214.2
-#define RL_ABS_OFFSET -351.0
+#define FR_ABS_OFFSET -112.1
+#define FL_ABS_OFFSET 95.42
+#define RR_ABS_OFFSET 145.8
+#define RL_ABS_OFFSET -171.0
 
+//LIMELIGHT
+
+#define LIMELIGHT_MAX_ERROR 1.5
+
+#define HEADING_CONTROL_GAINS_AUTO robot::PIDFDiscriptor{.024, .005, 0, 0}
+#define HEADING_CONTROL_GAINS_TELE robot::PIDFDiscriptor{.02, .005, .05, 0}
 
 // PATH FOLLOWING STUFFS (EXPERIEMTAL ;-;)

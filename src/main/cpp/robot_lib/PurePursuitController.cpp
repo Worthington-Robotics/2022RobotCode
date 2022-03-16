@@ -142,7 +142,7 @@ namespace robot
         //figure out how fast we're going so we know how far to look ahead
         double totalVel = std::sqrt(currState.vx.to<double>() * currState.vx.to<double>() + currState.vy.to<double>() * currState.vy.to<double>());
         //figure out *where* we're looking ahead too, that .02 is a constant that makes sure if we're stopped, we are still looking ahead on the path
-        auto lookAheadPoint = getLookAheadPoint(mParams.mFixedLookahead * totalVel + .07);
+        auto lookAheadPoint = getLookAheadPoint(mParams.mFixedLookahead * totalVel + .05);
         //get the angle to our lookahead point, this is where we're going
         frc::Rotation2d angleToNextPoint = joinPath(currPos, lookAheadPoint); 
         //figure out how fast we're supposed to be going, this is encoded within the path

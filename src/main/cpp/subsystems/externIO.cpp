@@ -1,4 +1,5 @@
 #include "subsystems/externIO.h"
+#include <frc/smartdashboard/SmartDashboard.h>
 
 using std::placeholders::_1;
 using std::placeholders::_2;
@@ -55,8 +56,7 @@ namespace robot
       }
       
       // publishers of sensor data
-      externalTOFDistancePub = node->create_publisher<std_msgs::msg::Float32>("/externIO/external_tof/distance", rclcpp::SystemDefaultsQoS());
-      internalTOFDistancePub = node->create_publisher<std_msgs::msg::Float32>("/externIO/internal_tof/distance", rclcpp::SystemDefaultsQoS());
+      externalTOFDistanceSub = node->create_subscription<std_msgs::msg::Float32>("/externIO/internal_tof/distance", rclcpp::SensorDataQoS(), std::bind(&ExternIO::setTOF, this, _1));
       upperHoodLimitSwitchPub = node->create_publisher<std_msgs::msg::Bool>("/externIO/upper_hood/limit_switch", rclcpp::SystemDefaultsQoS());
       lowerHoodLimitSwitchPub = node->create_publisher<std_msgs::msg::Bool>("/externIO/lower_hood/limit_switch", rclcpp::SystemDefaultsQoS());
       reset();
@@ -86,7 +86,7 @@ namespace robot
       motorsFX.at(0)->getMotor()->ConfigForwardLimitSwitchSource(LimitSwitchSource_FeedbackConnector, LimitSwitchNormal_NormallyOpen, 0);
       motorsFX.at(0)->unmuzzleMotor();
 
-      motorsFX.at(1)->getMotor()->ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration{true, 5, 10, 1});
+      motorsFX.at(1)->getMotor()->ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration{true, 20, 20, 20});
       motorsFX.at(1)->getMotor()->ConfigVoltageCompSaturation(VOLTAGE_COMP);
       motorsFX.at(1)->getMotor()->SetNeutralMode(motorcontrol::Brake);
       motorsFX.at(1)->getMotor()->SetSensorPhase(false);
@@ -113,7 +113,7 @@ namespace robot
       motorsSRX.at(0)->getMotor()->SetStatusFramePeriod(Status_1_General, 20);
       motorsSRXC.at(0).shutUp = true;
 
-      motorsFX.at(2)->getMotor()->ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration{true, 5, 10, 1});
+      motorsFX.at(2)->getMotor()->ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration{true, 5, 10, 2});
       motorsFX.at(2)->getMotor()->ConfigVoltageCompSaturation(VOLTAGE_COMP);
       motorsFX.at(2)->getMotor()->SetNeutralMode(motorcontrol::Brake);
       motorsFX.at(2)->getMotor()->SetSensorPhase(true);
@@ -178,7 +178,6 @@ namespace robot
       motorsFX.at(6)->getMotor()->SetIntegralAccumulator(CLIMBER_R_IMAX);
       motorsFX.at(6)->muzzleMotor();
       motorsFXC.at(6).shutUp = true;
-
       for(solenoid::Solenoid* solenoid : solenoids){
          solenoid->getSolenoid()->Set(frc::DoubleSolenoid::Value::kReverse);
       }
@@ -194,39 +193,26 @@ namespace robot
 
    void ExternIO::updateSensorData() {}
 
+   void ExternIO::setTOF(const std_msgs::msg::Float32 msg){
+      frc::SmartDashboard::PutBoolean("externIO/system_overflow", (msg.data < .03));
+   }
+
    /**
     * Override this function for any code that must be called periodically by the subsystem
     **/
    void ExternIO::onLoop(double currentTime)
    {
+      std_msgs::msg::Bool limit;
       if(!motorsFX.at(0)->getMotor()->IsRevLimitSwitchClosed() && !hoodReset){
-         motorsFX.at(0)->getMotor()->Set(ControlMode::PercentOutput, -.5);
+         motorsFX.at(0)->getMotor()->Set(ControlMode::PercentOutput, -.75);
          motorsFX.at(0)->getMotor()->SetSelectedSensorPosition(0);
-      } else if (motorsFX.at(0)->getMotor()->IsRevLimitSwitchClosed()) {
+         limit.data = false;
+      } else if (motorsFX.at(0)->getMotor()->IsRevLimitSwitchClosed() || hoodReset) {
          hoodReset = true;
-         std_msgs::msg::Bool limit;
          limit.data = true;
-         hoodLimitSwitchResetPub->publish(limit);
       }
+      hoodLimitSwitchResetPub->publish(limit);
       // handling the falcon bits
-
-      // handling the TOFs
-      if (true /*externalTOF->IsRangeValid()*/)
-      {
-         //externalTOFDistance.data = externalTOF->GetRange();
-      }
-      else
-      {
-         externalTOFDistance.data = -1;
-      }
-      if (true /*internalTOF->IsRangeValid()*/)
-      {
-         //internalTOFDistance.data = internalTOF->GetRange();
-      }
-      else
-      {
-         internalTOFDistance.data = -1;
-      }
 
       // handling the limit switches
       upperHoodLimitSwitch.data = motorsSRX.at(0)->getMotor()->IsFwdLimitSwitchClosed();
@@ -235,8 +221,6 @@ namespace robot
       for(solenoid::Solenoid* solenoid : solenoids){
          solenoid->getSolenoid()->Set(solenoid->state);
       }
-
-      
 
       
    }

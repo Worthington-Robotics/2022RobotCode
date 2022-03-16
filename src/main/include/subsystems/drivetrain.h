@@ -49,6 +49,7 @@ namespace robot
     class Drivetrain : public Subsystem
     {
     public:
+    
         Drivetrain();
 
         /**
@@ -83,6 +84,8 @@ namespace robot
          * Request a path from the path generator with the given name, assuming it is baked
          */
         bool enablePathFollower(std::string name);
+        
+        void setHeadingControlGains(PIDFDiscriptor);
 
         void enableOpenLoop();
 
@@ -180,11 +183,14 @@ namespace robot
         void setDriveMode(const std_msgs::msg::Int16);
 
         rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr HeadingControlSub;
+        rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr limelightRangeSub;
+        void setLimelightRange(const std_msgs::msg::Float32);
         void setHeadingControlEnabled(const std_msgs::msg::Int16);
-        void setHeadingControlSetpoint(double newHeadingSetpoint);
-        PIDF headingController = PIDF(PIDFDiscriptor{.018, .001, 0, 0}, "gyro_pid");
+        void setHeadingControlSetpoint(double);
+        PIDF headingController = PIDF(PIDFDiscriptor{.02, .005, 0, 0}, "gyro_pid");
         int headingControl = 0; //(0, disabled), (1, gyroLock), (2, limelightAngle)
         double headingControlSetpoint = 0;
+        double range = 0;
 
         rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr limelightAngleOffsetSub;
         void setLimelightAngleOffset(const std_msgs::msg::Float32);

@@ -21,6 +21,9 @@ namespace solenoid
 
         void set(const std::shared_ptr<std_msgs::msg::Int16> msg)
         {
+            #ifdef PNU_DEBUG
+                std::cout << name << " has been set to " << msg->data << std::endl;
+            #endif
             if (msg->data < 0)
             {
                 state = frc::DoubleSolenoid::kReverse;

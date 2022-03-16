@@ -4,6 +4,7 @@
 #include <autobt_msgs/srv/run_tree.hpp>
 #include <std_msgs/msg/string.hpp>
 #include <string>
+#include <frc/smartdashboard/SmartDashboard.h>
 
 class AutoSelect {
     public:
@@ -18,7 +19,8 @@ class AutoSelect {
     private:
 
     rclcpp::Client<autobt_msgs::srv::RunTree>::SharedPtr treeRunner;
-    rclcpp::Subscription<std_msgs::msg::String>::SharedPtr delimAutoList;
+    rclcpp::Subscription<std_msgs::msg::String>::SharedPtr delimAutoListSub;
     std::vector<std::string> autos = {};
+    bool isAutoLoaded = false;
 
 };

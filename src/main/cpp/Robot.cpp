@@ -7,6 +7,7 @@
 #include "Constants.h"
 #include "robot_lib/VersionData.h"
 #include "SubsystemManager.h"
+#include "robot_lib/util/PIDF.h"
 
 void Robot::RobotInit()
 {
@@ -21,16 +22,18 @@ void Robot::RobotInit()
     externIO = std::make_shared<robot::ExternIO>();
     drive = std::make_shared<robot::Drivetrain>();
     sticks = std::make_shared<robot::UserInput>();
+    lightBar = std::make_shared<robot::LightBar>();
   
     sticks->registerSticks(USER_STICKS); //  register which joystick IDs to read
 
     // intialize all subsystems here
     manager = std::make_shared<robot::SubsystemManager>();
     manager->registerSubsystems(std::vector<std::shared_ptr<robot::Subsystem>>{
-        drive,
-        sticks,
-        externIO
-    });
+         drive,
+         sticks,
+         externIO,
+         lightBar
+     });
 
     autoSel = std::make_shared<AutoSelect>(std::vector<std::string>({""}));
     autoSel->createRosBindings(manager.get());
@@ -48,16 +51,21 @@ void Robot::AutonomousInit()
 {
     manager->stopDisabledLoop();
     drive->resetPose();
+    drive->reset();
+    drive->setHeadingControlGains(HEADING_CONTROL_GAINS_AUTO);
     manager->startEnabledLoop();
-    drive->enablePathFollower("forwardToBallOne");
-    autoSel->selectAuto("PosOneTest");
+    std::string autoSelect = frc::SmartDashboard::GetString("Auto Selector", "");
+    std::cout << "auto selected: " << autoSelect << std::endl;
+    autoSel->selectAuto(autoSelect);
 }
 void Robot::AutonomousPeriodic() {}
 
 void Robot::TeleopInit()
 {
     manager->stopDisabledLoop();
+    drive->reset();
     drive->enableOpenLoop();
+    drive->setHeadingControlGains(HEADING_CONTROL_GAINS_TELE);
     manager->startEnabledLoop();
 }
 void Robot::TeleopPeriodic() {}
@@ -75,16 +83,6 @@ void Robot::TestInit()
     manager->startEnabledLoop();
 }
 void Robot::TestPeriodic() {}
-
-// std::shared_ptr<robot::SubsystemManager> Robot::getSubManager(){
-//     if(!manager)
-//     {
-//         frc::ReportError(frc::err::NullParameter, "Robot.cpp", 70, "getSubManager", "Something has gone wrong with the creation of the subsystem manager" 
-//         "if you are getting this error, then somehow you have requested the exsistance of the subsystem manager before the robot has fully inited. How you "
-//         "did this, no one knows, but it deals with the non-singleton nature of the system :c");
-//     }
-//     return manager;
-// }
 
 
 #ifndef RUNNING_FRC_TESTS

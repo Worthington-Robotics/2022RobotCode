@@ -71,6 +71,10 @@ namespace robot
         std::shared_ptr<TalonFX> drive, angle;
         std::shared_ptr<CANCoder> encod;
 
+        // inital config valuess
+        PIDFDiscriptor angleConfig, driveConfig;
+        double magnetOffset;
+
         double desiredAngle, desiredVelocity;
 
         std::string name;

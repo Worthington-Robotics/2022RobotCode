@@ -10,6 +10,7 @@
 #include "frc/DriverStation.h"
 
 #include <std_msgs/msg/int16.hpp>
+#include <std_msgs/msg/float32.hpp>
 
 namespace robot
 {
@@ -87,14 +88,17 @@ namespace robot
         //addressable led bar
         frc::AddressableLED leds{LED_BAR};
         //number of leds
-        static constexpr int ledCount = 30;
+        static constexpr int ledCount = 40;
         //buffer used to hold led color information
         std::array<frc::AddressableLED::LEDData, ledCount> buffer;
 
         // Control states for the lights
-        LightState lightMode = RAINBOW;
+        LightState lightMode = TARGETING;
 
         void updateSensorData();
+
+        void setAngleOffset(const std_msgs::msg::Float32);
+        void setRange(const std_msgs::msg::Float32);
 
         //current time step for modes that animate over time
         int step = 0;
@@ -102,6 +106,13 @@ namespace robot
 
         // ROS Subscibers
         rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr LightModeSub;
+        rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr angleOffsetSub;
+        rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr rangeSub;
+
+        // Targeted Bool
+        bool isTargeted = false;
+        double angleOffset = 0.0;
+        double range = -1;
 
         
     };

@@ -4,6 +4,7 @@
 #include <frc/Errors.h>
 #include "SubsystemManager.h"
 #include "Robot.h"
+#include <frc/smartdashboard/SmartDashboard.h>
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -20,12 +21,12 @@ namespace robot
 
         frontRMod = std::make_shared<SModule>(DRIVE_FR_DRIVE, DRIVE_FR_ANGLE, DRIVE_FR_ENCOD, "front_right", FR_ABS_OFFSET, PIDFDiscriptor{DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_KF},
                                               PIDFDiscriptor{ANGLE_KP, ANGLE_KI, ANGLE_KD, ANGLE_KF});
-        frontRMod->setInvertDrive(true);
+        frontRMod->setInvertDrive(false);
         sModules.push_back(frontRMod);
 
         frontLMod = std::make_shared<SModule>(DRIVE_FL_DRIVE, DRIVE_FL_ANGLE, DRIVE_FL_ENCOD, "front_left", FL_ABS_OFFSET, PIDFDiscriptor{DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_KF},
                                               PIDFDiscriptor{ANGLE_KP, ANGLE_KI, ANGLE_KD, ANGLE_KF});
-        frontLMod->setInvertDrive(true);
+        frontLMod->setInvertDrive(false);
         sModules.push_back(frontLMod);
 
         rearRMod = std::make_shared<SModule>(DRIVE_RR_DRIVE, DRIVE_RR_ANGLE, DRIVE_RR_ENCOD, "rear_right", RR_ABS_OFFSET, PIDFDiscriptor{DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_KF},
@@ -35,7 +36,7 @@ namespace robot
 
         rearLMod = std::make_shared<SModule>(DRIVE_RL_DRIVE, DRIVE_RL_ANGLE, DRIVE_RL_ENCOD, "rear_left", RL_ABS_OFFSET, PIDFDiscriptor{DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_KF},
                                              PIDFDiscriptor{ANGLE_KP, ANGLE_KI, ANGLE_KD, ANGLE_KF});
-        rearLMod->setInvertDrive(true);
+        rearLMod->setInvertDrive(false);
         sModules.push_back(rearLMod);
 
         imu = std::make_shared<PigeonIMU>(IMU_ID);
@@ -66,6 +67,8 @@ namespace robot
         autoLookaheadPointPub = node->create_publisher<rospathmsgs::msg::Waypoint>("/drive/auto/lookahead_point", rclcpp::SystemDefaultsQoS());
         autoToLookaheadAnglePub = node->create_publisher<std_msgs::msg::Float32>("/drive/auto/lookahead_point_angle", rclcpp::SystemDefaultsQoS());
         driveControlModePub = node->create_publisher<std_msgs::msg::Int16>("/drive/control_mode_echo", rclcpp::SystemDefaultsQoS());
+       
+
 
 #ifdef SystemIndependent
         intakeDemandPublisher = node->create_publisher<can_msgs::msg::MotorMsg>("/externIO/intake_motor/demand", rclcpp::SystemDefaultsQoS());
@@ -86,6 +89,7 @@ namespace robot
 
         HeadingControlSub = node->create_subscription<std_msgs::msg::Int16>("/actions/heading_control", rclcpp::SystemDefaultsQoS(), std::bind(&Drivetrain::setHeadingControlEnabled, this, _1));
         limelightAngleOffsetSub = node->create_subscription<std_msgs::msg::Float32>("/limelight/angle_offset", rclcpp::SensorDataQoS(), std::bind(&Drivetrain::setLimelightAngleOffset, this, _1));
+        limelightRangeSub = node->create_subscription<std_msgs::msg::Float32>("/limelight/range", rclcpp::SensorDataQoS(), std::bind(&Drivetrain::setLimelightRange, this, _1));
 
 #ifdef SystemIndependent
         hoodResetSub = node->create_subscription<std_msgs::msg::Bool>("/externIO/hood_motor/is_reset", rclcpp::SystemDefaultsQoS(), std::bind(&Drivetrain::setHoodReset, this, _1));
@@ -309,6 +313,7 @@ namespace robot
             hoodDemandPublisher->publish(hoodDemandMsg);
         }
 #endif
+        frc::SmartDashboard::PutNumber("drive/heading", std::fmod(drivetrainHeadingMsg.data + 360, 360));
     }
 
     // Setters
@@ -317,6 +322,12 @@ namespace robot
     {
         angleOffset = setpoint.data;
     }
+
+    void Drivetrain::setLimelightRange(const std_msgs::msg::Float32 lRange)
+    {
+        range = lRange.data;
+    }
+
 #ifdef SystemIndependent
     void Drivetrain::setHoodReset(const std_msgs::msg::Bool msg)
     {
@@ -415,7 +426,7 @@ namespace robot
         {
             imu->SetFusedHeading(0);
         }
-        if (headingControl == 2)
+        if (headingControl == 2 && range)
         {
             headingControlSetpoint = drivetrainHeadingMsg.data - angleOffset;
             headingController.setSetpoint(headingControlSetpoint, false);
@@ -475,18 +486,15 @@ namespace robot
             indexerDemandMsg.control_mode = 0;
             indexerDemandMsg.demand = 0;
             indexerDemandMsg.arb_feedforward = 0;
+            deliveryDemandMsg.control_mode = 0;
+            deliveryDemandMsg.demand = 0;
+            deliveryDemandMsg.arb_feedforward = 0;
         }
 
         if (shoot)
         {
             deliveryDemandMsg.control_mode = 0;
             deliveryDemandMsg.demand = 1;
-            deliveryDemandMsg.arb_feedforward = 0;
-        }
-        else
-        {
-            deliveryDemandMsg.control_mode = 0;
-            deliveryDemandMsg.demand = 0;
             deliveryDemandMsg.arb_feedforward = 0;
         }
 
@@ -543,6 +551,11 @@ namespace robot
     void Drivetrain::setHeadingControlSetpoint(double newHeadingSetpoint)
     {
         headingControlSetpoint = newHeadingSetpoint;
+    }
+
+    void Drivetrain::setHeadingControlGains(PIDFDiscriptor nGains)
+    {
+        headingController.setPIDFDisc(nGains);
     }
 
 } // namespace robot

@@ -56,14 +56,15 @@ namespace robot
          **/
         void publishData() override;
 
+        void setTOF(const std_msgs::msg::Float32);
+
         void enableDebug(bool debug) override;
 
     private:
         // publishers of sensor data
         rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr hoodEncoderPub;
         rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr flywheelEncoderPub;
-        rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr externalTOFDistancePub;
-        rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr internalTOFDistancePub;
+        rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr externalTOFDistanceSub;
         rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr upperHoodLimitSwitchPub;
         rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr lowerHoodLimitSwitchPub;
         rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr hoodLimitSwitchResetPub;
@@ -71,7 +72,6 @@ namespace robot
         // msgs used in the publishers of the listed above
         sensor_msgs::msg::JointState hoodEncoderPosition;
         sensor_msgs::msg::JointState flywheelEncoderVelocity;
-        std_msgs::msg::Float32 externalTOFDistance;
         std_msgs::msg::Float32 internalTOFDistance;
         std_msgs::msg::Bool upperHoodLimitSwitch;
         std_msgs::msg::Bool lowerHoodLimitSwitch;
