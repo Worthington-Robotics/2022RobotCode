@@ -21,7 +21,13 @@ deploy {
                 // First part is artifact name, 2nd is artifact type
                 // getTargetTypeClass is a shortcut to get the class type using a string
 
-                frcCpp(getArtifactTypeClass('FRCNativeArtifact')) {
+                frcCpp(getArtifactTypeClass('FRCNativeArtifact')) { 
+                    robotCommandArtifact.postdeploy << {
+                        ctx -> {
+                            ctx.execute('cp /home/lvuser/deploy/robotCommand /home/lvuser/robotCommand')
+                            ctx.execute('chmod +x /home/lvuser/robotCommand')
+                        }
+                    }
                 }
 
                 // Static files artifact
@@ -86,6 +92,7 @@ model {
             targetPlatform wpi.platforms.roborio
             if (includeDesktopSupport) {
                 targetPlatform wpi.platforms.desktop
+
             }
 
             sources.cpp {
