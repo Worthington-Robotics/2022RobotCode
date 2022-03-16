@@ -24,8 +24,8 @@ deploy {
                 frcCpp(getArtifactTypeClass('FRCNativeArtifact')) { 
                     robotCommandArtifact.postdeploy << {
                         ctx -> {
-                            ctx.execute('cp /home/lvuser/deploy/robotCommand /home/lvuser/robotCommand')
-                            ctx.execute('chmod +x /home/lvuser/robotCommand')
+                            //UNCOMMENT THIS LINE FOR FIELD VIABILITY!!! WITHOUT IT, YOU CAN DEV
+                            //ctx.execute('echo \'export CYCLONEDDS_URI=/home/lvuser/deploy/cyclone_config.xml && "/home/lvuser/frcUserProgram"\' > /home/lvuser/robotCommand')
                         }
                     }
                 }

@@ -126,7 +126,7 @@
 #define USER_STICKS {0, 1}
 
 #define DRIVE_STICK_TOPIC "/sticks/stick0" 
-#define DRIVE_STICK_SCALAR {.6666, -.6666, .6666, .6666, .333, .6666}
+#define DRIVE_STICK_SCALAR {.75, -.75, .75, .75, .5, .75}
 #define DRIVE_STICK_DEADBAND 0.2
 #define DRIVE_STICK_POWER 4
 
@@ -181,6 +181,6 @@
 #define LIMELIGHT_MAX_ERROR 1.5
 
 #define HEADING_CONTROL_GAINS_AUTO robot::PIDFDiscriptor{.024, .005, 0, 0}
-#define HEADING_CONTROL_GAINS_TELE robot::PIDFDiscriptor{.02, .005, .05, 0}
+#define HEADING_CONTROL_GAINS_TELE robot::PIDFDiscriptor{.02, .005, .005, 0}
 
 // PATH FOLLOWING STUFFS (EXPERIEMTAL ;-;)

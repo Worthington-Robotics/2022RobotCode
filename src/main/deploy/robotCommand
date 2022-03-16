@@ -1,2 +1,0 @@
-export CYCLONEDDS_URI=/home/lvuser/deploy/cyclone_config.xml && "/home/lvuser/frcUserProgram"
-
