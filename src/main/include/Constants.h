@@ -4,6 +4,7 @@
 #include <rospathmsgs/msg/waypoint.hpp>
 #include "robot_lib/util/PIDF.h"
 //#define SystemIndependent
+#define noRosDebug
 //#define PNU_DEBUG
 
 // Canbus ID mappings
@@ -126,7 +127,7 @@
 #define USER_STICKS {0, 1}
 
 #define DRIVE_STICK_TOPIC "/sticks/stick0" 
-#define DRIVE_STICK_SCALAR {.75, -.75, .75, .75, .5, .75}
+#define DRIVE_STICK_SCALAR {.75, -.75, .75, .75, .75, .75}
 #define DRIVE_STICK_DEADBAND 0.2
 #define DRIVE_STICK_POWER 4
 
@@ -136,7 +137,7 @@
 
 // How long before the drivetrain locks up after not recieving a new twist packet.
 // Applies for both velocity, and open loop twist mode
-#define DRIVE_TIMEOUT 0.030 // seconds
+#define DRIVE_TIMEOUT 0.050 // seconds
 
 // Allowable difference between swerve modules and the average current
 #define DELTA_CURRENT_THRESHOLD 10
@@ -178,9 +179,9 @@
 
 //LIMELIGHT
 
-#define LIMELIGHT_MAX_ERROR 1.5
+#define LIMELIGHT_MAX_ERROR 1.75
 
 #define HEADING_CONTROL_GAINS_AUTO robot::PIDFDiscriptor{.024, .005, 0, 0}
-#define HEADING_CONTROL_GAINS_TELE robot::PIDFDiscriptor{.02, .005, .005, 0}
+#define HEADING_CONTROL_GAINS_TELE robot::PIDFDiscriptor{.018, .0025, 0, 0}
 
 // PATH FOLLOWING STUFFS (EXPERIEMTAL ;-;)

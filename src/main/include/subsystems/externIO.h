@@ -63,6 +63,7 @@ namespace robot
     private:
         // publishers of sensor data
         rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr hoodEncoderPub;
+        rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr colesStupidFuckingLimelightPub;
         rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr flywheelEncoderPub;
         rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr externalTOFDistanceSub;
         rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr upperHoodLimitSwitchPub;

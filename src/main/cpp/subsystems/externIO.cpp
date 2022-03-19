@@ -113,6 +113,8 @@ namespace robot
       motorsSRX.at(0)->getMotor()->SetStatusFramePeriod(Status_1_General, 20);
       motorsSRXC.at(0).shutUp = true;
 
+      //shooter
+
       motorsFX.at(2)->getMotor()->ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration{true, 5, 10, 2});
       motorsFX.at(2)->getMotor()->ConfigVoltageCompSaturation(VOLTAGE_COMP);
       motorsFX.at(2)->getMotor()->SetNeutralMode(motorcontrol::Brake);
@@ -236,8 +238,13 @@ namespace robot
          // //std::cout << " publishing Talonfx " << std::endl;
          // std::cout << "silenced motor " << std::to_string(MC.shutUp) << std::endl;
          if(!MC.shutUp){
+
             sensor_msgs::msg::JointState jointState;
             motors::JointState JS = MC.motor.getJointState();
+            #ifdef noRosDebug
+            frc::SmartDashboard::PutNumber(JS.name + "/position", JS.position);
+            frc::SmartDashboard::PutNumber(JS.name + "/velocity", JS.velocity);
+            #endif
             jointState.position.push_back(JS.position);
             jointState.velocity.push_back(JS.velocity);
             jointState.effort.push_back(JS.effort);

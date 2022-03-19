@@ -23,8 +23,9 @@
 				<Group>
 					<Peer Address="10.41.45.2" />
 					<Peer Address="10.41.45.90" />
-					<Peer Address="10.41.45.139" />
-					<Peer Address="10.41.45.231" />
+					<!-- <Peer Address="10.41.45.139" />
+					 -->
+					<Peer Address="10.41.45.205" />
 					<Peer Address="10.41.45.232" />
 				</Group>
 			</Peers>

@@ -153,6 +153,9 @@ namespace robot
         rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr intakeDemandPublisher;
         can_msgs::msg::MotorMsg intakeDemandMsg;
 
+        rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr intakeSoleDemandPublisher;
+        std_msgs::msg::Int16 intakeSoleDemandMsg;
+
         rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr indexerDemandPublisher;
         can_msgs::msg::MotorMsg indexerDemandMsg;
 
@@ -164,6 +167,10 @@ namespace robot
 
         rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr hoodDemandPublisher;
         can_msgs::msg::MotorMsg hoodDemandMsg;
+
+        rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr climberLDemandPublisher;
+        rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr climberRDemandPublisher;
+        can_msgs::msg::MotorMsg climberDemandMsg;
 #endif
 
         // ROS Subscibers
@@ -235,11 +242,16 @@ namespace robot
 
 #ifdef SystemIndependent
         bool intake = false;
+        bool intakeDeploy = false;
+        bool intakeRetract = false;
         bool unintake = false;
         bool shoot = false;
 
         bool hoodReset = 0;
         double hoodDemand = 0;
+
+        bool climberEnabled = false;
+        double climberDemand = 0;
 
         bool flywheelState = false;
         bool flywheelHeld = false;

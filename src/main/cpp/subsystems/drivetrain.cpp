@@ -72,10 +72,13 @@ namespace robot
 
 #ifdef SystemIndependent
         intakeDemandPublisher = node->create_publisher<can_msgs::msg::MotorMsg>("/externIO/intake_motor/demand", rclcpp::SystemDefaultsQoS());
+        intakeSoleDemandPublisher = node->create_publisher<std_msgs::msg::Int16>("/externIO/intake_solenoid/state", rclcpp::SystemDefaultsQoS());
         indexerDemandPublisher = node->create_publisher<can_msgs::msg::MotorMsg>("/externIO/indexer_motor/demand", rclcpp::SystemDefaultsQoS());
         deliveryDemandPublisher = node->create_publisher<can_msgs::msg::MotorMsg>("/externIO/delivery_motor/demand", rclcpp::SystemDefaultsQoS());
         flywheelDemandPublisher = node->create_publisher<can_msgs::msg::MotorMsg>("/externIO/flywheel_motor/demand", rclcpp::SystemDefaultsQoS());
         hoodDemandPublisher = node->create_publisher<can_msgs::msg::MotorMsg>("/externIO/hood_motor/demand", rclcpp::SystemDefaultsQoS());
+        climberLDemandPublisher = node->create_publisher<can_msgs::msg::MotorMsg>("/externIO/climber_l_motor/demand", rclcpp::SystemDefaultsQoS());
+        climberRDemandPublisher = node->create_publisher<can_msgs::msg::MotorMsg>("/externIO/climber_r_motor/demand", rclcpp::SystemDefaultsQoS());
 #endif
 
         // Create subscribers
@@ -205,6 +208,7 @@ namespace robot
             }
             else
             { // otherwise force motors to zero, there is stale data
+                std::cout << "drive input stale: " << std::endl;
                 speed = frc::ChassisSpeeds{0_mps, 0_mps, 0_rad_per_s};
             }
             break;
@@ -219,6 +223,7 @@ namespace robot
             }
             else
             { // otherwise force motors to zero, there is stale data
+                std::cout << "drive input stale: " << std::endl;
                 speed = frc::ChassisSpeeds{0_mps, 0_mps, 0_rad_per_s};
             }
             break;
@@ -305,9 +310,12 @@ namespace robot
 
 #ifdef SystemIndependent
         intakeDemandPublisher->publish(intakeDemandMsg);
+        intakeSoleDemandPublisher->publish(intakeSoleDemandMsg);
         indexerDemandPublisher->publish(indexerDemandMsg);
         deliveryDemandPublisher->publish(deliveryDemandMsg);
-        // flywheelDemandPublisher->publish(flywheelDemandMsg);
+        //fsngflywheelDemandPublisher->publish(flywheelDemandMsg);
+        climberLDemandPublisher->publish(climberDemandMsg);
+        climberRDemandPublisher->publish(climberDemandMsg);
         if (hoodReset)
         {
             hoodDemandPublisher->publish(hoodDemandMsg);
@@ -326,6 +334,9 @@ namespace robot
     void Drivetrain::setLimelightRange(const std_msgs::msg::Float32 lRange)
     {
         range = lRange.data;
+        #ifdef noRosDebug
+        frc::SmartDashboard::PutNumber("limelight/range", range);
+        #endif
     }
 
 #ifdef SystemIndependent
@@ -350,7 +361,11 @@ namespace robot
         }
         else if (headingControl == 2)
         {
-            headingControlSetpoint = drivetrainHeadingMsg.data - angleOffset;
+            if(range != -1){
+                headingControlSetpoint = drivetrainHeadingMsg.data - angleOffset;
+            } else {
+                headingControl = drivetrainHeadingMsg.data;
+            }
         }
         headingController.setSetpoint(headingControlSetpoint, true);
     }
@@ -371,11 +386,15 @@ namespace robot
         lastStickTime = frc::Timer::GetFPGATimestamp().to<double>();
         lastStick1 = msg;
         shoot = lastStick1.buttons.at(0);
-        flywheelButton = lastStick1.buttons.at(1);
         intake = lastStick1.buttons.at(2);
+        flywheelButton = lastStick1.buttons.at(4);
+        intakeDeploy = lastStick1.buttons.at(6);
+        intakeRetract = lastStick1.buttons.at(7);
         unintake = lastStick1.buttons.at(5);
+        climberEnabled = lastStick1.buttons.at(9);
         // remaps -1 to 1 axis to 0 to 1
         hoodDemand = ((-lastStick1.axes.at(3) + 1) / 2);
+        climberDemand = ((-lastStick1.axes.at(1) * .75));
     }
 #endif
 
@@ -426,9 +445,10 @@ namespace robot
         {
             imu->SetFusedHeading(0);
         }
-        if (headingControl == 2 && range)
+        if (headingControl == 2 && range != -1)
         {
-            headingControlSetpoint = drivetrainHeadingMsg.data - angleOffset;
+            headingControlSetpoint = drivetrainHeadingMsg.data - angleOffset + 4
+             / range;
             headingController.setSetpoint(headingControlSetpoint, false);
         }
 
@@ -491,6 +511,13 @@ namespace robot
             deliveryDemandMsg.arb_feedforward = 0;
         }
 
+        if(intakeDeploy){
+            intakeSoleDemandMsg.data = 1;
+        }
+        else if(intakeRetract){
+            intakeSoleDemandMsg.data = -1;
+        }
+
         if (shoot)
         {
             deliveryDemandMsg.control_mode = 0;
@@ -519,6 +546,18 @@ namespace robot
             flywheelDemandMsg.control_mode = 0;
             flywheelDemandMsg.demand = 0;
             flywheelDemandMsg.arb_feedforward = 0;
+        }
+        if (climberEnabled)
+        {
+            climberDemandMsg.control_mode = 0;
+            climberDemandMsg.demand = climberDemand;
+            climberDemandMsg.arb_feedforward = 0;
+        }
+        else
+        {
+            climberDemandMsg.control_mode = 0;
+            climberDemandMsg.demand = 0;
+            climberDemandMsg.arb_feedforward = 0;
         }
 #endif
     }

@@ -57,7 +57,7 @@ namespace robot
         drive->Config_IntegralZone(0, 300, 0);
         drive->ConfigVoltageCompSaturation(11, 0);
         drive->EnableVoltageCompensation(true);
-        drive->ConfigStatorCurrentLimit(StatorCurrentLimitConfiguration(true, 40, 70, 1));
+        drive->ConfigStatorCurrentLimit(StatorCurrentLimitConfiguration(true, 55, 55, 1));
 
         // Configure front left angle falcon
         encod->SetStatusFramePeriod(CANCoderStatusFrame::CANCoderStatusFrame_SensorData, 100, 0);
@@ -94,7 +94,7 @@ namespace robot
         angle->Config_IntegralZone(0, 8000, 0);
         angle->ConfigVoltageCompSaturation(11, 0);
         angle->EnableVoltageCompensation(true);
-        angle->ConfigStatorCurrentLimit(StatorCurrentLimitConfiguration(true, 40, 70, 1));
+        angle->ConfigStatorCurrentLimit(StatorCurrentLimitConfiguration(true, 55, 55, 2));
         angle->SetSelectedSensorPosition(-angleOffset, 0);
     }
 
