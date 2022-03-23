@@ -143,15 +143,17 @@ namespace robot
       motorsFX.at(4)->getMotor()->ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration{true, CLIMBER_HOLD_AMPS, CLIMBER_MAX_AMPS, CLIMBER_MAX_TIME});
       motorsFX.at(4)->getMotor()->ConfigVoltageCompSaturation(VOLTAGE_COMP);
       motorsFX.at(4)->getMotor()->SetNeutralMode(motorcontrol::Brake);
-      motorsFX.at(4)->getMotor()->SetSensorPhase(true);
-      motorsFX.at(4)->getMotor()->SetInverted(true);
-      motorsFX.at(4)->getMotor()->Config_kP(0, CLIMBER_C_KP);
-      motorsFX.at(4)->getMotor()->Config_kI(0, CLIMBER_C_KI);
-      motorsFX.at(4)->getMotor()->Config_kD(0, CLIMBER_C_KD);
-      motorsFX.at(4)->getMotor()->Config_kF(0, CLIMBER_C_KF);
-      motorsFX.at(4)->getMotor()->SetIntegralAccumulator(CLIMBER_C_IMAX);
+      motorsFX.at(4)->getMotor()->SetSensorPhase(false);
+      motorsFX.at(4)->getMotor()->SetInverted(false);
+      motorsFX.at(4)->getMotor()->Config_kP(0, CLIMBER_R_KP);
+      motorsFX.at(4)->getMotor()->Config_kI(0, CLIMBER_R_KI);
+      motorsFX.at(4)->getMotor()->Config_kD(0, CLIMBER_R_KD);
+      motorsFX.at(4)->getMotor()->Config_kF(0, CLIMBER_R_KF);
+      motorsFX.at(4)->getMotor()->SetIntegralAccumulator(CLIMBER_R_IMAX);
       motorsFX.at(4)->muzzleMotor();
       motorsFXC.at(4).shutUp = true;
+
+      //this is not the climber -------->
 
       motorsFX.at(5)->getMotor()->ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration{true, CLIMBER_HOLD_AMPS, CLIMBER_MAX_AMPS, CLIMBER_MAX_TIME});
       motorsFX.at(5)->getMotor()->ConfigVoltageCompSaturation(VOLTAGE_COMP);
@@ -165,21 +167,6 @@ namespace robot
       motorsFX.at(5)->getMotor()->SetIntegralAccumulator(CLIMBER_R_IMAX);
       motorsFX.at(5)->muzzleMotor();
       motorsFXC.at(5).shutUp = true;
-
-      //this is not the climber -------->
-
-      motorsFX.at(6)->getMotor()->ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration{true, CLIMBER_HOLD_AMPS, CLIMBER_MAX_AMPS, CLIMBER_MAX_TIME});
-      motorsFX.at(6)->getMotor()->ConfigVoltageCompSaturation(VOLTAGE_COMP);
-      motorsFX.at(6)->getMotor()->SetNeutralMode(motorcontrol::Brake);
-      motorsFX.at(6)->getMotor()->SetSensorPhase(false);
-      motorsFX.at(6)->getMotor()->SetInverted(false);
-      motorsFX.at(6)->getMotor()->Config_kP(0, CLIMBER_R_KP);
-      motorsFX.at(6)->getMotor()->Config_kI(0, CLIMBER_R_KI);
-      motorsFX.at(6)->getMotor()->Config_kD(0, CLIMBER_R_KD);
-      motorsFX.at(6)->getMotor()->Config_kF(0, CLIMBER_R_KF);
-      motorsFX.at(6)->getMotor()->SetIntegralAccumulator(CLIMBER_R_IMAX);
-      motorsFX.at(6)->muzzleMotor();
-      motorsFXC.at(6).shutUp = true;
       for(solenoid::Solenoid* solenoid : solenoids){
          solenoid->getSolenoid()->Set(frc::DoubleSolenoid::Value::kReverse);
       }
@@ -217,7 +204,6 @@ namespace robot
       // handling the falcon bits
 
       // handling the limit switches
-      upperHoodLimitSwitch.data = motorsSRX.at(0)->getMotor()->IsFwdLimitSwitchClosed();
       lowerHoodLimitSwitch.data = motorsSRX.at(0)->getMotor()->IsRevLimitSwitchClosed();
 
       for(solenoid::Solenoid* solenoid : solenoids){

@@ -23,6 +23,7 @@ void Robot::RobotInit()
     drive = std::make_shared<robot::Drivetrain>();
     sticks = std::make_shared<robot::UserInput>();
     lightBar = std::make_shared<robot::LightBar>();
+    climber = std::make_shared<robot::Climber>();
   
     sticks->registerSticks(USER_STICKS); //  register which joystick IDs to read
 
@@ -32,7 +33,8 @@ void Robot::RobotInit()
          drive,
          sticks,
          externIO,
-         lightBar
+         lightBar,
+         climber
      });
 
     autoSel = std::make_shared<AutoSelect>(std::vector<std::string>({""}));

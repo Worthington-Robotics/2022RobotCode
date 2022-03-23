@@ -25,7 +25,7 @@ deploy {
                     robotCommandArtifact.postdeploy << {
                         ctx -> {
                             //UNCOMMENT THIS LINE FOR FIELD VIABILITY!!! WITHOUT IT, YOU CAN DEV
-                            ctx.execute('echo \'export CYCLONEDDS_URI=/home/lvuser/deploy/cyclone_config.xml && "/home/lvuser/frcUserProgram"\' > /home/lvuser/robotCommand')
+                            //ctx.execute('echo \'export CYCLONEDDS_URI=/home/lvuser/deploy/cyclone_config.xml && "/home/lvuser/frcUserProgram"\' > /home/lvuser/robotCommand')
                         }
                     }
                 }

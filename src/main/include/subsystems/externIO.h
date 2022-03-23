@@ -83,7 +83,6 @@ namespace robot
             new motors::TalonBrushless(INTAKE_MOTOR_ID, "intake"),
             new motors::TalonBrushless(FLYWHEEL_MOTOR_ID, "flywheel"),
             new motors::TalonBrushless(CLIMBER_L_MOTOR_ID, "climber_l"),
-            new motors::TalonBrushless(CLIMBER_C_MOTOR_ID, "climber_c"),
             new motors::TalonBrushless(CLIMBER_R_MOTOR_ID, "climber_r"),
             new motors::TalonBrushless(DELIVERY_MOTOR_ID, "delivery")
             };

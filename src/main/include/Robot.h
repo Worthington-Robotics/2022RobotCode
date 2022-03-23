@@ -11,6 +11,7 @@
 #include "subsystems/userinput.h"
 #include "subsystems/LightBar.h"
 #include "subsystems/externIO.h"
+#include "subsystems/climber.h"
 #include "AutoSelect.h"
 
 
@@ -40,5 +41,6 @@ class Robot : public frc::TimedRobot {
   std::shared_ptr<robot::Drivetrain> drive;
   std::shared_ptr<robot::UserInput> sticks;
   std::shared_ptr<robot::LightBar> lightBar;
+  std::shared_ptr<robot::Climber> climber;
   std::shared_ptr<AutoSelect> autoSel;
 };
