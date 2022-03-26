@@ -40,7 +40,7 @@ namespace robot
         /**
          * Override this function with code needed to update sensors assosiated with the robot
          **/ 
-        void updateSensorData(){}
+        void updateSensorData() {}
 
 
         /**
@@ -55,7 +55,9 @@ namespace robot
         void publishData() override;
 
     private:
-        bool enableSole, solePressed, soleState;
+        bool enableSole = false; 
+        bool solePressed = false; 
+        bool soleState = false;
 
         rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr stick1Sub;
         std::vector<rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr> climberEnabledSubs;
@@ -81,8 +83,9 @@ namespace robot
         void setStick1Input(const sensor_msgs::msg::Joy msg) {
                 climberDemands.at(0) = -msg.axes.at(1);
                 climberDemands.at(1) = -msg.axes.at(1);
-                climberEnabled.at(0) = msg.buttons.at(8);
-                climberEnabled.at(1) = msg.buttons.at(9);
+                climberEnabled.at(0) = msg.buttons.at(8) || msg.buttons.at(11);
+                climberEnabled.at(1) = msg.buttons.at(9) || msg.buttons.at(11);
+                enableSole = msg.buttons.at(10);
         }
 
 

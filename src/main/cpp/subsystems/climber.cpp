@@ -9,6 +9,7 @@ namespace robot
 
     void Climber::createRosBindings(rclcpp::Node* Node)
     {
+        soleStatePub = Node->create_publisher<std_msgs::msg::Int16>("externIO/climber_r_main_solenoid/state", rclcpp::SystemDefaultsQoS());
         stick1Sub = Node->create_subscription<sensor_msgs::msg::Joy>("sticks/stick1", rclcpp::SensorDataQoS(), std::bind(&Climber::setStick1Input, this, _1));
         climberDemandsPubs = {
             Node->create_publisher<can_msgs::msg::MotorMsg>("externIO/climber_l_motor/demand", rclcpp::SystemDefaultsQoS()),
@@ -22,10 +23,8 @@ namespace robot
             demands.arb_feedforward = 0;
             demands.control_mode = 0;
             if(climberEnabled.at(i)){
-                std::cout << "climber " << i << " enabled" << std::endl;
                 demands.demand = climberDemands.at(i);
             } else {
-                std::cout << "climber " << i << " disabled" << std::endl;
                 demands.demand = 0;
             }
             climberDemandsPubs.at(i)->publish(demands);
@@ -40,11 +39,10 @@ namespace robot
             solePressed = false;
         }
         std_msgs::msg::Int16 soleDemand;
+        soleDemand.data = -1;
         if (soleState)
         {
             soleDemand.data = 1;
-        } else {
-            soleDemand.data = -1;
         }
         soleStatePub->publish(soleDemand);
     }

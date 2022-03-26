@@ -182,7 +182,7 @@ namespace robot
 
     void LightBar::setAngleOffset(const std_msgs::msg::Float32 msg)
     {
-        angleOffset = std::abs(msg.data);
+        angleOffset = std::abs(msg.data) - (6 / range);
     }
 
     void LightBar::setRange(const std_msgs::msg::Float32 msg)

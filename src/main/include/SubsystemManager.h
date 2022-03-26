@@ -8,6 +8,7 @@
 #include "subsystems/Subsystem.h"
 
 #include "std_msgs/msg/bool.hpp"
+#include "std_msgs/msg/int16.hpp"
 
 namespace robot
 {
@@ -96,6 +97,8 @@ namespace robot
 
         rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr sysReset;
         rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr sysDebug;
+        rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr sysEnableEchoPub;
+        double sysDisableTime = 0;
     };
 
 } // namespace robot

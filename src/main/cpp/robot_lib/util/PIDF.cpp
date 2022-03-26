@@ -137,9 +137,9 @@ namespace robot
     void PIDF::createRosBindings(rclcpp::Node *nodeHandle)
     {
         // error, effort, setpoint
-        errorPub = nodeHandle->create_publisher<std_msgs::msg::Float32>("/drive/" + name + "/error/pidfset", rclcpp::SystemDefaultsQoS());
-        effortPub = nodeHandle->create_publisher<std_msgs::msg::Float32>("/drive/" + name + "/effort/pidfset", rclcpp::SystemDefaultsQoS());
+        errorPub = nodeHandle->create_publisher<std_msgs::msg::Float32>("/pidf/" + name + "/error", rclcpp::SystemDefaultsQoS());
+        effortPub = nodeHandle->create_publisher<std_msgs::msg::Float32>("/pidf/" + name + "/effort", rclcpp::SystemDefaultsQoS());
 
-        gainService = nodeHandle->create_service<can_msgs::srv::SetPIDFGains>("/drive/" + name + "/setPoint/pidfset", std::bind(&PIDF::setPIDGains, this, _1, _2));
+        gainService = nodeHandle->create_service<can_msgs::srv::SetPIDFGains>("/pidf/" + name + "/pidfset", std::bind(&PIDF::setPIDGains, this, _1, _2));
     }
 } // namespace robot

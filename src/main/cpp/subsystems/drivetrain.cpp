@@ -61,6 +61,12 @@ namespace robot
         // Create sensor data publishers
         headingController.createRosBindings(node);
         PPC->createRosBindings(node);
+        intakeIndexerPub = node->create_publisher<std_msgs::msg::Int16>("/actions/intake_indexer", rclcpp::SystemDefaultsQoS());
+        intakeSolePub = node->create_publisher<std_msgs::msg::Int16>("/externIO/intake_solenoid/state", rclcpp::SystemDefaultsQoS());
+        flyWheelModePub = node->create_publisher<std_msgs::msg::Int16>("/actions/flywheel_mode", rclcpp::SystemDefaultsQoS());
+        allianceColorPub = node->create_publisher<std_msgs::msg::Int16>("/sys/a_color", rclcpp::SystemDefaultsQoS());
+
+
         robotVelocityPub = node->create_publisher<geometry_msgs::msg::Twist>("/drive/dt/velocity", rclcpp::SystemDefaultsQoS());
         robotPositionPub = node->create_publisher<geometry_msgs::msg::Pose2D>("/drive/dt/pose", rclcpp::SystemDefaultsQoS());
         drivetrainHeadingPub = node->create_publisher<std_msgs::msg::Float32>("/drive/dt/heading", rclcpp::SystemDefaultsQoS());
@@ -84,9 +90,8 @@ namespace robot
         // Create subscribers
         stickSub0 = node->create_subscription<sensor_msgs::msg::Joy>("/sticks/stick0", rclcpp::SensorDataQoS(), std::bind(&Drivetrain::setStick0, this, _1));
 
-#ifdef SystemIndependent
         stickSub1 = node->create_subscription<sensor_msgs::msg::Joy>("/sticks/stick1", rclcpp::SensorDataQoS(), std::bind(&Drivetrain::setStick1, this, _1));
-#endif
+
 
         DriveModeSub = node->create_subscription<std_msgs::msg::Int16>("/drive/control_mode", rclcpp::SystemDefaultsQoS(), std::bind(&Drivetrain::setDriveMode, this, _1));
 
@@ -110,10 +115,10 @@ namespace robot
         imu->SetFusedHeading(0);
 
         imu->SetStatusFramePeriod(PigeonIMU_StatusFrame::PigeonIMU_RawStatus_4_Mag, 255, 0);
-        imu->SetStatusFramePeriod(PigeonIMU_StatusFrame::PigeonIMU_CondStatus_9_SixDeg_YPR, 253, 0);
+        imu->SetStatusFramePeriod(PigeonIMU_StatusFrame::PigeonIMU_CondStatus_9_SixDeg_YPR, 10, 0);
         imu->SetStatusFramePeriod(PigeonIMU_StatusFrame::PigeonIMU_CondStatus_3_GeneralAccel, 251, 0);
         imu->SetStatusFramePeriod(PigeonIMU_StatusFrame::PigeonIMU_CondStatus_2_GeneralCompass, 249, 0);
-        imu->SetStatusFramePeriod(PigeonIMU_StatusFrame::PigeonIMU_CondStatus_1_General, 255, 0);
+        imu->SetStatusFramePeriod(PigeonIMU_StatusFrame::PigeonIMU_CondStatus_1_General, 10, 0);
         imu->SetStatusFramePeriod(PigeonIMU_StatusFrame::PigeonIMU_BiasedStatus_6_Accel, 253, 0);
         imu->SetStatusFramePeriod(PigeonIMU_StatusFrame::PigeonIMU_CondStatus_11_GyroAccum, 251, 0);
         imu->SetStatusFramePeriod(PigeonIMU_StatusFrame::PigeonIMU_CondStatus_10_SixDeg_Quat, 249, 0);
@@ -127,12 +132,15 @@ namespace robot
     }
 
     void Drivetrain::onStart()
-    {
+    {   
+            std_msgs::msg::Int16 flywheelStart;
+            flywheelStart.data = 0;
+            flyWheelModePub->publish(flywheelStart);
     }
 
     void Drivetrain::updateSensorData()
     {
-
+        //TODO this might be a spot for the PIDF issue
         drivetrainHeadingMsg.data = -(std::fmod((imu->GetFusedHeading() + 360), 360));
         sOdom.Update(frc::Rotation2d{units::degree_t{drivetrainHeadingMsg.data}}, frontRMod->getState(),
                      frontLMod->getState(), rearRMod->getState(), rearLMod->getState());
@@ -195,6 +203,10 @@ namespace robot
         execActions();
 
         frc::ChassisSpeeds speed;
+        
+        if(frc::DriverStation::IsTeleop()){
+            driveState = OPEN_LOOP_FIELD_REL;
+        }
         switch (driveState)
         {
         case OPEN_LOOP_FIELD_REL:
@@ -236,7 +248,7 @@ namespace robot
 
             break;
         case PURSUIT:
-            if (!PPC->isDone(sOdom.GetPose()))
+            if (!PPC->isDone(sOdom.GetPose()) && !frc::DriverStation::IsTeleop())
             {
                 auto [mSpeed, mLookAheadPoint, inertialHeading] = PPC->update(sOdom.GetPose(), currState, currentTime);
                 speed = mSpeed;
@@ -255,6 +267,7 @@ namespace robot
 
         if (headingControl > 0)
         {
+            // TODO:: THIS MIGHT BE AN AREA WITH ISSUE REGARDING THE CONTROLLER
             speed.omega = -units::radians_per_second_t{headingController.update(drivetrainHeadingMsg.data)};
         }
         else if (driveState == PURSUIT)
@@ -302,6 +315,13 @@ namespace robot
         {
             mod->publishModuleInfo();
         }
+        std_msgs::msg::Int16 allianceColorMsg;
+        if(frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kBlue){
+            allianceColorMsg.data = 1;
+        } else {
+            allianceColorMsg.data = 2;
+        }
+        allianceColorPub->publish(allianceColorMsg);
         autoLookaheadPointPub->publish(lookAheadPoint);
         robotPositionPub->publish(robotPositionMsg);
         robotVelocityPub->publish(robotVelocityMsg);
@@ -378,13 +398,98 @@ namespace robot
         isRobotRel = lastStick0.buttons.at(0);
         gyroReset = lastStick0.buttons.at(4);
         tankLockButton = lastStick0.buttons.at(5);
+
+         std_msgs::msg::Int16 flywheelModeMsg;
+        if(lastStick0.buttons.at(1) && !flywheelModePressed){
+            flywheelModeUpdate = true;
+            flywheelModePressed = true;
+            flywheelModeMsg.data = 0;
+        } else if (lastStick0.buttons.at(2) && !flywheelModePressed) {
+            flywheelModeUpdate = true;
+            flywheelModePressed = true;
+            flywheelModeMsg.data = 2;
+        } else if (lastStick0.buttons.at(3) && !flywheelModePressed) {
+            flywheelModeUpdate = true;
+            flywheelModePressed = true;
+            flywheelModeMsg.data = 1;
+        } else if (lastStick0.buttons.at(1) || lastStick0.buttons.at(2) || lastStick0.buttons.at(3)) {
+            flywheelModePressed = true;
+        } else if(flywheelModePressed) {
+            flywheelModePressed = false;
+        }
+        if(flywheelModeUpdate){
+            flyWheelModePub->publish(flywheelModeMsg);
+            flywheelModeUpdate = false;
+        }
+
     }
 
-#ifdef SystemIndependent
     void Drivetrain::setStick1(const sensor_msgs::msg::Joy msg)
     {
         lastStickTime = frc::Timer::GetFPGATimestamp().to<double>();
         lastStick1 = msg;
+
+        std_msgs::msg::Int16 intakeIndexerMsg;
+        if(lastStick1.buttons.at(2) && !intakeIndexerPressed){
+            intakeIndexerMsgUpdate = true;
+            intakeIndexerPressed = true;
+            intakeIndexerMsg.data = 1;
+        } else if (lastStick1.buttons.at(5) && !intakeIndexerPressed) {
+            intakeIndexerMsgUpdate = true;
+            intakeIndexerPressed = true;
+            intakeIndexerMsg.data = -1;
+        } else if (lastStick1.buttons.at(0) && !intakeIndexerPressed) {
+            intakeIndexerMsgUpdate = true;
+            intakeIndexerPressed = true;
+            intakeIndexerMsg.data = 2;
+        } else if (lastStick1.buttons.at(0) || lastStick1.buttons.at(5) || lastStick1.buttons.at(2)) {
+            intakeIndexerPressed = true;
+        } else if(intakeIndexerPressed) {
+            intakeIndexerPressed = false;
+            intakeIndexerMsgUpdate = true;
+            intakeIndexerMsg.data = 0;
+        }
+        if(intakeIndexerMsgUpdate){
+            intakeIndexerPub->publish(intakeIndexerMsg);
+            intakeIndexerMsgUpdate = false;
+        }
+
+        std_msgs::msg::Int16 intakeSoleMsg;
+        if(lastStick1.buttons.at(6) && !intakeSolePressed){
+            intakeSoleMsgUpdate = true;
+            intakeSolePressed = true;
+            intakeSoleMsg.data = 1;
+        } else if (lastStick1.buttons.at(7) && !intakeSolePressed) {
+            intakeSoleMsgUpdate = true;
+            intakeSolePressed = true;
+            intakeSoleMsg.data = -1;
+        } else if (lastStick1.buttons.at(6) || lastStick1.buttons.at(7)) {
+            intakeSolePressed = true;
+        } else if(intakeSolePressed) {
+            intakeSolePressed = false;
+        }
+        if(intakeSoleMsgUpdate){
+            intakeSolePub->publish(intakeSoleMsg);
+            intakeSoleMsgUpdate = false;
+        }
+
+       
+        
+
+        if (lastStick1.buttons.at(1)){
+            headingControl = 2;
+            headingControlUpdate = true;
+        } else if (!lastStick1.buttons.at(1) && headingControlUpdate) {
+            headingControl = 0;
+            headingControlUpdate = false;
+        }
+
+        
+
+
+        
+
+        #ifdef systemIndependent
         shoot = lastStick1.buttons.at(0);
         intake = lastStick1.buttons.at(2);
         flywheelButton = lastStick1.buttons.at(4);
@@ -395,8 +500,8 @@ namespace robot
         // remaps -1 to 1 axis to 0 to 1
         hoodDemand = ((-lastStick1.axes.at(3) + 1) / 2);
         climberDemand = ((-lastStick1.axes.at(1) * .75));
+        #endif
     }
-#endif
 
     // Services
 
@@ -447,8 +552,7 @@ namespace robot
         }
         if (headingControl == 2 && range != -1)
         {
-            headingControlSetpoint = drivetrainHeadingMsg.data - angleOffset + 4
-             / range;
+            headingControlSetpoint = drivetrainHeadingMsg.data - angleOffset;
             headingController.setSetpoint(headingControlSetpoint, false);
         }
 

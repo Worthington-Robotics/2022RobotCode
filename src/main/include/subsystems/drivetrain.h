@@ -148,6 +148,23 @@ namespace robot
         rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr driveControlModePub;
         std_msgs::msg::Int16 driveControlModeMsg;
 
+        
+        rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr intakeIndexerPub;
+        bool intakeIndexerMsgUpdate = false;
+        bool intakeIndexerPressed = false;
+
+        rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr intakeSolePub;
+        bool intakeSoleMsgUpdate = false;
+        bool intakeSolePressed = false;
+
+        rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr flyWheelModePub;
+        bool flywheelModeUpdate = false;
+        bool flywheelModePressed = false;
+
+        rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr allianceColorPub;
+
+        bool headingControlUpdate = false;
+
 // Controller publishing (system independent only!)
 #ifdef SystemIndependent
         rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr intakeDemandPublisher;
@@ -180,11 +197,9 @@ namespace robot
         sensor_msgs::msg::Joy lastStick0;
 
 
-        #ifdef SystemIndependent
         rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr stickSub1;
         void setStick1(const sensor_msgs::msg::Joy);
         sensor_msgs::msg::Joy lastStick1;
-        #endif
 
         rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr DriveModeSub;
         void setDriveMode(const std_msgs::msg::Int16);
