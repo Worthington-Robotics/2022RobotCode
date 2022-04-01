@@ -57,6 +57,10 @@ namespace robot
         void updateAnglePID(const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request>,
                          std::shared_ptr<can_msgs::srv::SetPIDFGains::Response>);
 
+        frc::SwerveModuleState optimizeCTREModule(frc::SwerveModuleState desiredState, frc::Rotation2d);
+
+        double placeInAppropriate0To360Scope(double scopeReference, double newAngle);
+
     private:
         /**
          * Configure the associated motor controllers with their settings as specified in constants
