@@ -148,19 +148,6 @@ namespace robot
         rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr driveControlModePub;
         std_msgs::msg::Int16 driveControlModeMsg;
 
-        
-        rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr intakeIndexerPub;
-        bool intakeIndexerMsgUpdate = false;
-        bool intakeIndexerPressed = false;
-
-        rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr intakeSolePub;
-        bool intakeSoleMsgUpdate = false;
-        bool intakeSolePressed = false;
-
-        rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr flyWheelModePub;
-        bool flywheelModeUpdate = false;
-        bool flywheelModePressed = false;
-
         rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr allianceColorPub;
 
         bool headingControlUpdate = false;
@@ -209,12 +196,14 @@ namespace robot
         void setLimelightRange(const std_msgs::msg::Float32);
         void setHeadingControlEnabled(const std_msgs::msg::Int16);
         void setHeadingControlSetpoint(double);
-        PIDF headingController = PIDF(PIDFDiscriptor{.02, .005, 0, 0}, "gyro_pid");
+        void setAIAngleOffset(const std_msgs::msg::Float32);
+        PIDF headingController = PIDF(HEADING_CONTROL_GAINS_TELE, "gyro_pid");
         int headingControl = 0; //(0, disabled), (1, gyroLock), (2, limelightAngle)
         double headingControlSetpoint = 0;
         double range = 0;
 
         rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr limelightAngleOffsetSub;
+        rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr aiAngleOffsetSub;
         void setLimelightAngleOffset(const std_msgs::msg::Float32);
 
         #ifdef SystemIndependent
@@ -250,7 +239,8 @@ namespace robot
         bool tankLockHeld = false;
         bool tankLockButton = false;
 
-        double angleOffset = 0;
+        double targetAngleOffset = 0;
+        double ballAngleOffset = 0;
         // button for gyro reset
         bool gyroReset = false;
         // button for intake

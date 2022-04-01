@@ -97,6 +97,7 @@ namespace robot
 
         rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr sysReset;
         rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr sysDebug;
+        rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr autoKill;
         rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr sysEnableEchoPub;
         double sysDisableTime = 0;
     };

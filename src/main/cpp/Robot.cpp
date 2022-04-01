@@ -8,10 +8,15 @@
 #include "robot_lib/VersionData.h"
 #include "SubsystemManager.h"
 #include "robot_lib/util/PIDF.h"
+#include "cameraserver/CameraServer.h"
 
 void Robot::RobotInit()
 {
     std::cout << "code init started" << std::endl;
+
+    frc::CameraServer::StartAutomaticCapture();
+
+    
     
     const char* argv[] = {"--ros-args", "--log-level", "DEBUG"};
     rclcpp::init(3, argv);

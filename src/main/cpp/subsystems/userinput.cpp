@@ -18,6 +18,9 @@ namespace robot
 
     void UserInput::createRosBindings(rclcpp::Node *node)
     {
+        intakeIndexerPub = node->create_publisher<std_msgs::msg::Int16>("/actions/intake_indexer", rclcpp::SystemDefaultsQoS());
+        intakeSolePub = node->create_publisher<std_msgs::msg::Int16>("/externIO/intake_solenoid/state", rclcpp::SystemDefaultsQoS());
+        flyWheelModePub = node->create_publisher<std_msgs::msg::Int16>("/actions/flywheel_mode", rclcpp::SystemDefaultsQoS());
         for (auto stick = sticks.begin(); stick != sticks.end(); ++stick)
         {
             stickPubs.push_back(
@@ -28,7 +31,11 @@ namespace robot
 
     void UserInput::reset() {}
 
-    void UserInput::onStart() {}
+    void UserInput::onStart() {
+            std_msgs::msg::Int16 flywheelStart;
+            flywheelStart.data = 0;
+            flyWheelModePub->publish(flywheelStart);
+    }
 
     void UserInput::onLoop(double currentTime) {}
 
@@ -36,7 +43,6 @@ namespace robot
 
     void UserInput::publishData()
     {
-        //std::cout << "why me" << std::endl;
         for (int i = 0; i < sticks.size(); i++)
         {
             if(frc::DriverStation::IsJoystickConnected(i)){
@@ -63,6 +69,11 @@ namespace robot
             stickData.buttons = buttonValues;
 
             stickPubs.at(i)->publish(stickData);
+            if(i == 0) {
+                setStickZero(stickData);
+            } else if (i == 1){
+                setStickOne(stickData);
+            }
 
             } else {
                 //frc::ReportError(frc::warn::BadJoystickIndex, "userInput.c", 18, "regSticks", "You're about to be real sad because the joystick you want just *Isn't* there :P");
@@ -112,6 +123,77 @@ namespace robot
     double UserInput::mapValue(double input, double minOutput, double maxOutput)
     {
         return (input + 1) * (maxOutput - minOutput) / (2) + minOutput;
+    }
+
+    void UserInput::setStickZero(sensor_msgs::msg::Joy lastStick0) {
+        std_msgs::msg::Int16 flywheelModeMsg;
+        if(lastStick0.buttons.at(1) && !flywheelModePressed){
+            flywheelModeUpdate = true;
+            flywheelModePressed = true;
+            flywheelModeMsg.data = 0;
+        } else if (lastStick0.buttons.at(2) && !flywheelModePressed) {
+            flywheelModeUpdate = true;
+            flywheelModePressed = true;
+            flywheelModeMsg.data = 2;
+        } else if (lastStick0.buttons.at(3) && !flywheelModePressed) {
+            flywheelModeUpdate = true;
+            flywheelModePressed = true;
+            flywheelModeMsg.data = 1;
+        } else if (lastStick0.buttons.at(1) || lastStick0.buttons.at(2) || lastStick0.buttons.at(3)) {
+            flywheelModePressed = true;
+        } else if(flywheelModePressed) {
+            flywheelModePressed = false;
+        }
+        if(flywheelModeUpdate){
+            flyWheelModePub->publish(flywheelModeMsg);
+            flywheelModeUpdate = false;
+        }
+    }
+
+    void UserInput::setStickOne(sensor_msgs::msg::Joy lastStick1) {
+        std_msgs::msg::Int16 intakeIndexerMsg;
+        if(lastStick1.buttons.at(2) && !intakeIndexerPressed){
+            intakeIndexerMsgUpdate = true;
+            intakeIndexerPressed = true;
+            intakeIndexerMsg.data = 1;
+        } else if (lastStick1.buttons.at(5) && !intakeIndexerPressed) {
+            intakeIndexerMsgUpdate = true;
+            intakeIndexerPressed = true;
+            intakeIndexerMsg.data = -1;
+        } else if (lastStick1.buttons.at(0) && !intakeIndexerPressed) {
+            intakeIndexerMsgUpdate = true;
+            intakeIndexerPressed = true;
+            intakeIndexerMsg.data = 2;
+        } else if (lastStick1.buttons.at(0) || lastStick1.buttons.at(5) || lastStick1.buttons.at(2)) {
+            intakeIndexerPressed = true;
+        } else if(intakeIndexerPressed) {
+            intakeIndexerPressed = false;
+            intakeIndexerMsgUpdate = true;
+            intakeIndexerMsg.data = 0;
+        }
+        if(intakeIndexerMsgUpdate){
+            intakeIndexerPub->publish(intakeIndexerMsg);
+            intakeIndexerMsgUpdate = false;
+        }
+
+        std_msgs::msg::Int16 intakeSoleMsg;
+        if(lastStick1.buttons.at(6) && !intakeSolePressed){
+            intakeSoleMsgUpdate = true;
+            intakeSolePressed = true;
+            intakeSoleMsg.data = 1;
+        } else if (lastStick1.buttons.at(7) && !intakeSolePressed) {
+            intakeSoleMsgUpdate = true;
+            intakeSolePressed = true;
+            intakeSoleMsg.data = -1;
+        } else if (lastStick1.buttons.at(6) || lastStick1.buttons.at(7)) {
+            intakeSolePressed = true;
+        } else if(intakeSolePressed) {
+            intakeSolePressed = false;
+        }
+        if(intakeSoleMsgUpdate){
+            intakeSolePub->publish(intakeSoleMsg);
+            intakeSoleMsgUpdate = false;
+        }
     }
 
 } // namespace robot

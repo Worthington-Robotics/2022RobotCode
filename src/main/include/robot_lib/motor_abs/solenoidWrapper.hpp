@@ -5,6 +5,8 @@
 #include <rclcpp/rclcpp.hpp>
 #include <frc/DoubleSolenoid.h>
 
+#define PCMID 0
+
 namespace solenoid
 {
 
@@ -15,7 +17,7 @@ namespace solenoid
 
         Solenoid(frc::PneumaticsModuleType type, int highID, int lowID, const std::string& solenoidName)
         {
-            solenoid = std::make_shared<frc::DoubleSolenoid>(1, type, highID, lowID);
+            solenoid = std::make_shared<frc::DoubleSolenoid>(PCMID, type, highID, lowID);
             name = solenoidName;
         }
 

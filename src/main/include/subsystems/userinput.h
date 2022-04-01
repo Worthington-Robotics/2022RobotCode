@@ -4,6 +4,9 @@
 #include <frc/Joystick.h>
 #include <vector>
 #include <sensor_msgs/msg/joy.hpp>
+#include <std_msgs/msg/float32.hpp>
+#include <std_msgs/msg/int16.hpp>
+#include <std_msgs/msg/bool.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 namespace robot
@@ -84,6 +87,21 @@ namespace robot
     private:
         std::vector<frc::Joystick> sticks = {};
         std::vector<rclcpp::Publisher<sensor_msgs::msg::Joy>::SharedPtr> stickPubs = {};
+
+        void setStickZero(sensor_msgs::msg::Joy lastStick0);
+        void setStickOne(sensor_msgs::msg::Joy lastStick1);
+        
+        rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr intakeIndexerPub;
+        bool intakeIndexerMsgUpdate = false;
+        bool intakeIndexerPressed = false;
+
+        rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr intakeSolePub;
+        bool intakeSoleMsgUpdate = false;
+        bool intakeSolePressed = false;
+
+        rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr flyWheelModePub;
+        bool flywheelModeUpdate = false;
+        bool flywheelModePressed = false;
     };
 
 } // namespace robot

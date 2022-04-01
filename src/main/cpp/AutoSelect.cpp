@@ -52,6 +52,7 @@ void AutoSelect::selectAuto(std::string name)
         auto req = std::make_shared<autobt_msgs::srv::RunTree::Request>();
         req->tree_name = pathName;
         auto future = treeRunner->async_send_request(req);
+        std::cout << "Tree started " << pathName << std::endl;
         // while(!future.valid()){
 
         // }

@@ -70,16 +70,15 @@ namespace robot
     double PIDF::getI(double error)
     {
         errorSum += (error * dt);
-        double result = errorSum;
         // if iMax has been set, actually apply it
         if (iMax != 0)
         {
             // get the sign of the integral of the error
-            int sign = (int)(errorSum / std::abs(errorSum));
+            int sign = (int)(errorSum / std::fabs(errorSum));
             // bound the result
-            result = sign * std::min(std::abs(errorSum), iMax);
+            errorSum = sign * std::min(std::fabs(errorSum), iMax);
         }
-        return result;
+        return errorSum;
     }
 
     void PIDF::setIMax(double nIMax)
@@ -125,11 +124,11 @@ namespace robot
 
     void PIDF::setPIDGains(const can_msgs::srv::SetPIDFGains::Request::SharedPtr req, can_msgs::srv::SetPIDFGains::Response::SharedPtr resp)
     {
-        PIDFDiscriptor descriptor;
-        descriptor.f = req->k_f;
-        descriptor.p = req->k_p;
-        descriptor.i = req->k_i;
-        descriptor.d = req->k_d;
+        mParams.f = req->k_f;
+        mParams.p = req->k_p;
+        mParams.i = req->k_i;
+        mParams.d = req->k_d;
+        iMax = req->i_max;
 
         resp->success = true;
     }

@@ -19,10 +19,11 @@ namespace robot
                                            disabledNotif(std::bind(&SubsystemManager::disabledLoop, this)),
                                            spinNotif(std::bind(&SubsystemManager::spinRos, this))
     {
+        autoKill = this->create_publisher<std_msgs::msg::Bool>("/sys/auto_kill", rclcpp::SystemDefaultsQoS());
         sysReset = this->create_subscription<std_msgs::msg::Bool>("/sys/reset", rclcpp::SystemDefaultsQoS(), std::bind(&SubsystemManager::serviceReset, this, _1));
         sysDebug = this->create_subscription<std_msgs::msg::Bool>("/sys/debug", rclcpp::SystemDefaultsQoS(), std::bind(&SubsystemManager::serviceDebug, this, _1));
         sysEnableEchoPub = this->create_publisher<std_msgs::msg::Int16>("/sys/enable_echo", rclcpp::SystemDefaultsQoS());
-        //battery = robot::Battery();
+        // battery = robot::Battery();
         spinNotif.StartSingle(0_ms);
     }
 
@@ -82,15 +83,6 @@ namespace robot
     {
         isFirstIteration = true;
         enabledNotif.StartPeriodic(10_ms);
-        if(frc::DriverStation::IsTeleop()) {
-            std_msgs::msg::Int16 msg;
-            msg.data = 1;
-            sysEnableEchoPub->publish(msg);
-        } else if (frc::DriverStation::IsAutonomousEnabled()){
-            std_msgs::msg::Int16 msg;
-            msg.data = 2;
-            sysEnableEchoPub->publish(msg);
-        }
     }
 
     void SubsystemManager::stopEnabledLoop()
@@ -109,21 +101,35 @@ namespace robot
         disabledNotif.Stop();
     }
 
-    void SubsystemManager::spinRos(){
+    void SubsystemManager::spinRos()
+    {
         rclcpp::spin(this->shared_from_this());
     }
 
     void SubsystemManager::enabledLoop()
     {
-        //double now = frc::Timer::GetFPGATimestamp().to<double>();
-        //std::cout << "enabledLoop has began at: " << now << std::endl;
+        // double now = frc::Timer::GetFPGATimestamp().to<double>();
+        // std::cout << "enabledLoop has began at: " << now << std::endl;
         try
         {
+            if (frc::DriverStation::IsTeleop())
+            {
+                std_msgs::msg::Int16 msg;
+                msg.data = 1;
+                sysEnableEchoPub->publish(msg);
+            }
+            else if (frc::DriverStation::IsAutonomousEnabled())
+            {
+                std_msgs::msg::Int16 msg;
+                msg.data = 2;
+                sysEnableEchoPub->publish(msg);
+            }
             // rclcpp::spin_some(this->shared_from_this());
             // For the first iteration, run onstart
             if (isFirstIteration)
             {
-                //frc::DriverStation::ReportWarning("Running first iteration");
+                std::cout << "Subsystem first iteration" << std::endl;
+                // frc::DriverStation::ReportWarning("Running first iteration");
                 for (std::shared_ptr<Subsystem> subsystem : subsystems)
                 {
                     subsystem->onStart();
@@ -135,7 +141,7 @@ namespace robot
             // for all others run onloop
             else
             {
-                //frc::DriverStation::ReportWarning("Running onloop iteration");
+                // frc::DriverStation::ReportWarning("Running onloop iteration");
                 for (std::shared_ptr<Subsystem> subsystem : subsystems)
                 {
                     subsystem->updateSensorData();
@@ -152,19 +158,24 @@ namespace robot
         {
             frc::ReportError(frc::err::Error, "SubsystemManager.cpp", 135, "enabledLoop()", "Looper Thread died with unknown exception");
         }
-        //double previousTime = frc::Timer::GetFPGATimestamp().to<double>();
-        //dt = now - previousTime;
-        //std::cout << "enabledLoop has ended at: " << previousTime << " || dt = " << dt << std::endl;
+        // double previousTime = frc::Timer::GetFPGATimestamp().to<double>();
+        // dt = now - previousTime;
+        // std::cout << "enabledLoop has ended at: " << previousTime << " || dt = " << dt << std::endl;
     }
 
     void SubsystemManager::disabledLoop()
     {
-        if(frc::Timer::GetFPGATimestamp().to<double>() - sysDisableTime > 5) {
+        if (frc::Timer::GetFPGATimestamp().to<double>() - sysDisableTime > 5)
+        {
             std_msgs::msg::Int16 msg;
             msg.data = 0;
             sysEnableEchoPub->publish(msg);
         }
-        try{
+        std_msgs::msg::Bool killMsg;
+        killMsg.data = true;
+        autoKill->publish(killMsg);
+        try
+        {
             // rclcpp::spin_some(this->shared_from_this());
             for (std::shared_ptr<Subsystem> subsystem : subsystems)
             {
@@ -180,9 +191,9 @@ namespace robot
         {
             frc::ReportError(frc::err::Error, "SubsystemManager.cpp", 135, "enabledLoop()", "Looper Thread died with unknown exception");
         }
-        //battery stuff
-        //std::cout << battery.getPowerUsage() << std::endl;
-        //frc::SmartDashboard::PutNumber("Battery/Usage", battery.getPowerUsage());
+        // battery stuff
+        // std::cout << battery.getPowerUsage() << std::endl;
+        // frc::SmartDashboard::PutNumber("Battery/Usage", battery.getPowerUsage());
     }
 
     /*

@@ -56,7 +56,8 @@ namespace robot
       }
       
       // publishers of sensor data
-      externalTOFDistanceSub = node->create_subscription<std_msgs::msg::Float32>("/externIO/internal_tof/distance", rclcpp::SensorDataQoS(), std::bind(&ExternIO::setTOF, this, _1));
+      externalTOFDistanceSub = node->create_subscription<std_msgs::msg::Float32>("/externIO/external_tof/distance", rclcpp::SensorDataQoS(), std::bind(&ExternIO::setTOF0, this, _1));
+      internalTOFDistanceSub = node->create_subscription<std_msgs::msg::Float32>("/externIO/internal_tof/distance", rclcpp::SensorDataQoS(), std::bind(&ExternIO::setTOF1, this, _1));
       upperHoodLimitSwitchPub = node->create_publisher<std_msgs::msg::Bool>("/externIO/upper_hood/limit_switch", rclcpp::SystemDefaultsQoS());
       lowerHoodLimitSwitchPub = node->create_publisher<std_msgs::msg::Bool>("/externIO/lower_hood/limit_switch", rclcpp::SystemDefaultsQoS());
       reset();
@@ -72,32 +73,32 @@ namespace robot
       //internalTOF->SetRangingMode(frc::TimeOfFlight::kShort, 25);
 
       // setting up the motors
-      motorsFX.at(0)->getMotor()->ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration{true, 5, 10, 1});
+      motorsSRX.at(1)->getMotor()->ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration{true, 5, 10, 1});
+      motorsSRX.at(1)->getMotor()->ConfigSelectedFeedbackSensor(TalonSRXFeedbackDevice::CTRE_MagEncoder_Relative, 0, 0);
+      motorsSRX.at(1)->getMotor()->ConfigVoltageCompSaturation(VOLTAGE_COMP);
+      motorsSRX.at(1)->getMotor()->SetNeutralMode(motorcontrol::Brake);
+      motorsSRX.at(1)->getMotor()->SetSensorPhase(false);
+      motorsSRX.at(1)->getMotor()->SetInverted(false);
+      motorsSRX.at(1)->getMotor()->Config_kP(0, HOOD_KP);
+      motorsSRX.at(1)->getMotor()->Config_kI(0, HOOD_KI);
+      motorsSRX.at(1)->getMotor()->Config_kD(0, HOOD_KD);
+      motorsSRX.at(1)->getMotor()->Config_kF(0, HOOD_KF);
+      motorsSRX.at(1)->getMotor()->SetIntegralAccumulator(HOOD_IMAX);
+      motorsSRX.at(1)->getMotor()->ConfigReverseLimitSwitchSource(LimitSwitchSource_FeedbackConnector, LimitSwitchNormal_NormallyOpen, 0);
+      motorsSRX.at(1)->getMotor()->ConfigForwardLimitSwitchSource(LimitSwitchSource_FeedbackConnector, LimitSwitchNormal_NormallyOpen, 0);
+      motorsSRX.at(1)->unmuzzleMotor();
+
+      motorsFX.at(0)->getMotor()->ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration{true, 20, 20, 20});
       motorsFX.at(0)->getMotor()->ConfigVoltageCompSaturation(VOLTAGE_COMP);
       motorsFX.at(0)->getMotor()->SetNeutralMode(motorcontrol::Brake);
       motorsFX.at(0)->getMotor()->SetSensorPhase(false);
       motorsFX.at(0)->getMotor()->SetInverted(true);
-      motorsFX.at(0)->getMotor()->Config_kP(0, HOOD_KP);
-      motorsFX.at(0)->getMotor()->Config_kI(0, HOOD_KI);
-      motorsFX.at(0)->getMotor()->Config_kD(0, HOOD_KD);
-      motorsFX.at(0)->getMotor()->Config_kF(0, HOOD_KF);
-      motorsFX.at(0)->getMotor()->SetIntegralAccumulator(HOOD_IMAX);
-      motorsFX.at(0)->getMotor()->ConfigReverseLimitSwitchSource(LimitSwitchSource_FeedbackConnector, LimitSwitchNormal_NormallyOpen, 0);
-      motorsFX.at(0)->getMotor()->ConfigForwardLimitSwitchSource(LimitSwitchSource_FeedbackConnector, LimitSwitchNormal_NormallyOpen, 0);
+      motorsFX.at(0)->getMotor()->Config_kP(0, INTAKE_KP);
+      motorsFX.at(0)->getMotor()->Config_kI(0, INTAKE_KI);
+      motorsFX.at(0)->getMotor()->Config_kD(0, INTAKE_KD);
+      motorsFX.at(0)->getMotor()->Config_kF(0, INTAKE_KF);
+      motorsFX.at(0)->getMotor()->SetIntegralAccumulator(INTAKE_IMAX);
       motorsFX.at(0)->unmuzzleMotor();
-
-      motorsFX.at(1)->getMotor()->ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration{true, 20, 20, 20});
-      motorsFX.at(1)->getMotor()->ConfigVoltageCompSaturation(VOLTAGE_COMP);
-      motorsFX.at(1)->getMotor()->SetNeutralMode(motorcontrol::Brake);
-      motorsFX.at(1)->getMotor()->SetSensorPhase(false);
-      motorsFX.at(1)->getMotor()->SetInverted(true);
-      motorsFX.at(1)->getMotor()->Config_kP(0, INTAKE_KP);
-      motorsFX.at(1)->getMotor()->Config_kI(0, INTAKE_KI);
-      motorsFX.at(1)->getMotor()->Config_kD(0, INTAKE_KD);
-      motorsFX.at(1)->getMotor()->Config_kF(0, INTAKE_KF);
-      motorsFX.at(1)->getMotor()->SetIntegralAccumulator(INTAKE_IMAX);
-      motorsFX.at(1)->muzzleMotor();
-      motorsFXC.at(1).shutUp = true;
 
       motorsSRX.at(0)->getMotor()->ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration{true, 5, 10, 1});
       motorsSRX.at(0)->getMotor()->ConfigVoltageCompSaturation(VOLTAGE_COMP);
@@ -111,20 +112,31 @@ namespace robot
       motorsSRX.at(0)->getMotor()->SetIntegralAccumulator(INDEXER_IMAX);
       motorsSRX.at(0)->unmuzzleMotor();
       motorsSRX.at(0)->getMotor()->SetStatusFramePeriod(Status_1_General, 20);
-      motorsSRXC.at(0).shutUp = true;
 
       //shooter
 
-      motorsFX.at(2)->getMotor()->ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration{true, 5, 10, 2});
+      motorsFX.at(1)->getMotor()->ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration{true, 5, 10, 2});
+      motorsFX.at(1)->getMotor()->ConfigVoltageCompSaturation(VOLTAGE_COMP);
+      motorsFX.at(1)->getMotor()->SetNeutralMode(motorcontrol::Brake);
+      motorsFX.at(1)->getMotor()->SetSensorPhase(true);
+      motorsFX.at(1)->getMotor()->SetInverted(true);
+      motorsFX.at(1)->getMotor()->Config_kP(0, FLYWHEEL_KP);
+      motorsFX.at(1)->getMotor()->Config_kI(0, FLYWHEEL_KI);
+      motorsFX.at(1)->getMotor()->Config_kD(0, FLYWHEEL_KD);
+      motorsFX.at(1)->getMotor()->Config_kF(0, FLYWHEEL_KF);
+      motorsFX.at(1)->getMotor()->SetIntegralAccumulator(FLYWHEEL_IMAX);
+      motorsFX.at(1)->unmuzzleMotor();
+
+      motorsFX.at(2)->getMotor()->ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration{true, CLIMBER_HOLD_AMPS, CLIMBER_MAX_AMPS, CLIMBER_MAX_TIME});
       motorsFX.at(2)->getMotor()->ConfigVoltageCompSaturation(VOLTAGE_COMP);
       motorsFX.at(2)->getMotor()->SetNeutralMode(motorcontrol::Brake);
-      motorsFX.at(2)->getMotor()->SetSensorPhase(true);
-      motorsFX.at(2)->getMotor()->SetInverted(true);
-      motorsFX.at(2)->getMotor()->Config_kP(0, FLYWHEEL_KP);
-      motorsFX.at(2)->getMotor()->Config_kI(0, FLYWHEEL_KI);
-      motorsFX.at(2)->getMotor()->Config_kD(0, FLYWHEEL_KD);
-      motorsFX.at(2)->getMotor()->Config_kF(0, FLYWHEEL_KF);
-      motorsFX.at(2)->getMotor()->SetIntegralAccumulator(FLYWHEEL_IMAX);
+      motorsFX.at(2)->getMotor()->SetSensorPhase(false);
+      motorsFX.at(2)->getMotor()->SetInverted(false);
+      motorsFX.at(2)->getMotor()->Config_kP(0, CLIMBER_L_KP);
+      motorsFX.at(2)->getMotor()->Config_kI(0, CLIMBER_L_KI);
+      motorsFX.at(2)->getMotor()->Config_kD(0, CLIMBER_L_KD);
+      motorsFX.at(2)->getMotor()->Config_kF(0, CLIMBER_L_KF);
+      motorsFX.at(2)->getMotor()->SetIntegralAccumulator(CLIMBER_L_IMAX);
       motorsFX.at(2)->unmuzzleMotor();
 
       motorsFX.at(3)->getMotor()->ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration{true, CLIMBER_HOLD_AMPS, CLIMBER_MAX_AMPS, CLIMBER_MAX_TIME});
@@ -132,13 +144,14 @@ namespace robot
       motorsFX.at(3)->getMotor()->SetNeutralMode(motorcontrol::Brake);
       motorsFX.at(3)->getMotor()->SetSensorPhase(false);
       motorsFX.at(3)->getMotor()->SetInverted(false);
-      motorsFX.at(3)->getMotor()->Config_kP(0, CLIMBER_L_KP);
-      motorsFX.at(3)->getMotor()->Config_kI(0, CLIMBER_L_KI);
-      motorsFX.at(3)->getMotor()->Config_kD(0, CLIMBER_L_KD);
-      motorsFX.at(3)->getMotor()->Config_kF(0, CLIMBER_L_KF);
-      motorsFX.at(3)->getMotor()->SetIntegralAccumulator(CLIMBER_L_IMAX);
-      motorsFX.at(3)->muzzleMotor();
-      motorsFXC.at(3).shutUp = true;
+      motorsFX.at(3)->getMotor()->Config_kP(0, CLIMBER_R_KP);
+      motorsFX.at(3)->getMotor()->Config_kI(0, CLIMBER_R_KI);
+      motorsFX.at(3)->getMotor()->Config_kD(0, CLIMBER_R_KD);
+      motorsFX.at(3)->getMotor()->Config_kF(0, CLIMBER_R_KF);
+      motorsFX.at(3)->getMotor()->SetIntegralAccumulator(CLIMBER_R_IMAX);
+      motorsFX.at(3)->unmuzzleMotor();
+
+      //this is not the climber -------->
 
       motorsFX.at(4)->getMotor()->ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration{true, CLIMBER_HOLD_AMPS, CLIMBER_MAX_AMPS, CLIMBER_MAX_TIME});
       motorsFX.at(4)->getMotor()->ConfigVoltageCompSaturation(VOLTAGE_COMP);
@@ -150,23 +163,8 @@ namespace robot
       motorsFX.at(4)->getMotor()->Config_kD(0, CLIMBER_R_KD);
       motorsFX.at(4)->getMotor()->Config_kF(0, CLIMBER_R_KF);
       motorsFX.at(4)->getMotor()->SetIntegralAccumulator(CLIMBER_R_IMAX);
-      motorsFX.at(4)->muzzleMotor();
-      motorsFXC.at(4).shutUp = true;
+      motorsFX.at(4)->unmuzzleMotor();
 
-      //this is not the climber -------->
-
-      motorsFX.at(5)->getMotor()->ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration{true, CLIMBER_HOLD_AMPS, CLIMBER_MAX_AMPS, CLIMBER_MAX_TIME});
-      motorsFX.at(5)->getMotor()->ConfigVoltageCompSaturation(VOLTAGE_COMP);
-      motorsFX.at(5)->getMotor()->SetNeutralMode(motorcontrol::Brake);
-      motorsFX.at(5)->getMotor()->SetSensorPhase(false);
-      motorsFX.at(5)->getMotor()->SetInverted(false);
-      motorsFX.at(5)->getMotor()->Config_kP(0, CLIMBER_R_KP);
-      motorsFX.at(5)->getMotor()->Config_kI(0, CLIMBER_R_KI);
-      motorsFX.at(5)->getMotor()->Config_kD(0, CLIMBER_R_KD);
-      motorsFX.at(5)->getMotor()->Config_kF(0, CLIMBER_R_KF);
-      motorsFX.at(5)->getMotor()->SetIntegralAccumulator(CLIMBER_R_IMAX);
-      motorsFX.at(5)->muzzleMotor();
-      motorsFXC.at(5).shutUp = true;
       for(solenoid::Solenoid* solenoid : solenoids){
          solenoid->getSolenoid()->Set(frc::DoubleSolenoid::Value::kReverse);
       }
@@ -182,8 +180,12 @@ namespace robot
 
    void ExternIO::updateSensorData() {}
 
-   void ExternIO::setTOF(const std_msgs::msg::Float32 msg){
-      frc::SmartDashboard::PutBoolean("externIO/system_overflow", (msg.data < .03));
+   void ExternIO::setTOF0(const std_msgs::msg::Float32 msg){
+      frc::SmartDashboard::PutBoolean("externIO/external_tof", (msg.data < .05));
+   }
+
+   void ExternIO::setTOF1(const std_msgs::msg::Float32 msg){
+      frc::SmartDashboard::PutBoolean("externIO/internal_tof", (msg.data < .05));
    }
 
    /**
@@ -192,19 +194,19 @@ namespace robot
    void ExternIO::onLoop(double currentTime)
    {
       std_msgs::msg::Bool limit;
-      if(!motorsFX.at(0)->getMotor()->IsRevLimitSwitchClosed() && !hoodReset){
-         motorsFX.at(0)->getMotor()->Set(ControlMode::PercentOutput, -.75);
-         motorsFX.at(0)->getMotor()->SetSelectedSensorPosition(0);
+      if(!motorsSRX.at(1)->getMotor()->IsRevLimitSwitchClosed() && !hoodReset){
+         motorsSRX.at(1)->getMotor()->Set(ControlMode::PercentOutput, -.25);
          limit.data = false;
-      } else if (motorsFX.at(0)->getMotor()->IsRevLimitSwitchClosed() || hoodReset) {
+      } else if (motorsSRX.at(1)->getMotor()->IsRevLimitSwitchClosed() && !hoodReset) {
+         hoodReset = true;
+         motorsSRX.at(1)->getMotor()->SetSelectedSensorPosition(0, 0, 0);
+         limit.data = true;
+      } else if (motorsSRX.at(1)->getMotor()->IsRevLimitSwitchClosed() || hoodReset) {
          hoodReset = true;
          limit.data = true;
       }
       hoodLimitSwitchResetPub->publish(limit);
       // handling the falcon bits
-
-      // handling the limit switches
-      lowerHoodLimitSwitch.data = motorsSRX.at(0)->getMotor()->IsRevLimitSwitchClosed();
 
       for(solenoid::Solenoid* solenoid : solenoids){
          solenoid->getSolenoid()->Set(solenoid->state);
@@ -252,11 +254,6 @@ namespace robot
             std::cout << MC.shutUp << std::endl;
          }
       }      
-
-      //externalTOFDistancePub->publish(externalTOFDistance);
-      //internalTOFDistancePub->publish(internalTOFDistance);
-      upperHoodLimitSwitchPub->publish(upperHoodLimitSwitch);
-      lowerHoodLimitSwitchPub->publish(lowerHoodLimitSwitch);
    }
 
    void ExternIO::enableDebug(bool debug) {}

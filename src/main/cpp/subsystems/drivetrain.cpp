@@ -49,7 +49,7 @@ namespace robot
 
         headingController.setContinuous(true);
         headingController.setInputRange(360);
-        headingController.setIMax(100);
+        headingController.setIMax(5);
     }
 
     void Drivetrain::createRosBindings(rclcpp::Node *node)
@@ -61,9 +61,6 @@ namespace robot
         // Create sensor data publishers
         headingController.createRosBindings(node);
         PPC->createRosBindings(node);
-        intakeIndexerPub = node->create_publisher<std_msgs::msg::Int16>("/actions/intake_indexer", rclcpp::SystemDefaultsQoS());
-        intakeSolePub = node->create_publisher<std_msgs::msg::Int16>("/externIO/intake_solenoid/state", rclcpp::SystemDefaultsQoS());
-        flyWheelModePub = node->create_publisher<std_msgs::msg::Int16>("/actions/flywheel_mode", rclcpp::SystemDefaultsQoS());
         allianceColorPub = node->create_publisher<std_msgs::msg::Int16>("/sys/a_color", rclcpp::SystemDefaultsQoS());
 
 
@@ -98,6 +95,7 @@ namespace robot
         HeadingControlSub = node->create_subscription<std_msgs::msg::Int16>("/actions/heading_control", rclcpp::SystemDefaultsQoS(), std::bind(&Drivetrain::setHeadingControlEnabled, this, _1));
         limelightAngleOffsetSub = node->create_subscription<std_msgs::msg::Float32>("/limelight/angle_offset", rclcpp::SensorDataQoS(), std::bind(&Drivetrain::setLimelightAngleOffset, this, _1));
         limelightRangeSub = node->create_subscription<std_msgs::msg::Float32>("/limelight/range", rclcpp::SensorDataQoS(), std::bind(&Drivetrain::setLimelightRange, this, _1));
+        aiAngleOffsetSub = node->create_subscription<std_msgs::msg::Float32>("/ai/angle_offset", rclcpp::SensorDataQoS(), std::bind(&Drivetrain::setAIAngleOffset, this, _1));
 
 #ifdef SystemIndependent
         hoodResetSub = node->create_subscription<std_msgs::msg::Bool>("/externIO/hood_motor/is_reset", rclcpp::SystemDefaultsQoS(), std::bind(&Drivetrain::setHoodReset, this, _1));
@@ -132,11 +130,7 @@ namespace robot
     }
 
     void Drivetrain::onStart()
-    {   
-            std_msgs::msg::Int16 flywheelStart;
-            flywheelStart.data = 0;
-            flyWheelModePub->publish(flywheelStart);
-    }
+    {}
 
     void Drivetrain::updateSensorData()
     {
@@ -348,7 +342,7 @@ namespace robot
 
     void Drivetrain::setLimelightAngleOffset(const std_msgs::msg::Float32 setpoint)
     {
-        angleOffset = setpoint.data;
+        targetAngleOffset = setpoint.data;
     }
 
     void Drivetrain::setLimelightRange(const std_msgs::msg::Float32 lRange)
@@ -357,6 +351,11 @@ namespace robot
         #ifdef noRosDebug
         frc::SmartDashboard::PutNumber("limelight/range", range);
         #endif
+    }
+
+    void Drivetrain::setAIAngleOffset(const std_msgs::msg::Float32 setpoint)
+    {
+        ballAngleOffset = setpoint.data;
     }
 
 #ifdef SystemIndependent
@@ -382,10 +381,14 @@ namespace robot
         else if (headingControl == 2)
         {
             if(range != -1){
-                headingControlSetpoint = drivetrainHeadingMsg.data - angleOffset;
+                headingControlSetpoint = drivetrainHeadingMsg.data - targetAngleOffset;
             } else {
-                headingControl = drivetrainHeadingMsg.data;
+                headingControlSetpoint = drivetrainHeadingMsg.data;
             }
+        }
+        else if (headingControl == 3)
+        {
+            headingControlSetpoint = drivetrainHeadingMsg.data + ballAngleOffset;
         }
         headingController.setSetpoint(headingControlSetpoint, true);
     }
@@ -394,87 +397,15 @@ namespace robot
     {
         lastStickTime = frc::Timer::GetFPGATimestamp().to<double>();
         lastStick0 = msg;
-        // update this in disabled? or just init publish empty data? (null ptr on boot)
         isRobotRel = lastStick0.buttons.at(0);
         gyroReset = lastStick0.buttons.at(4);
         tankLockButton = lastStick0.buttons.at(5);
-
-         std_msgs::msg::Int16 flywheelModeMsg;
-        if(lastStick0.buttons.at(1) && !flywheelModePressed){
-            flywheelModeUpdate = true;
-            flywheelModePressed = true;
-            flywheelModeMsg.data = 0;
-        } else if (lastStick0.buttons.at(2) && !flywheelModePressed) {
-            flywheelModeUpdate = true;
-            flywheelModePressed = true;
-            flywheelModeMsg.data = 2;
-        } else if (lastStick0.buttons.at(3) && !flywheelModePressed) {
-            flywheelModeUpdate = true;
-            flywheelModePressed = true;
-            flywheelModeMsg.data = 1;
-        } else if (lastStick0.buttons.at(1) || lastStick0.buttons.at(2) || lastStick0.buttons.at(3)) {
-            flywheelModePressed = true;
-        } else if(flywheelModePressed) {
-            flywheelModePressed = false;
-        }
-        if(flywheelModeUpdate){
-            flyWheelModePub->publish(flywheelModeMsg);
-            flywheelModeUpdate = false;
-        }
-
     }
 
     void Drivetrain::setStick1(const sensor_msgs::msg::Joy msg)
     {
         lastStickTime = frc::Timer::GetFPGATimestamp().to<double>();
         lastStick1 = msg;
-
-        std_msgs::msg::Int16 intakeIndexerMsg;
-        if(lastStick1.buttons.at(2) && !intakeIndexerPressed){
-            intakeIndexerMsgUpdate = true;
-            intakeIndexerPressed = true;
-            intakeIndexerMsg.data = 1;
-        } else if (lastStick1.buttons.at(5) && !intakeIndexerPressed) {
-            intakeIndexerMsgUpdate = true;
-            intakeIndexerPressed = true;
-            intakeIndexerMsg.data = -1;
-        } else if (lastStick1.buttons.at(0) && !intakeIndexerPressed) {
-            intakeIndexerMsgUpdate = true;
-            intakeIndexerPressed = true;
-            intakeIndexerMsg.data = 2;
-        } else if (lastStick1.buttons.at(0) || lastStick1.buttons.at(5) || lastStick1.buttons.at(2)) {
-            intakeIndexerPressed = true;
-        } else if(intakeIndexerPressed) {
-            intakeIndexerPressed = false;
-            intakeIndexerMsgUpdate = true;
-            intakeIndexerMsg.data = 0;
-        }
-        if(intakeIndexerMsgUpdate){
-            intakeIndexerPub->publish(intakeIndexerMsg);
-            intakeIndexerMsgUpdate = false;
-        }
-
-        std_msgs::msg::Int16 intakeSoleMsg;
-        if(lastStick1.buttons.at(6) && !intakeSolePressed){
-            intakeSoleMsgUpdate = true;
-            intakeSolePressed = true;
-            intakeSoleMsg.data = 1;
-        } else if (lastStick1.buttons.at(7) && !intakeSolePressed) {
-            intakeSoleMsgUpdate = true;
-            intakeSolePressed = true;
-            intakeSoleMsg.data = -1;
-        } else if (lastStick1.buttons.at(6) || lastStick1.buttons.at(7)) {
-            intakeSolePressed = true;
-        } else if(intakeSolePressed) {
-            intakeSolePressed = false;
-        }
-        if(intakeSoleMsgUpdate){
-            intakeSolePub->publish(intakeSoleMsg);
-            intakeSoleMsgUpdate = false;
-        }
-
-       
-        
 
         if (lastStick1.buttons.at(1)){
             headingControl = 2;
@@ -483,11 +414,6 @@ namespace robot
             headingControl = 0;
             headingControlUpdate = false;
         }
-
-        
-
-
-        
 
         #ifdef systemIndependent
         shoot = lastStick1.buttons.at(0);
@@ -550,12 +476,18 @@ namespace robot
         {
             imu->SetFusedHeading(0);
         }
+        frc::SmartDashboard::PutNumber("drive/heading control", headingControl);
+        frc::SmartDashboard::PutNumber("drive/heading control setpoint", std::fmod((headingControlSetpoint + 360), 360));
         if (headingControl == 2 && range != -1)
         {
-            headingControlSetpoint = drivetrainHeadingMsg.data - angleOffset;
+            headingControlSetpoint = drivetrainHeadingMsg.data - targetAngleOffset;
+            headingController.setSetpoint(headingControlSetpoint, false);
+        } 
+        else if (headingControl == 3)
+        {
+            headingControlSetpoint = drivetrainHeadingMsg.data + ballAngleOffset;
             headingController.setSetpoint(headingControlSetpoint, false);
         }
-
         // factor this out into a stuct/class thing!
         // setup for toggle button that puts robot into tankdrive mode!
 
