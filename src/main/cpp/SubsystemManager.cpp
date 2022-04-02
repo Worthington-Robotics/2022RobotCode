@@ -20,6 +20,8 @@ namespace robot
                                            spinNotif(std::bind(&SubsystemManager::spinRos, this))
     {
         autoKill = this->create_publisher<std_msgs::msg::Bool>("/sys/auto_kill", rclcpp::SystemDefaultsQoS());
+        headingControlPub = this->create_publisher<std_msgs::msg::Int16>("/drive/heading_control", rclcpp::SystemDefaultsQoS());
+        shooterRequestPub = this->create_publisher<std_msgs::msg::Int16>("/actions/intake_indexer", rclcpp::SystemDefaultsQoS());
         sysReset = this->create_subscription<std_msgs::msg::Bool>("/sys/reset", rclcpp::SystemDefaultsQoS(), std::bind(&SubsystemManager::serviceReset, this, _1));
         sysDebug = this->create_subscription<std_msgs::msg::Bool>("/sys/debug", rclcpp::SystemDefaultsQoS(), std::bind(&SubsystemManager::serviceDebug, this, _1));
         sysEnableEchoPub = this->create_publisher<std_msgs::msg::Int16>("/sys/enable_echo", rclcpp::SystemDefaultsQoS());
@@ -83,6 +85,18 @@ namespace robot
     {
         isFirstIteration = true;
         enabledNotif.StartPeriodic(10_ms);
+
+        //reset things that could cause issue with the drivers
+        //namely the shooting state, the heading control state
+        //and the autos running over the endpoint of the phase
+        
+        std_msgs::msg::Int16 killMsg;
+        killMsg.data = 0;
+        headingControlPub->publish(killMsg);
+        shooterRequestPub->publish(killMsg);
+        std_msgs::msg::Bool autoEnd;
+        autoEnd.data = true;
+        autoKill->publish(autoEnd);
     }
 
     void SubsystemManager::stopEnabledLoop()
@@ -171,9 +185,6 @@ namespace robot
             msg.data = 0;
             sysEnableEchoPub->publish(msg);
         }
-        std_msgs::msg::Bool killMsg;
-        killMsg.data = true;
-        autoKill->publish(killMsg);
         try
         {
             // rclcpp::spin_some(this->shared_from_this());
