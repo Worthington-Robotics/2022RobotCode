@@ -102,9 +102,10 @@
 #define CHASSIS_LENGTH 0.65_m
 
 // Adaptive Pure Pursuit Controller
-#define FIXED_LOOKAHEAD .25
+#define FIXED_LOOKAHEAD .05
+#define VELOCITY_LOOKAHEAD_COEFF .1
 #define MAX_ACCEL .5
-#define PATH_COMPLETE_TOLERANCE .15
+#define PATH_COMPLETE_TOLERANCE .08
 
 // Controller Axis
 #define X_AXIS 1
@@ -175,5 +176,7 @@
 
 #define HEADING_CONTROL_GAINS_AUTO robot::PIDFDiscriptor{.009, 0, 0.0007, 0}
 #define HEADING_CONTROL_GAINS_TELE robot::PIDFDiscriptor{.009, 0, 0.0007, 0}
+#define PURSUIT_Y_PID_GAINS robot::PIDFDiscriptor{2.5, 0, 0.83, 0}
+#define PURSUIT_X_PID_GAINS robot::PIDFDiscriptor{2.5, 0, 0.83, 0}
 
 // PATH FOLLOWING STUFFS (EXPERIEMTAL ;-;)

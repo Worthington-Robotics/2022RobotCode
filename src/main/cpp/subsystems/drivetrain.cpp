@@ -41,7 +41,7 @@ namespace robot
 
         imu = std::make_shared<PigeonIMU>(IMU_ID);
 
-        APPCDiscriptor params = APPCDiscriptor{FIXED_LOOKAHEAD, 0, MAX_ACCEL, 0, PATH_COMPLETE_TOLERANCE};
+        APPCDiscriptor params = APPCDiscriptor{FIXED_LOOKAHEAD, VELOCITY_LOOKAHEAD_COEFF, 0, MAX_ACCEL, 0, PATH_COMPLETE_TOLERANCE, 0, PURSUIT_X_PID_GAINS, PURSUIT_Y_PID_GAINS};
 
         PPC = std::make_shared<PurePursuitController>(params);
 
@@ -127,10 +127,16 @@ namespace robot
         frontLMod->reset();
         rearRMod->reset();
         rearLMod->reset();
+
+        resetPose();
     }
 
     void Drivetrain::onStart()
-    {}
+    {
+        if(frc::DriverStation::IsTeleop()){
+            driveState = OPEN_LOOP_FIELD_REL;
+        }
+    }
 
     void Drivetrain::updateSensorData()
     {
@@ -197,10 +203,7 @@ namespace robot
         execActions();
 
         frc::ChassisSpeeds speed;
-        
-        if(frc::DriverStation::IsTeleop()){
-            driveState = OPEN_LOOP_FIELD_REL;
-        }
+  
         switch (driveState)
         {
         case OPEN_LOOP_FIELD_REL:
@@ -242,7 +245,7 @@ namespace robot
 
             break;
         case PURSUIT:
-            if (!PPC->isDone(sOdom.GetPose()) && !frc::DriverStation::IsTeleop())
+            if (!PPC->isDone(sOdom.GetPose()) /*&& !frc::DriverStation::IsTeleop()*/)
             {
                 auto [mSpeed, mLookAheadPoint, inertialHeading] = PPC->update(sOdom.GetPose(), currState, currentTime);
                 speed = mSpeed;
@@ -284,7 +287,7 @@ namespace robot
                 sModules[i]->setMotors(moduleStates[i]);
             }
             break;
-        case PURSUIT: // for now have pursuit as an illegal mode
+        case PURSUIT: 
         case VELOCITY_TWIST:
             // FR, FL, RR, RL
             // std::cout << "requested speed is: " << moduleStates[0].speed.to<double>() << std::endl;
