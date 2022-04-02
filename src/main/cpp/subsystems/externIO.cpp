@@ -117,7 +117,7 @@ namespace robot
 
       motorsFX.at(1)->getMotor()->ConfigSupplyCurrentLimit(SupplyCurrentLimitConfiguration{true, 5, 10, 2});
       motorsFX.at(1)->getMotor()->ConfigVoltageCompSaturation(VOLTAGE_COMP);
-      motorsFX.at(1)->getMotor()->SetNeutralMode(motorcontrol::Brake);
+      motorsFX.at(1)->getMotor()->SetNeutralMode(motorcontrol::Coast);
       motorsFX.at(1)->getMotor()->SetSensorPhase(true);
       motorsFX.at(1)->getMotor()->SetInverted(true);
       motorsFX.at(1)->getMotor()->Config_kP(0, FLYWHEEL_KP);
@@ -251,7 +251,7 @@ namespace robot
             jointState.effort.push_back(JS.effort);
             jointState.name.push_back(JS.name);
             MC.pub->publish(jointState);
-            std::cout << MC.shutUp << std::endl;
+            //std::cout << MC.shutUp << std::endl;
          }
       }      
    }

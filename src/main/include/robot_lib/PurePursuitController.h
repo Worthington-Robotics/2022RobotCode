@@ -26,12 +26,14 @@ namespace robot
     struct APPCDiscriptor
     {
         double mFixedLookahead;
+        double mVelocityLookaheadCoeff;
         double mLastTime;
         double mMaxAccel;
         double mDt;
         double mPathCompletionTolerance;
         double mMaxRotVel;
-
+        PIDFDiscriptor mXPIDFDescriptor;
+        PIDFDiscriptor mYPIDFDescriptor;
     };
 
     struct Circle
@@ -56,8 +58,8 @@ namespace robot
         
 
     private:
-        PIDF xPID = PIDF(PIDFDiscriptor{.02, 0, 0, 0}, "xPID");
-        PIDF yPID = PIDF(PIDFDiscriptor{.02, 0, 0, 0}, "yPID");
+        PIDF xPID = PIDF(PIDFDiscriptor{0, 0, 0, 0}, "xPID");
+        PIDF yPID = PIDF(PIDFDiscriptor{0, 0, 0, 0}, "yPID");
         rclcpp::Publisher<rospathmsgs::msg::Waypoint>::SharedPtr lookaheadPub;
 
         APPCDiscriptor mParams;

@@ -63,10 +63,12 @@ namespace robot
         encod->SetStatusFramePeriod(CANCoderStatusFrame::CANCoderStatusFrame_SensorData, 100, 0);
         encod->ConfigSensorDirection(false, 0);
         encod->ConfigAbsoluteSensorRange(AbsoluteSensorRange::Unsigned_0_to_360);
-        encod->ConfigMagnetOffset(offset);
+        encod->ConfigMagnetOffset(offset, 50);
         bootPos = std::fmod((encod->GetAbsolutePosition() / 180.0 * M_PI + 2.0 * M_PI), (2 * M_PI));
-        // std::cout << bootPos << std::endl;
         double angleOffset = bootPos / SWERVE_ANGLE_POS_TTR;
+
+        // double angleOffset = encod->GetAbsolutePosition() / SWERVE_ANGLE_GEARING * TICKS_PER_DEGREE;
+        std::cout << name << " calibrated to " << angleOffset << std::endl;
         // std::cout << angleOffset << std::endl;
 
         angle->ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, 0, 100);
@@ -139,10 +141,11 @@ namespace robot
     void SModule::setMotorVelocity(frc::SwerveModuleState ss)
     {
         double currentTicks = angle->GetSelectedSensorPosition();
-        auto ssO = optimizeCTREModule(ss, units::degree_t(currentTicks / TICKS_PER_DEGREE / (64 / 5)));
+        auto ssO = frc::SwerveModuleState::Optimize(ss, units::degree_t(currentTicks / TICKS_PER_DEGREE * SWERVE_ANGLE_GEARING));
+        // auto ssO = optimizeCTREModule(ss, units::degree_t(currentTicks / TICKS_PER_DEGREE / (64 / 5)));
 
         desiredVelocity = ssO.speed.to<double>() * (2048 * 39.37 * 6.12) / (4 * M_PI * 10);
-        desiredAngle = ssO.angle.Degrees().to<double>() * TICKS_PER_DEGREE * (64 / 5);
+        desiredAngle = ssO.angle.Degrees().to<double>() * TICKS_PER_DEGREE / SWERVE_ANGLE_GEARING;
 
         angle->Set(ControlMode::Position, desiredAngle);
         drive->Set(ControlMode::Velocity, desiredVelocity);
@@ -151,31 +154,11 @@ namespace robot
     void SModule::setMotors(frc::SwerveModuleState ss)
     {
         double currentTicks = angle->GetSelectedSensorPosition();
-        auto ssO = optimizeCTREModule(ss, units::degree_t(currentTicks / TICKS_PER_DEGREE / (64 / 5)));
+        // auto ssO = frc::SwerveModuleState::Optimize(ss, units::degree_t(currentTicks / TICKS_PER_DEGREE / (64 / 5)));
+        auto ssO = optimizeCTREModule(ss, units::degree_t(currentTicks / TICKS_PER_DEGREE * SWERVE_ANGLE_GEARING));
 
         desiredVelocity = ssO.speed.to<double>();
-        desiredAngle = ssO.angle.Degrees().to<double>() * TICKS_PER_DEGREE * (64 / 5);
-
-        // int rotations = (int)(currentTicks / (TICKS_PER_DEGREE * 360) / (64 / 5));
-        // double targetPoint = rotations * (TICKS_PER_DEGREE * 360) / (64 / 5);
-
-        // double targetPointOne = targetPoint + ssO.angle.Degrees().to<double>() * TICKS_PER_DEGREE * (64/5);
-        // double differenceOne = abs(targetPointOne - currentTicks);
-
-        // double targetPointTwo = targetPointOne - (TICKS_PER_DEGREE * 360) / (64 / 5) ;
-        // double differenceTwo = abs(targetPointTwo - currentTicks);
-
-        // double targetPointThree = targetPointTwo + 2 * (TICKS_PER_DEGREE * 360) / (64 / 5);
-        // double differenceThree = abs(targetPointThree - currentTicks);
-
-        // desiredVelocity = ssO.speed.to<double>();
-        // if(differenceOne < differenceTwo && differenceOne < differenceThree){
-        //     desiredAngle = targetPointOne;
-        // } else if (differenceTwo < differenceOne && differenceTwo < differenceThree){
-        //     desiredAngle = targetPointTwo;
-        // } else {
-        //     desiredAngle = targetPointThree;
-        // }
+        desiredAngle = ssO.angle.Degrees().to<double>() * TICKS_PER_DEGREE / SWERVE_ANGLE_GEARING;
 
         angle->Set(ControlMode::Position, desiredAngle);
         drive->Set(ControlMode::PercentOutput, desiredVelocity);

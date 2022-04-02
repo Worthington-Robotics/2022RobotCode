@@ -23,6 +23,8 @@ namespace robot
     PurePursuitController::PurePursuitController(APPCDiscriptor params)
     {
         mParams = params;
+        setXPIDF(mParams.mXPIDFDescriptor);
+        setYPIDF(mParams.mYPIDFDescriptor);
     }
 
     double PurePursuitController::getDist(frc::Pose2d pos1, rospathmsgs::msg::Waypoint pos2)
@@ -142,7 +144,7 @@ namespace robot
         //figure out how fast we're going so we know how far to look ahead
         double totalVel = std::sqrt(currState.vx.to<double>() * currState.vx.to<double>() + currState.vy.to<double>() * currState.vy.to<double>());
         //figure out *where* we're looking ahead too, that .02 is a constant that makes sure if we're stopped, we are still looking ahead on the path
-        auto lookAheadPoint = getLookAheadPoint(mParams.mFixedLookahead * totalVel + .12);
+        auto lookAheadPoint = getLookAheadPoint(mParams.mVelocityLookaheadCoeff * totalVel + mParams.mFixedLookahead);
         //get the angle to our lookahead point, this is where we're going
         frc::Rotation2d angleToNextPoint = joinPath(currPos, lookAheadPoint); 
         //figure out how fast we're supposed to be going, this is encoded within the path
@@ -152,7 +154,7 @@ namespace robot
         double ySpeed = yPID.update(currPos.Translation().Y().to<double>());
         //convert where we should be going to relitive to the robot, so we can actually get there
         //TRIG ;-; (used to turn the speed into a vector)
-        frc::ChassisSpeeds rv = frc::ChassisSpeeds::FromFieldRelativeSpeeds(units::meters_per_second_t{lookAheadPoint.velocity * angleToNextPoint.Cos() + xSpeed}, units::meters_per_second_t{lookAheadPoint.velocity * angleToNextPoint.Sin() + ySpeed}, units::radians_per_second_t{0}, currPos.Rotation());
+        frc::ChassisSpeeds rv = frc::ChassisSpeeds::FromFieldRelativeSpeeds(units::meters_per_second_t{.83 * lookAheadPoint.velocity * angleToNextPoint.Cos() - xSpeed}, units::meters_per_second_t{.83 * lookAheadPoint.velocity * angleToNextPoint.Sin() - ySpeed}, units::radians_per_second_t{0}, currPos.Rotation());
         //std::cout << totalVel << std::endl;
         return {rv, lookAheadPoint, inertialHeading};
     }

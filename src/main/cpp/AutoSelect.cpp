@@ -22,12 +22,12 @@ void AutoSelect::saveAuto(const std_msgs::msg::String msg)
         size_t delimB = 1;
         while (delimE != std::string::npos)
         {
-            std::cout << "the beginning of the next auto name is: " << delimB << " and the end is: " << delimE << std::endl;
+            //std::cout << "the beginning of the next auto name is: " << delimB << " and the end is: " << delimE << std::endl;
             std::string autoName = autoList.substr(delimB, delimE - delimB);
             if(autoName.length() > 4 && autoName.length() < autoList.length()){
                 autos.push_back(autoName);
             }
-            std::cout << "the next auto name is: " << autoName << std::endl;
+            //std::cout << "the next auto name is: " << autoName << std::endl;
             delimB = delimE + 1;
             delimE = autoList.find('-', delimB);
         }

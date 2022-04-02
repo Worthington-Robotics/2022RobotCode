@@ -57,7 +57,6 @@ void Robot::RobotPeriodic()
 void Robot::AutonomousInit()
 {
     manager->stopDisabledLoop();
-    drive->resetPose();
     drive->reset();
     drive->setHeadingControlGains(HEADING_CONTROL_GAINS_AUTO);
     manager->startEnabledLoop();
