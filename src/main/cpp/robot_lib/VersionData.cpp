@@ -4,12 +4,10 @@
 #include <iostream>
 #include <wpi/SmallVector.h>
 
-namespace robot
-{
-    void ShowVersionData(){
+namespace robot {
+    void ShowVersionData() {
         int versionNum = 0;
-        std::string fileName = frc::filesystem::GetDeployDirectory();
-        fileName += "/version.dat";
+        std::string fileName = frc::filesystem::GetDeployDirectory() + "/version.dat";
 
         std::cout << "Opening version file: " << fileName << std::endl;
 
@@ -17,6 +15,5 @@ namespace robot
         std::fscanf(version, "VERSION_ID=%i", &versionNum);
         std::fclose(version);
         frc::ReportError(frc::warn::Warning, "SubsystemManager.cpp", 19, "ShowVersionData()", std::string("Robot Code Initialized with version ") + std::to_string(versionNum));
-    }
-    
+    }   
 } // namespace robot

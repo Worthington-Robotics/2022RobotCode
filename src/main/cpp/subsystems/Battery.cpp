@@ -1,28 +1,21 @@
 #include "subsystems/Battery.h"
 
 #include <iostream>
-#include "frc/smartdashboard/SmartDashboard.h"
+#include <frc/smartdashboard/SmartDashboard.h>
+#include "Util.h"
 
 using std::placeholders::_1;
 
 namespace robot {
-    Battery::Battery() {
-        
-    }
+    Battery::Battery() {}
     void Battery::createRosBindings(rclcpp::Node *node) {
         IdleStageSub = node->create_subscription<std_msgs::msg::Int16>("/battery/idle", rclcpp::SensorDataQoS(), std::bind(&Battery::idleStageCallback, this, _1));
         ResetStageSub = node->create_subscription<std_msgs::msg::Int16>("/battery/idle", rclcpp::SensorDataQoS(), std::bind(&Battery::idleStageCallback, this, _1));
         node->create_publisher<std_msgs::msg::Int16>("/battery/idle", rclcpp::SystemDefaultsQoS());
     }
-    void Battery::reset() {
-        
-    }
-    void Battery::onStart() {
-
-    }
-    void Battery::onLoop(double currentTime) {
-        
-    }
+    void Battery::reset() {}
+    void Battery::onStart() {}
+    void Battery::onLoop(double currentTime) {}
     void Battery::publishData() {
         int time1 = 5 * 100;
         int time2 = 15 * 100;
@@ -43,10 +36,10 @@ namespace robot {
         idleStage = 0;
     }
     double Battery::getPowerUsage() { 
-        double power = panel.GetTotalPower(); //power from panel
-        double currentTime = frc::Timer::GetFPGATimestamp().to<double>();
-        double timeDiff = currentTime - previousTime; //amount of time passed since last call
-        double amt = power * timeDiff; //output
+        double power = panel.GetTotalPower(); /* Power from panel */
+        double currentTime = GET_TIME_DOUBLE;
+        double timeDiff = currentTime - previousTime; /* Amount of time passed since last call */
+        double amt = power * timeDiff; /* Output */
         powerUsed = previous + amt; 
         previous = amt;
         previousTime = currentTime;
@@ -56,7 +49,5 @@ namespace robot {
         std::cout << "changing idle mode to " << msg.data << std::endl;
         idleStage = msg.data;
     }
-    void Battery::updateSensorData() {
-
-    }
+    void Battery::updateSensorData() {}
 }

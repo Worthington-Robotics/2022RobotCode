@@ -10,52 +10,47 @@
 #include "robot_lib/util/PIDF.h"
 #include "cameraserver/CameraServer.h"
 
-void Robot::RobotInit()
-{
+void Robot::RobotInit() {
     std::cout << "code init started" << std::endl;
 
     frc::CameraServer::StartAutomaticCapture();
 
-    
-    
     const char* argv[] = {"--ros-args", "--log-level", "DEBUG"};
     rclcpp::init(3, argv);
 
     frc::ReportError(frc::warn::Warning, "Robot.cpp", 14, "RobotInit()", "ROS Sucessfully Init!");
 
-    // construct subsystems
+    /* Construct subsystems */
     externIO = std::make_shared<robot::ExternIO>();
     drive = std::make_shared<robot::Drivetrain>();
     sticks = std::make_shared<robot::UserInput>();
     lightBar = std::make_shared<robot::LightBar>();
     climber = std::make_shared<robot::Climber>();
   
-    sticks->registerSticks(USER_STICKS); //  register which joystick IDs to read
+    sticks->registerSticks(USER_STICKS); /* Register which joystick IDs to read */
 
-    // intialize all subsystems here
+    /* Intialize all subsystems here */
     manager = std::make_shared<robot::SubsystemManager>();
     manager->registerSubsystems(std::vector<std::shared_ptr<robot::Subsystem>>{
-         drive,
-         sticks,
-         externIO,
-         lightBar,
-         climber
-     });
+        drive,
+        sticks,
+        externIO,
+        lightBar,
+        climber
+    });
 
     autoSel = std::make_shared<AutoSelect>(std::vector<std::string>({""}));
     autoSel->createRosBindings(manager.get());
 
-    // grab the version string
+    /* Grab the version string */
     robot::ShowVersionData();
 }
 
-void Robot::RobotPeriodic()
-{
+void Robot::RobotPeriodic() {
     //std::cout << "spinning" << std::endl;
 }
 
-void Robot::AutonomousInit()
-{
+void Robot::AutonomousInit() {
     manager->stopDisabledLoop();
     drive->reset();
     drive->setHeadingControlGains(HEADING_CONTROL_GAINS_AUTO);
@@ -64,36 +59,36 @@ void Robot::AutonomousInit()
     std::cout << "auto selected: " << autoSelect << std::endl;
     autoSel->selectAuto(autoSelect);
 }
+
 void Robot::AutonomousPeriodic() {}
 
-void Robot::TeleopInit()
-{
+void Robot::TeleopInit() {
     manager->stopDisabledLoop();
     drive->reset();
     drive->enableOpenLoop();
     drive->setHeadingControlGains(HEADING_CONTROL_GAINS_TELE);
     manager->startEnabledLoop();
 }
+
 void Robot::TeleopPeriodic() {}
 
-void Robot::DisabledInit()
-{
+void Robot::DisabledInit() {
     manager->stopEnabledLoop();
     manager->startDisabledLoop();
 }
+
 void Robot::DisabledPeriodic() {}
 
-void Robot::TestInit()
-{
+void Robot::TestInit() {
     manager->stopDisabledLoop();
     manager->startEnabledLoop();
 }
+
 void Robot::TestPeriodic() {}
 
 
 #ifndef RUNNING_FRC_TESTS
-int main()
-{
+int main() {
     return frc::StartRobot<Robot>();
 }
 #endif

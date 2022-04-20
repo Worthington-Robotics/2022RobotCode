@@ -1,14 +1,11 @@
 #include "subsystems/climber.h"
 
 using std::placeholders::_1;
-namespace robot
-{
-    Climber::Climber()
-    {
-    }
 
-    void Climber::createRosBindings(rclcpp::Node* Node)
-    {
+namespace robot {
+    Climber::Climber() {}
+
+    void Climber::createRosBindings(rclcpp::Node* Node) {
         soleStatePub = Node->create_publisher<std_msgs::msg::Int16>("externIO/climber_r_main_solenoid/state", rclcpp::SystemDefaultsQoS());
         stick1Sub = Node->create_subscription<sensor_msgs::msg::Joy>("sticks/stick1", rclcpp::SensorDataQoS(), std::bind(&Climber::setStick1Input, this, _1));
         climberDemandsPubs = {
@@ -17,31 +14,29 @@ namespace robot
         };
     }
 
-    void Climber::publishData(){
-        for(int i = 0; i < (int)(climberEnabled.size()); i++){
+    void Climber::publishData() {
+        for (int i = 0; i < (int)(climberEnabled.size()); i++) {
             can_msgs::msg::MotorMsg demands;
             demands.arb_feedforward = 0;
             demands.control_mode = 0;
-            if(climberEnabled.at(i)){
+            if (climberEnabled.at(i)) {
                 demands.demand = climberDemands.at(i);
             } else {
                 demands.demand = 0;
             }
             climberDemandsPubs.at(i)->publish(demands);
         }
-        if (enableSole && !solePressed)
-        {
-            soleState = !soleState;
-            solePressed = true;
-        }
-        else if (!enableSole)
-        {
+        if (enableSole) {
+            if (!solePressed) {
+                soleState = !soleState;
+                solePressed = true;
+            }
+        } else {
             solePressed = false;
         }
         std_msgs::msg::Int16 soleDemand;
         soleDemand.data = -1;
-        if (soleState)
-        {
+        if (soleState) {
             soleDemand.data = 1;
         }
         soleStatePub->publish(soleDemand);

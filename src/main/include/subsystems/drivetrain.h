@@ -13,6 +13,7 @@
 #include "robot_lib/SModule.h"
 #include "rospathmsgs/srv/get_path.hpp"
 #include "Constants.h"
+#include "Util.h"
 #include "robot_lib/PurePursuitController.h"
 #include "robot_lib/util/PIDF.h"
 
@@ -31,6 +32,9 @@
 
 #define DEBUG_enable
 #include <std_msgs/msg/bool.hpp>
+
+#define CREATE_SMODULE(CODE, NAME) std::make_shared<SModule>(DRIVE_CODE_DRIVE, DRIVE_CODE_ANGLE, DRIVE_CODE_ENCOD, NAME, CODE_ABS_OFFSET, PIDFDiscriptor{DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_KF}, PIDFDiscriptor{ANGLE_KP, ANGLE_KI, ANGLE_KD, ANGLE_KF})
+#define SPEED_STOPPED frc::ChassisSpeeds{0_mps, 0_mps, 0_rad_per_s}
 
 namespace robot
 {

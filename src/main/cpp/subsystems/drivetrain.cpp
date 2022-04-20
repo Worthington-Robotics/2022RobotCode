@@ -13,36 +13,28 @@
 using std::placeholders::_1;
 using std::placeholders::_2;
 
-namespace robot
-{
+namespace robot {
 
-    Drivetrain::Drivetrain()
-    {
-
+    Drivetrain::Drivetrain() {
         frontRMod = std::make_shared<SModule>(DRIVE_FR_DRIVE, DRIVE_FR_ANGLE, DRIVE_FR_ENCOD, "front_right", FR_ABS_OFFSET, PIDFDiscriptor{DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_KF},
                                               PIDFDiscriptor{ANGLE_KP, ANGLE_KI, ANGLE_KD, ANGLE_KF});
-        frontRMod->setInvertDrive(false);
-        sModules.push_back(frontRMod);
 
         frontLMod = std::make_shared<SModule>(DRIVE_FL_DRIVE, DRIVE_FL_ANGLE, DRIVE_FL_ENCOD, "front_left", FL_ABS_OFFSET, PIDFDiscriptor{DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_KF},
                                               PIDFDiscriptor{ANGLE_KP, ANGLE_KI, ANGLE_KD, ANGLE_KF});
-        frontLMod->setInvertDrive(false);
-        sModules.push_back(frontLMod);
 
         rearRMod = std::make_shared<SModule>(DRIVE_RR_DRIVE, DRIVE_RR_ANGLE, DRIVE_RR_ENCOD, "rear_right", RR_ABS_OFFSET, PIDFDiscriptor{DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_KF},
                                              PIDFDiscriptor{ANGLE_KP, ANGLE_KI, ANGLE_KD, ANGLE_KF});
-        rearRMod->setInvertDrive(false);
-        sModules.push_back(rearRMod);
 
         rearLMod = std::make_shared<SModule>(DRIVE_RL_DRIVE, DRIVE_RL_ANGLE, DRIVE_RL_ENCOD, "rear_left", RL_ABS_OFFSET, PIDFDiscriptor{DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_KF},
                                              PIDFDiscriptor{ANGLE_KP, ANGLE_KI, ANGLE_KD, ANGLE_KF});
-        rearLMod->setInvertDrive(false);
-        sModules.push_back(rearLMod);
+
+        sModules = {frontRMod, frontLMod, rearRMod, rearLMod};
+        for (std::shared_ptr<SModule> module : sModules) {
+            module->setInvertDrive(false);
+        }
 
         imu = std::make_shared<PigeonIMU>(IMU_ID);
-
         APPCDiscriptor params = APPCDiscriptor{FIXED_LOOKAHEAD, VELOCITY_LOOKAHEAD_COEFF, 0, MAX_ACCEL, 0, PATH_COMPLETE_TOLERANCE, 0, PURSUIT_X_PID_GAINS, PURSUIT_Y_PID_GAINS};
-
         PPC = std::make_shared<PurePursuitController>(params);
 
         reset();
@@ -52,17 +44,14 @@ namespace robot
         headingController.setIMax(5);
     }
 
-    void Drivetrain::createRosBindings(rclcpp::Node *node)
-    {
-        for (std::shared_ptr<SModule> mod : sModules)
-        {
+    void Drivetrain::createRosBindings(rclcpp::Node *node) {
+        for (std::shared_ptr<SModule> mod : sModules) {
             mod->createRosBindings(node);
         }
-        // Create sensor data publishers
+        /* Create sensor data publishers */
         headingController.createRosBindings(node);
         PPC->createRosBindings(node);
         allianceColorPub = node->create_publisher<std_msgs::msg::Int16>("/sys/a_color", rclcpp::SystemDefaultsQoS());
-
 
         robotVelocityPub = node->create_publisher<geometry_msgs::msg::Twist>("/drive/dt/velocity", rclcpp::SystemDefaultsQoS());
         robotPositionPub = node->create_publisher<geometry_msgs::msg::Pose2D>("/drive/dt/pose", rclcpp::SystemDefaultsQoS());
@@ -70,8 +59,6 @@ namespace robot
         autoLookaheadPointPub = node->create_publisher<rospathmsgs::msg::Waypoint>("/drive/auto/lookahead_point", rclcpp::SystemDefaultsQoS());
         autoToLookaheadAnglePub = node->create_publisher<std_msgs::msg::Float32>("/drive/auto/lookahead_point_angle", rclcpp::SystemDefaultsQoS());
         driveControlModePub = node->create_publisher<std_msgs::msg::Int16>("/drive/control_mode_echo", rclcpp::SystemDefaultsQoS());
-       
-
 
 #ifdef SystemIndependent
         intakeDemandPublisher = node->create_publisher<can_msgs::msg::MotorMsg>("/externIO/intake_motor/demand", rclcpp::SystemDefaultsQoS());
@@ -84,7 +71,7 @@ namespace robot
         climberRDemandPublisher = node->create_publisher<can_msgs::msg::MotorMsg>("/externIO/climber_r_motor/demand", rclcpp::SystemDefaultsQoS());
 #endif
 
-        // Create subscribers
+        /* Create subscribers */
         stickSub0 = node->create_subscription<sensor_msgs::msg::Joy>("/sticks/stick0", rclcpp::SensorDataQoS(), std::bind(&Drivetrain::setStick0, this, _1));
 
         stickSub1 = node->create_subscription<sensor_msgs::msg::Joy>("/sticks/stick1", rclcpp::SensorDataQoS(), std::bind(&Drivetrain::setStick1, this, _1));
@@ -101,15 +88,14 @@ namespace robot
         hoodResetSub = node->create_subscription<std_msgs::msg::Bool>("/externIO/hood_motor/is_reset", rclcpp::SystemDefaultsQoS(), std::bind(&Drivetrain::setHoodReset, this, _1));
 #endif
 
-        // creating clients and services
+        /* Creating clients and services */
 
         startPath = node->create_service<autobt_msgs::srv::StringService>("/drive/start_path", std::bind(&Drivetrain::enablePathFollowerS, this, _1, _2));
 
         GPClient = node->create_client<rospathmsgs::srv::GetPath>("/get_path");
     }
 
-    void Drivetrain::reset()
-    {
+    void Drivetrain::reset() {
         imu->SetFusedHeading(0);
 
         imu->SetStatusFramePeriod(PigeonIMU_StatusFrame::PigeonIMU_RawStatus_4_Mag, 255, 0);
@@ -123,27 +109,28 @@ namespace robot
 
         driveState = OPEN_LOOP_ROBOT_REL;
 
-        frontRMod->reset();
-        frontLMod->reset();
-        rearRMod->reset();
-        rearLMod->reset();
+        for (std::shared_ptr<SModule> module : sModules) {
+            module->reset();
+        }
 
         resetPose();
     }
 
-    void Drivetrain::onStart()
-    {
-        if(frc::DriverStation::IsTeleop()){
+    void Drivetrain::onStart() {
+        if (frc::DriverStation::IsTeleop()) {
             driveState = OPEN_LOOP_FIELD_REL;
         }
     }
 
-    void Drivetrain::updateSensorData()
-    {
+    void Drivetrain::updateSensorData() {
         //TODO this might be a spot for the PIDF issue
         drivetrainHeadingMsg.data = -(std::fmod((imu->GetFusedHeading() + 360), 360));
-        sOdom.Update(frc::Rotation2d{units::degree_t{drivetrainHeadingMsg.data}}, frontRMod->getState(),
-                     frontLMod->getState(), rearRMod->getState(), rearLMod->getState());
+        sOdom.Update(frc::Rotation2d{units::degree_t{drivetrainHeadingMsg.data}},
+            frontRMod->getState(),
+            frontLMod->getState(),
+            rearRMod->getState(), 
+            rearLMod->getState()
+        );
 
         pose = sOdom.GetPose();
         robotPositionMsg.x = pose.X().to<double>();
@@ -155,8 +142,7 @@ namespace robot
         robotVelocityMsg.linear.y = currState.vy();
         robotVelocityMsg.angular.z = currState.omega();
 
-        std::vector<double> joyData = UserInput::scalarCut(lastStick0, DRIVE_STICK_DEADBAND,
-                                                           DRIVE_STICK_POWER, DRIVE_STICK_SCALAR);
+        std::vector<double> joyData = UserInput::scalarCut(lastStick0, DRIVE_STICK_DEADBAND, DRIVE_STICK_POWER, DRIVE_STICK_SCALAR);
         stickTwist.linear.x = joyData.at(X_AXIS);
         stickTwist.linear.y = joyData.at(Y_AXIS);
         stickTwist.angular.z = joyData.at(Z_AXIS);
@@ -164,33 +150,26 @@ namespace robot
         driveControlModeMsg.data = driveState;
     }
 
-    void Drivetrain::onLoop(double currentTime)
-    {
-        if (pathQueued != "")
-        {
+    void Drivetrain::onLoop(double currentTime) {
+        if (pathQueued != "") {
             GPReq = std::make_shared<rospathmsgs::srv::GetPath::Request>();
             GPReq->path_name = pathQueued;
-            if (GPClient->service_is_ready())
-            {
+            if (GPClient->service_is_ready()) {
                 std::cout << "Making async request" << std::endl;
                 hasPathStart = false;
                 future = GPClient->async_send_request(GPReq);
-            }
-            else
-            {
+            } else {
                 frc::ReportError(frc::err::UnsupportedInSimulation, "drivetrain.cpp", 400, "enablePathFollower", "You have somehow made a request to the path generation server that it was unable to process, please try again later ;-;");
             }
             pathQueued = "";
         }
-        // check if the future is valid from the path service
-        if (!hasPathStart && future.valid())
-        {
+        /* Check if the future is valid from the path service */
+        if (!hasPathStart && future.valid()) {
             std::vector<rospathmsgs::msg::Waypoint> path = future.get()->path;
             std::cout << "the total number of points in the ARRAY is: " << path.size() << std::endl;
             std::stack<rospathmsgs::msg::Waypoint> pathStack;
             PPC->mLastpoint = path.back();
-            while (path.size() > 1)
-            {
+            while (path.size() > 1) {
                 pathStack.push(path.back());
                 path.pop_back();
             }
@@ -204,116 +183,92 @@ namespace robot
 
         frc::ChassisSpeeds speed;
   
-        switch (driveState)
-        {
-        case OPEN_LOOP_FIELD_REL:
-        {
-            // if we are safe, set motor demands,
-            if (lastStickTime + DRIVE_TIMEOUT > frc::Timer::GetFPGATimestamp().to<double>())
-            {
+        switch (driveState) {
+            case OPEN_LOOP_FIELD_REL:
+                // if we are safe, set motor demands,
+                if (lastStickTime + DRIVE_TIMEOUT > GET_TIME_DOUBLE) {
 
-                // convert to demands
-                speed = twistDrive(stickTwist, frc::Rotation2d{units::degree_t{drivetrainHeadingMsg.data}});
-            }
-            else
-            { // otherwise force motors to zero, there is stale data
-                std::cout << "drive input stale: " << std::endl;
-                speed = frc::ChassisSpeeds{0_mps, 0_mps, 0_rad_per_s};
-            }
-            break;
+                    // convert to demands
+                    speed = twistDrive(stickTwist, frc::Rotation2d{units::degree_t{drivetrainHeadingMsg.data}});
+                } else { // otherwise force motors to zero, there is stale data
+                    std::cout << "drive input stale: " << std::endl;
+                    speed = SPEED_STOPPED;
+                }
+                break;
+            case OPEN_LOOP_ROBOT_REL:
+                // if we are safe, set motor demands,
+                if (lastStickTime + DRIVE_TIMEOUT > GET_TIME_DOUBLE) {
+                    // convert to demands
+                    speed = twistDrive(stickTwist);
+                } else { // otherwise force motors to zero, there is stale data
+                    std::cout << "drive input stale: " << std::endl;
+                    speed = SPEED_STOPPED;
+                }
+                break;
+            case VELOCITY_TWIST:
+                // if we are safe, set motor demands,
+                speed = frc::ChassisSpeeds{2_mps, 0_mps, 0_rad_per_s};
+
+                // FR, FL, RR, RL
+
+                break;
+            case PURSUIT:
+                if (!PPC->isDone(sOdom.GetPose()) /*&& !frc::DriverStation::IsTeleop()*/) {
+                    auto [mSpeed, mLookAheadPoint, inertialHeading] = PPC->update(sOdom.GetPose(), currState, currentTime);
+                    speed = mSpeed;
+                    lookAheadPoint = mLookAheadPoint;
+                }
+                else {
+                    std::cout << "Completed path" << std::endl;
+                    driveState = OPEN_LOOP_FIELD_REL;
+                }
+                break;
+            default:
+                frc::ReportError(frc::err::InvalidParameter, "drivetrain.cpp", 208, "onLoop()", "Invalid drive state");
+                speed = SPEED_STOPPED;
         }
-        case OPEN_LOOP_ROBOT_REL:
-        {
-            // if we are safe, set motor demands,
-            if (lastStickTime + DRIVE_TIMEOUT > frc::Timer::GetFPGATimestamp().to<double>())
-            {
-                // convert to demands
-                speed = twistDrive(stickTwist);
-            }
-            else
-            { // otherwise force motors to zero, there is stale data
-                std::cout << "drive input stale: " << std::endl;
-                speed = frc::ChassisSpeeds{0_mps, 0_mps, 0_rad_per_s};
-            }
-            break;
-        }
-        case VELOCITY_TWIST:
-            // if we are safe, set motor demands,
-            speed = frc::ChassisSpeeds{2_mps, 0_mps, 0_rad_per_s};
-
-            // FR, FL, RR, RL
-
-            break;
-        case PURSUIT:
-            if (!PPC->isDone(sOdom.GetPose()) /*&& !frc::DriverStation::IsTeleop()*/)
-            {
-                auto [mSpeed, mLookAheadPoint, inertialHeading] = PPC->update(sOdom.GetPose(), currState, currentTime);
-                speed = mSpeed;
-                lookAheadPoint = mLookAheadPoint;
-            }
-            else
-            {
-                std::cout << "Completed path" << std::endl;
-                driveState = OPEN_LOOP_FIELD_REL;
-            }
-            break;
-        default:
-            frc::ReportError(frc::err::InvalidParameter, "drivetrain.cpp", 208, "onLoop()", "Invalid drive state, fuck you");
-            speed = frc::ChassisSpeeds{0_mps, 0_mps, 0_rad_per_s};
-        }
-
-        if (headingControl > 0)
-        {
+        if (headingControl > 0) {
             // TODO:: THIS MIGHT BE AN AREA WITH ISSUE REGARDING THE CONTROLLER
             speed.omega = -units::radians_per_second_t{headingController.update(drivetrainHeadingMsg.data)};
-        }
-        else if (driveState == PURSUIT)
-        {
+        } else if (driveState == PURSUIT) {
             headingController.setSetpoint(lookAheadPoint.heading, false);
             speed.omega = -units::radians_per_second_t{headingController.update(drivetrainHeadingMsg.data)};
         }
-
-        //speed = frc::ChassisSpeeds{0_mps, 0_mps, 0_rad_per_s};
+        //speed = SPEED_STOPPED;
 
         moduleStates = sKinematics.ToSwerveModuleStates(speed);
 
-        switch (driveState)
-        {
-        case OPEN_LOOP_FIELD_REL:
-        case OPEN_LOOP_ROBOT_REL:
-            //FR, FL, RR, RL
-            for (int i = 0; i < sModules.size(); i++)
-            {
-                sModules[i]->setMotors(moduleStates[i]);
-            }
-            break;
-        case PURSUIT: 
-        case VELOCITY_TWIST:
-            // FR, FL, RR, RL
-            // std::cout << "requested speed is: " << moduleStates[0].speed.to<double>() << std::endl;
+        switch (driveState) {
+            case OPEN_LOOP_FIELD_REL:
+            case OPEN_LOOP_ROBOT_REL:
+                //FR, FL, RR, RL
+                for (int i = 0; i < sModules.size(); i++) {
+                    sModules[i]->setMotors(moduleStates[i]);
+                }
+                break;
+            case PURSUIT: 
+            case VELOCITY_TWIST:
+                // FR, FL, RR, RL
+                // std::cout << "requested speed is: " << moduleStates[0].speed.to<double>() << std::endl;
 
-            for (int i = 0; i < sModules.size(); i++)
-            {
-                sModules[i]->setMotorVelocity(moduleStates[i]);
-            }
-            break;
-
-        default:
-            frc::ReportError(frc::err::InvalidParameter, "drivetrain.cpp", 208, "onLoop()", "Invalid drive state, fuck you");
-            speed = frc::ChassisSpeeds{0_mps, 0_mps, 0_rad_per_s};
+                for (int i = 0; i < sModules.size(); i++) {
+                    sModules[i]->setMotorVelocity(moduleStates[i]);
+                }
+                break;
+            default:
+                frc::ReportError(frc::err::InvalidParameter, "drivetrain.cpp", 208, "onLoop()", "Invalid drive state");
+                speed = SPEED_STOPPED;
         }
         // checkDeltaCurrent(moduleData.frontLeft.angleCurrent, moduleData.frontRight.angleCurrent, moduleData.rearLeft.angleCurrent, moduleData.rearRight.angleCurrent);
         // checkDeltaCurrent(moduleData.frontLeft.driveCurrent, moduleData.frontRight.driveCurrent, moduleData.rearLeft.driveCurrent, moduleData.rearRight.driveCurrent);
     }
 
-    void Drivetrain::publishData()
-    {
-        for (std::shared_ptr<SModule> mod : sModules)
-        {
+    void Drivetrain::publishData() {
+        for (std::shared_ptr<SModule> mod : sModules) {
             mod->publishModuleInfo();
         }
         std_msgs::msg::Int16 allianceColorMsg;
-        if(frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kBlue){
+        if (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kBlue) {
             allianceColorMsg.data = 1;
         } else {
             allianceColorMsg.data = 2;
@@ -333,84 +288,74 @@ namespace robot
         //fsngflywheelDemandPublisher->publish(flywheelDemandMsg);
         climberLDemandPublisher->publish(climberDemandMsg);
         climberRDemandPublisher->publish(climberDemandMsg);
-        if (hoodReset)
-        {
+        if (hoodReset) {
             hoodDemandPublisher->publish(hoodDemandMsg);
         }
 #endif
         frc::SmartDashboard::PutNumber("drive/heading", std::fmod(drivetrainHeadingMsg.data + 360, 360));
     }
 
-    // Setters
+    /* Setters */
 
-    void Drivetrain::setLimelightAngleOffset(const std_msgs::msg::Float32 setpoint)
-    {
+    void Drivetrain::setLimelightAngleOffset(const std_msgs::msg::Float32 setpoint) {
         targetAngleOffset = setpoint.data;
     }
 
-    void Drivetrain::setLimelightRange(const std_msgs::msg::Float32 lRange)
-    {
+    void Drivetrain::setLimelightRange(const std_msgs::msg::Float32 lRange) {
         range = lRange.data;
         #ifdef noRosDebug
         frc::SmartDashboard::PutNumber("limelight/range", range);
         #endif
     }
 
-    void Drivetrain::setAIAngleOffset(const std_msgs::msg::Float32 setpoint)
-    {
+    void Drivetrain::setAIAngleOffset(const std_msgs::msg::Float32 setpoint) {
         ballAngleOffset = setpoint.data;
     }
 
 #ifdef SystemIndependent
-    void Drivetrain::setHoodReset(const std_msgs::msg::Bool msg)
-    {
+    void Drivetrain::setHoodReset(const std_msgs::msg::Bool msg) {
         hoodReset = msg.data;
     }
 #endif
 
-    void Drivetrain::setDriveMode(const std_msgs::msg::Int16 msg)
-    {
+    void Drivetrain::setDriveMode(const std_msgs::msg::Int16 msg) {
         std::cout << "changing drivetrain to mode " << msg.data << std::endl;
         driveState = static_cast<ControlState>(msg.data);
     }
 
-    void Drivetrain::setHeadingControlEnabled(const std_msgs::msg::Int16 engaged)
-    {
+    void Drivetrain::setHeadingControlEnabled(const std_msgs::msg::Int16 engaged) {
         headingControl = engaged.data;
-        if (headingControl == 1)
-        {
-            headingControlSetpoint = drivetrainHeadingMsg.data;
-        }
-        else if (headingControl == 2)
-        {
-            if(range != -1){
-                headingControlSetpoint = drivetrainHeadingMsg.data - targetAngleOffset;
-            } else {
+        switch (headingControl) {
+            case 1:
                 headingControlSetpoint = drivetrainHeadingMsg.data;
-            }
-        }
-        else if (headingControl == 3)
-        {
-            headingControlSetpoint = drivetrainHeadingMsg.data + ballAngleOffset;
+                break;
+            case 2:
+                if (range != -1) {
+                    headingControlSetpoint = drivetrainHeadingMsg.data - targetAngleOffset;
+                } else {
+                    headingControlSetpoint = drivetrainHeadingMsg.data;
+                }
+                break;
+            case 3:
+                headingControlSetpoint = drivetrainHeadingMsg.data + ballAngleOffset;
+                break;
         }
         headingController.setSetpoint(headingControlSetpoint, true);
     }
 
-    void Drivetrain::setStick0(const sensor_msgs::msg::Joy msg)
-    {
-        lastStickTime = frc::Timer::GetFPGATimestamp().to<double>();
+    void Drivetrain::setStick0(const sensor_msgs::msg::Joy msg) {
+        lastStickTime = GET_TIME_DOUBLE;
         lastStick0 = msg;
         isRobotRel = lastStick0.buttons.at(0);
         gyroReset = lastStick0.buttons.at(4);
         tankLockButton = lastStick0.buttons.at(5);
     }
 
-    void Drivetrain::setStick1(const sensor_msgs::msg::Joy msg)
-    {
-        lastStickTime = frc::Timer::GetFPGATimestamp().to<double>();
+    void Drivetrain::setStick1(const sensor_msgs::msg::Joy msg) {
+        lastStickTime = GET_TIME_DOUBLE;
         lastStick1 = msg;
 
-        if (lastStick1.buttons.at(1)){
+        if (lastStick1.buttons.at(1)) {
             headingControl = 2;
             headingControlUpdate = true;
         } else if (!lastStick1.buttons.at(1) && headingControlUpdate) {
@@ -426,46 +371,39 @@ namespace robot
         intakeRetract = lastStick1.buttons.at(7);
         unintake = lastStick1.buttons.at(5);
         climberEnabled = lastStick1.buttons.at(9);
-        // remaps -1 to 1 axis to 0 to 1
-        hoodDemand = ((-lastStick1.axes.at(3) + 1) / 2);
+        hoodDemand = MAKE_SCALAR(-lastStick1.axes.at(3));
         climberDemand = ((-lastStick1.axes.at(1) * .75));
         #endif
     }
 
-    // Services
+    /* Services */
 
-    void Drivetrain::enablePathFollowerS(std::shared_ptr<autobt_msgs::srv::StringService_Request> ping, std::shared_ptr<autobt_msgs::srv::StringService_Response> pong)
-    {
+    void Drivetrain::enablePathFollowerS(std::shared_ptr<autobt_msgs::srv::StringService_Request> ping, std::shared_ptr<autobt_msgs::srv::StringService_Response> pong) {
         enablePathFollower(ping->request_string);
         pong->success = true;
     }
 
-    bool Drivetrain::enablePathFollower(std::string name)
-    {
+    bool Drivetrain::enablePathFollower(std::string name) {
         pathQueued = name;
         return true;
     }
 
-    // Utility Functions
+    /* Utility Functions */
 
-    void Drivetrain::enableOpenLoop()
-    {
+    void Drivetrain::enableOpenLoop() {
         driveState = OPEN_LOOP_FIELD_REL;
     }
 
-    void Drivetrain::resetPose()
-    {
+    void Drivetrain::resetPose() {
         sOdom.ResetPosition(frc::Pose2d{frc::Translation2d{0_m, 0_m}, frc::Rotation2d{0_deg}}, frc::Rotation2d{0_deg});
         imu->SetFusedHeading(0);
     }
 
-    void Drivetrain::enableDebug(bool debugEnable)
-    {
+    void Drivetrain::enableDebug(bool debugEnable) {
         DEBUG = debugEnable;
     }
 
-    void Drivetrain::execActions()
-    {
+    void Drivetrain::execActions() {
         // if (isRobotRel && (driveState == OPEN_LOOP_FIELD_REL || driveState == OPEN_LOOP_ROBOT_REL))
         // {
         //     driveState = OPEN_LOOP_ROBOT_REL;
@@ -475,22 +413,17 @@ namespace robot
         //     driveState = OPEN_LOOP_FIELD_REL;
         // }
 
-        if (gyroReset)
-        {
+        if (gyroReset) {
             imu->SetFusedHeading(0);
         }
         frc::SmartDashboard::PutNumber("drive/heading control", headingControl);
         frc::SmartDashboard::PutNumber("drive/heading control setpoint", std::fmod((headingControlSetpoint + 360), 360));
-        if (headingControl == 2 && range != -1)
-        {
+        if (headingControl == 2 && range != -1) {
             headingControlSetpoint = drivetrainHeadingMsg.data - targetAngleOffset;
-            headingController.setSetpoint(headingControlSetpoint, false);
-        } 
-        else if (headingControl == 3)
-        {
-            headingControlSetpoint = drivetrainHeadingMsg.data + ballAngleOffset;
-            headingController.setSetpoint(headingControlSetpoint, false);
+        }  else if (headingControl == 3) {
+            headingControlSetpoint = drivetrainHeadingMsg.data + ballAngleOffset;   
         }
+        headingController.setSetpoint(headingControlSetpoint, false);
         // factor this out into a stuct/class thing!
         // setup for toggle button that puts robot into tankdrive mode!
 
@@ -512,33 +445,27 @@ namespace robot
         // }
 
 #ifdef SystemIndependent
-        if (hoodReset)
-        {
+        if (hoodReset) {
             hoodDemandMsg.demand = hoodDemand * 800;
             hoodDemandMsg.control_mode = 1;
             hoodDemandMsg.arb_feedforward = 0;
         }
 
-        if (intake)
-        {
+        if (intake) {
             intakeDemandMsg.control_mode = 0;
             intakeDemandMsg.demand = .3;
             intakeDemandMsg.arb_feedforward = 0;
             indexerDemandMsg.control_mode = 0;
             indexerDemandMsg.demand = .5;
             indexerDemandMsg.arb_feedforward = 0;
-        }
-        else if (unintake)
-        {
+        } else if (unintake) {
             intakeDemandMsg.control_mode = 0;
             intakeDemandMsg.demand = -.5;
             intakeDemandMsg.arb_feedforward = 0;
             indexerDemandMsg.control_mode = 0;
             indexerDemandMsg.demand = -.5;
             indexerDemandMsg.arb_feedforward = 0;
-        }
-        else
-        {
+        } else {
             intakeDemandMsg.control_mode = 0;
             intakeDemandMsg.demand = 0;
             intakeDemandMsg.arb_feedforward = 0;
@@ -550,50 +477,39 @@ namespace robot
             deliveryDemandMsg.arb_feedforward = 0;
         }
 
-        if(intakeDeploy){
+        if (intakeDeploy) {
             intakeSoleDemandMsg.data = 1;
-        }
-        else if(intakeRetract){
+        } else if(intakeRetract) {
             intakeSoleDemandMsg.data = -1;
         }
 
-        if (shoot)
-        {
+        if (shoot) {
             deliveryDemandMsg.control_mode = 0;
             deliveryDemandMsg.demand = 1;
             deliveryDemandMsg.arb_feedforward = 0;
         }
 
-        if (flywheelButton && !flywheelHeld)
-        {
+        if (flywheelButton && !flywheelHeld) {
             flywheelState = !flywheelState;
             flywheelHeld = true;
-        }
-        else if (!flywheelButton)
-        {
+        } else if (!flywheelButton) {
             flywheelHeld = false;
         }
-        // if in tank drive, overwrite the drive state and set strafing to zero
-        if (flywheelState)
-        {
+        /* If in tank drive, overwrite the drive state and set strafing to zero */
+        if (flywheelState) {
             flywheelDemandMsg.control_mode = 2;
             flywheelDemandMsg.demand = 325;
             flywheelDemandMsg.arb_feedforward = 0;
-        }
-        else
-        {
+        } else {
             flywheelDemandMsg.control_mode = 0;
             flywheelDemandMsg.demand = 0;
             flywheelDemandMsg.arb_feedforward = 0;
         }
-        if (climberEnabled)
-        {
+        if (climberEnabled) {
             climberDemandMsg.control_mode = 0;
             climberDemandMsg.demand = climberDemand;
             climberDemandMsg.arb_feedforward = 0;
-        }
-        else
-        {
+        } else {
             climberDemandMsg.control_mode = 0;
             climberDemandMsg.demand = 0;
             climberDemandMsg.arb_feedforward = 0;
@@ -601,38 +517,30 @@ namespace robot
 #endif
     }
 
-    frc::ChassisSpeeds Drivetrain::twistDrive(const geometry_msgs::msg::Twist &twist, const frc::Rotation2d &orientation)
-    {
-        double xSpeed = twist.linear.x;
-        double ySpeed = twist.linear.y;
-        double zTurn = twist.angular.z;
+    frc::ChassisSpeeds Drivetrain::twistDrive(const geometry_msgs::msg::Twist &twist, const frc::Rotation2d &orientation) {
         frc::ChassisSpeeds speeds = frc::ChassisSpeeds::FromFieldRelativeSpeeds(
-            units::meters_per_second_t{xSpeed},
-            units::meters_per_second_t{ySpeed},
-            units::radians_per_second_t{zTurn},
-            orientation);
+            units::meters_per_second_t{twist.linear.x},
+            units::meters_per_second_t{twist.linear.y},
+            units::radians_per_second_t{twist.angular.z},
+            orientation
+        );
         return speeds;
     }
 
-    frc::ChassisSpeeds Drivetrain::twistDrive(const geometry_msgs::msg::Twist &twist)
-    {
-        double xSpeed = twist.linear.x;
-        double ySpeed = twist.linear.y;
-        double zTurn = twist.angular.z;
+    frc::ChassisSpeeds Drivetrain::twistDrive(const geometry_msgs::msg::Twist &twist) {
         frc::ChassisSpeeds speeds = frc::ChassisSpeeds{
-            units::meters_per_second_t{xSpeed},
-            units::meters_per_second_t{ySpeed},
-            units::radians_per_second_t{zTurn}};
+            units::meters_per_second_t{twist.linear.x},
+            units::meters_per_second_t{twist.linear.y},
+            units::radians_per_second_t{twist.angular.z}
+        };
         return speeds;
     }
 
-    void Drivetrain::setHeadingControlSetpoint(double newHeadingSetpoint)
-    {
+    void Drivetrain::setHeadingControlSetpoint(double newHeadingSetpoint) {
         headingControlSetpoint = newHeadingSetpoint;
     }
 
-    void Drivetrain::setHeadingControlGains(PIDFDiscriptor nGains)
-    {
+    void Drivetrain::setHeadingControlGains(PIDFDiscriptor nGains) {
         headingController.setPIDFDisc(nGains);
     }
 

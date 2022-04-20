@@ -80,15 +80,15 @@ namespace robot
         std_msgs::msg::Bool lowerHoodLimitSwitch;
 
         // motors to be controlled by copro code and other systems
-        std::vector<motors::TalonBrushless *> motorsFX {
+        std::vector<motors::TalonBrushless*> motorsFX {
             new motors::TalonBrushless(INTAKE_MOTOR_ID, "intake"),
             new motors::TalonBrushless(FLYWHEEL_MOTOR_ID, "flywheel"),
             new motors::TalonBrushless(CLIMBER_L_MOTOR_ID, "climber_l"),
             new motors::TalonBrushless(CLIMBER_R_MOTOR_ID, "climber_r"),
             new motors::TalonBrushless(DELIVERY_MOTOR_ID, "delivery")
-            };
+        };
         std::vector<motors::MotorContainer> motorsFXC;      
-        std::vector<motors::TalonBrushed *> motorsSRX {
+        std::vector<motors::TalonBrushed*> motorsSRX {
             new motors::TalonBrushed(INDEXER_MOTOR_ID, "indexer"),
             new motors::TalonBrushed(HOOD_MOTOR_ID, "hood")
         };

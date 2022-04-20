@@ -10,11 +10,9 @@
 using std::placeholders::_1;
 using std::placeholders::_2;
 
-namespace robot
-{
+namespace robot {
 
-    SModule::SModule(int driveID, int angleID, int encodID, std::string moduleName, double offset, PIDFDiscriptor dValues, PIDFDiscriptor aValues)
-    {
+    SModule::SModule(int driveID, int angleID, int encodID, std::string moduleName, double offset, PIDFDiscriptor dValues, PIDFDiscriptor aValues) {
         name = moduleName;
         angle = std::make_shared<TalonFX>(angleID, "Default Name");
         drive = std::make_shared<TalonFX>(driveID, "Default Name");
@@ -27,25 +25,26 @@ namespace robot
         reset();
     }
 
-    void SModule::configMotors(double offset, PIDFDiscriptor dValues, PIDFDiscriptor aValues)
-    {
+    void SModule::configMotors(double offset, PIDFDiscriptor dValues, PIDFDiscriptor aValues) {
         // to convert from ticks to radians (2 radians per revolution) / (2048 ticks per revolution) * (GEAR REDUCTION)
         // to convert from ticks / 100ms to rps
         double bootPos = 0;
-        // Configure front left drive falcon
+        /* Configure front left drive falcon */
+        //CLEANUP: make these one macro
+#define SSFP(SFE, X, Y) drive->SetStatusFramePeriod(SFE, X, Y)
         drive->ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, 0, 100);
-        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_2_Feedback0, 8, 0);
-        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_1_General, 20, 0);
-        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_4_AinTempVbat, 20, 0);
-        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_6_Misc, 20, 0);
-        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_7_CommStatus, 20, 0);
-        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_9_MotProfBuffer, 249, 0);
-        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_10_MotionMagic, 247, 0);
-        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_12_Feedback1, 255, 0);
-        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_13_Base_PIDF0, 253, 0);
-        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_14_Turn_PIDF1, 251, 0);
-        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_15_FirmareApiStatus, 249, 0);
-        drive->SetStatusFramePeriod(StatusFrameEnhanced::Status_17_Targets1, 247, 0);
+        SSFP(StatusFrameEnhanced::Status_2_Feedback0, 8, 0);
+        SSFP(StatusFrameEnhanced::Status_1_General, 20, 0);
+        SSFP(StatusFrameEnhanced::Status_4_AinTempVbat, 20, 0);
+        SSFP(StatusFrameEnhanced::Status_6_Misc, 20, 0);
+        SSFP(StatusFrameEnhanced::Status_7_CommStatus, 20, 0);
+        SSFP(StatusFrameEnhanced::Status_9_MotProfBuffer, 249, 0);
+        SSFP(StatusFrameEnhanced::Status_10_MotionMagic, 247, 0);
+        SSFP(StatusFrameEnhanced::Status_12_Feedback1, 255, 0);
+        SSFP(StatusFrameEnhanced::Status_13_Base_PIDF0, 253, 0);
+        SSFP(StatusFrameEnhanced::Status_14_Turn_PIDF1, 251, 0);
+        SSFP(StatusFrameEnhanced::Status_15_FirmareApiStatus, 249, 0);
+        SSFP(StatusFrameEnhanced::Status_17_Targets1, 247, 0);
         drive->SetSensorPhase(false);
         drive->SetInverted(false);
         drive->SetNeutralMode(NeutralMode::Brake);
@@ -71,19 +70,22 @@ namespace robot
         std::cout << name << " calibrated to " << angleOffset << std::endl;
         // std::cout << angleOffset << std::endl;
 
+#undef SSFP
+#define SSFP(SFE, X, Y) angle->SetStatusFramePeriod(SFE, X, Y)
         angle->ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, 0, 100);
-        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_2_Feedback0, 8, 0);
-        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_1_General, 20, 0);
-        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_4_AinTempVbat, 20, 0);
-        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_6_Misc, 20, 0);
-        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_7_CommStatus, 20, 0);
-        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_9_MotProfBuffer, 249, 0);
-        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_10_MotionMagic, 247, 0);
-        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_12_Feedback1, 255, 0);
-        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_13_Base_PIDF0, 8, 0);
-        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_14_Turn_PIDF1, 251, 0);
-        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_15_FirmareApiStatus, 249, 0);
-        angle->SetStatusFramePeriod(StatusFrameEnhanced::Status_17_Targets1, 247, 0);
+        SSFP(StatusFrameEnhanced::Status_2_Feedback0, 8, 0);
+        SSFP(StatusFrameEnhanced::Status_1_General, 20, 0);
+        SSFP(StatusFrameEnhanced::Status_4_AinTempVbat, 20, 0);
+        SSFP(StatusFrameEnhanced::Status_6_Misc, 20, 0);
+        SSFP(StatusFrameEnhanced::Status_7_CommStatus, 20, 0);
+        SSFP(StatusFrameEnhanced::Status_9_MotProfBuffer, 249, 0);
+        SSFP(StatusFrameEnhanced::Status_10_MotionMagic, 247, 0);
+        SSFP(StatusFrameEnhanced::Status_12_Feedback1, 255, 0);
+        SSFP(StatusFrameEnhanced::Status_13_Base_PIDF0, 8, 0);
+        SSFP(StatusFrameEnhanced::Status_14_Turn_PIDF1, 251, 0);
+        SSFP(StatusFrameEnhanced::Status_15_FirmareApiStatus, 249, 0);
+        SSFP(StatusFrameEnhanced::Status_17_Targets1, 247, 0);
+#undef SSFP
         angle->SetSensorPhase(true);
         angle->SetInverted(true);
         angle->SetNeutralMode(NeutralMode::Brake);
@@ -100,21 +102,18 @@ namespace robot
         angle->SetSelectedSensorPosition(-angleOffset, 0);
     }
 
-    void SModule::createRosBindings(rclcpp::Node *nodeHandle)
-    {
+    void SModule::createRosBindings(rclcpp::Node* nodeHandle) {
         jointStatePub = nodeHandle->create_publisher<sensor_msgs::msg::JointState>("/drive/" + name + "/joint_state", rclcpp::SystemDefaultsQoS());
 
         anglePDIF = nodeHandle->create_service<can_msgs::srv::SetPIDFGains>("/drive/" + name + "/angle/pidfset", std::bind(&SModule::updateAnglePID, this, _1, _2));
         drivePIDF = nodeHandle->create_service<can_msgs::srv::SetPIDFGains>("/drive/" + name + "/drive/pidfset", std::bind(&SModule::updateDrivePID, this, _1, _2));
     }
 
-    void SModule::setInvertDrive(bool invert)
-    {
+    void SModule::setInvertDrive(bool invert) {
         drive->SetInverted(invert);
     }
-
-    void SModule::updateDrivePID(const can_msgs::srv::SetPIDFGains::Request::SharedPtr req, can_msgs::srv::SetPIDFGains::Response::SharedPtr resp)
-    {
+    //CLEANUP: template these
+    void SModule::updateDrivePID(const can_msgs::srv::SetPIDFGains::Request::SharedPtr req, can_msgs::srv::SetPIDFGains::Response::SharedPtr resp) {
         drive->Config_kF(0, req->k_f, 0);
         drive->Config_kP(0, req->k_p, 0);
         drive->Config_kI(0, req->k_i, 0);
@@ -123,8 +122,7 @@ namespace robot
         resp->success = true;
     }
 
-    void SModule::updateAnglePID(const can_msgs::srv::SetPIDFGains::Request::SharedPtr req, can_msgs::srv::SetPIDFGains::Response::SharedPtr resp)
-    {
+    void SModule::updateAnglePID(const can_msgs::srv::SetPIDFGains::Request::SharedPtr req, can_msgs::srv::SetPIDFGains::Response::SharedPtr resp) {
         angle->Config_kF(0, req->k_f, 0);
         angle->Config_kP(0, req->k_p, 0);
         angle->Config_kI(0, req->k_i, 0);
@@ -133,13 +131,11 @@ namespace robot
         resp->success = true;
     }
 
-    void SModule::reset()
-    {
+    void SModule::reset() {
         configMotors(magnetOffset, driveConfig, angleConfig);
     }
 
-    void SModule::setMotorVelocity(frc::SwerveModuleState ss)
-    {
+    void SModule::setMotorVelocity(frc::SwerveModuleState ss) {
         double currentTicks = angle->GetSelectedSensorPosition();
         auto ssO = frc::SwerveModuleState::Optimize(ss, units::degree_t(currentTicks / TICKS_PER_DEGREE * SWERVE_ANGLE_GEARING));
         // auto ssO = optimizeCTREModule(ss, units::degree_t(currentTicks / TICKS_PER_DEGREE / (64 / 5)));
@@ -151,8 +147,7 @@ namespace robot
         drive->Set(ControlMode::Velocity, desiredVelocity);
     }
 
-    void SModule::setMotors(frc::SwerveModuleState ss)
-    {
+    void SModule::setMotors(frc::SwerveModuleState ss) {
         double currentTicks = angle->GetSelectedSensorPosition();
         // auto ssO = frc::SwerveModuleState::Optimize(ss, units::degree_t(currentTicks / TICKS_PER_DEGREE / (64 / 5)));
         auto ssO = optimizeCTREModule(ss, units::degree_t(currentTicks / TICKS_PER_DEGREE * SWERVE_ANGLE_GEARING));
@@ -164,43 +159,44 @@ namespace robot
         drive->Set(ControlMode::PercentOutput, desiredVelocity);
     }
 
-    frc::SwerveModuleState SModule::getState()
-    {
+    frc::SwerveModuleState SModule::getState() {
         //(ticks / 100ms) / (ticks / revolution) * (Circumfrence [Diameter * Pi] / revolution) * (1s / 100ms) / (1m / 39.37in)
         return frc::SwerveModuleState{units::meters_per_second_t{(drive->GetSelectedSensorVelocity() / (2048 * 39.37 * 6.12)) * (4 * M_PI * 10)},
                                       frc::Rotation2d{units::degree_t{angle->GetSelectedSensorPosition() / TICKS_PER_DEGREE / (64 / 5)}}};
     }
 
-    void SModule::publishModuleInfo()
-    {
+    void SModule::publishModuleInfo() {
         auto msg = sensor_msgs::msg::JointState();
 
         frc::SmartDashboard::PutNumber("swerve_module/" + name + "/module_angle", std::fmod(angle->GetSelectedSensorPosition() / TICKS_PER_DEGREE / (64 / 5) + 360, 360));
         frc::SmartDashboard::PutNumber("swerve_module/" + name + "/module_velocity", (drive->GetSelectedSensorVelocity() / (2048 * 39.37 * 6.12)) * (4 * M_PI * 10));
 
-        // push in the names
+        /* Push in the names */
         msg.name = {"angle", "angle_goal", "drive", "drive_goal"};
 
-        // push in the positions
+        /* Push in the positions */
         msg.position = {
             angle->GetSelectedSensorPosition(),
             desiredAngle,
             drive->GetSelectedSensorPosition(),
-            0.0};
+            0.0
+        };
 
-        // push in the velocities
+        /* Push in the velocities */
         msg.velocity = {
             angle->GetSelectedSensorVelocity(),
             0.0,
             drive->GetSelectedSensorVelocity(),
-            desiredVelocity};
+            desiredVelocity
+        };
 
-        // push in the efforts
+        /* Push in the efforts */
         msg.effort = {
             std::abs(angle->GetStatorCurrent()),
             0.0,
             std::abs(drive->GetStatorCurrent()),
-            0.0};
+            0.0
+        };
 
         jointStatePub->publish(msg);
     }
@@ -212,23 +208,21 @@ namespace robot
         );
         double targetSpeed = desiredState.speed.to<double>();
         double delta = targetAngle - currentAngle.Degrees().to<double>();
-        if (std::fabs(delta) > 90){
+        if (std::fabs(delta) > 90) {
             targetSpeed = -targetSpeed;
             targetAngle = delta > 90 ? (targetAngle -= 180) : (targetAngle += 180);
         }        
         return frc::SwerveModuleState{units::meters_per_second_t{targetSpeed}, frc::Rotation2d{units::degree_t{targetAngle}}};
     }
 
-    double SModule::placeInAppropriate0To360Scope(double scopeReference, double newAngle)
-    {
+    double SModule::placeInAppropriate0To360Scope(double scopeReference, double newAngle) {
         double lowerBound;
         double upperBound;
         double lowerOffset = std::fmod(scopeReference, 360);
         if (lowerOffset >= 0) {
             lowerBound = scopeReference - lowerOffset;
             upperBound = scopeReference + (360 - lowerOffset);
-        }
-        else {
+        } else {
             upperBound = scopeReference - lowerOffset;
             lowerBound = scopeReference - (360 + lowerOffset);
         }
@@ -245,5 +239,4 @@ namespace robot
         }
         return newAngle;
     }
-
 } // namespace robot
