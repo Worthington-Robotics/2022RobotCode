@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include "frc/smartdashboard/SmartDashboard.h"
-#include "Util.h"
 
 using std::placeholders::_1;
 
@@ -13,9 +12,9 @@ namespace robot
     }
 
     void LightBar::createRosBindings(rclcpp::Node *node) {
-        LightModeSub = node->create_subscription<std_msgs::msg::Int16>("/lights/mode", rclcpp::SensorDataQoS(), std::bind(LightBar::lightModeCallback, this, _1));
-        angleOffsetSub = node->create_subscription<std_msgs::msg::Float32>("/limelight/angle_offset", rclcpp::SensorDataQoS(), std::bind(LightBar::setAngleOffset, this, _1));
-        rangeSub = node->create_subscription<std_msgs::msg::Float32>("/limelight/range", rclcpp::SensorDataQoS(), std::bind(LightBar::setRange, this, _1));
+        LightModeSub = node->create_subscription<MSG_INT>("/lights/mode", SENSOR_QOS, std::bind(LightBar::lightModeCallback, this, _1));
+        angleOffsetSub = node->create_subscription<MSG_FLOAT>("/limelight/angle_offset", SENSOR_QOS, std::bind(LightBar::setAngleOffset, this, _1));
+        rangeSub = node->create_subscription<MSG_FLOAT>("/limelight/range", SENSOR_QOS, std::bind(LightBar::setRange, this, _1));
     }
 
     void LightBar::reset() {
@@ -137,18 +136,18 @@ namespace robot
         return frc::Color(0, 0, 0);
     }
     
-    void LightBar::lightModeCallback(const std_msgs::msg::Int16 msg) {
+    void LightBar::lightModeCallback(const MSG_INT msg) {
         std::cout << "Changing lights to mode " << msg.data << std::endl;
         lightMode = static_cast<LightState>(msg.data);
     }
 
-    void LightBar::setAngleOffset(const std_msgs::msg::Float32 msg) {
+    void LightBar::setAngleOffset(const MSG_FLOAT msg) {
         angleOffset = std::abs(msg.data) - (6 / range);
     }
 
-    void LightBar::setRange(const std_msgs::msg::Float32 msg) {
+    void LightBar::setRange(const MSG_FLOAT msg) {
         range = msg.data;
     }
 
     void LightBar::updateSensorData() {}
-}
+} // namespace robot

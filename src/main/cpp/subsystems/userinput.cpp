@@ -1,6 +1,5 @@
 #include "subsystems/userinput.h"
-#include <cmath>
-#include <string>
+
 #include <frc/Errors.h>
 
 namespace robot {
@@ -14,12 +13,12 @@ namespace robot {
     }
 
     void UserInput::createRosBindings(rclcpp::Node *node) {
-        intakeIndexerPub = node->create_publisher<std_msgs::msg::Int16>("/actions/intake_indexer", rclcpp::SystemDefaultsQoS());
-        intakeSolePub = node->create_publisher<std_msgs::msg::Int16>("/externIO/intake_solenoid/state", rclcpp::SystemDefaultsQoS());
-        flyWheelModePub = node->create_publisher<std_msgs::msg::Int16>("/actions/flywheel_mode", rclcpp::SystemDefaultsQoS());
+        intakeIndexerPub = node->create_publisher<MSG_INT>("/actions/intake_indexer", DEFAULT_QOS);
+        intakeSolePub = node->create_publisher<MSG_INT>("/externIO/intake_solenoid/state", DEFAULT_QOS);
+        flyWheelModePub = node->create_publisher<MSG_INT>("/actions/flywheel_mode", DEFAULT_QOS);
         for (auto stick = sticks.begin(); stick != sticks.end(); ++stick) {
             stickPubs.push_back(
-                node->create_publisher<sensor_msgs::msg::Joy>("/sticks/stick" + std::to_string(stick->GetPort()), rclcpp::SensorDataQoS())
+                node->create_publisher<MSG_JOY>("/sticks/stick" + std::to_string(stick->GetPort()), SENSOR_QOS)
             );
         }
     }
@@ -27,7 +26,7 @@ namespace robot {
     void UserInput::reset() {}
 
     void UserInput::onStart() {
-        std_msgs::msg::Int16 flywheelStart;
+        MSG_INT flywheelStart;
         flywheelStart.data = 0;
         flyWheelModePub->publish(flywheelStart);
     }
@@ -39,7 +38,7 @@ namespace robot {
     void UserInput::publishData() {
         for (int i = 0; i < sticks.size(); i++) {
             if (frc::DriverStation::IsJoystickConnected(i)) {
-                sensor_msgs::msg::Joy stickData;
+                MSG_JOY stickData;
 
                 int numAxes = sticks.at(i).GetAxisCount();
                 //std::cout << "Stick " << i << " axis count: " << numAxes << " axis values :[";
@@ -72,7 +71,7 @@ namespace robot {
         }
     }
 
-    std::vector<double> UserInput::evalDeadband(const sensor_msgs::msg::Joy &joyMsg,
+    std::vector<double> UserInput::evalDeadband(const MSG_JOY &joyMsg,
                                                 const double deadBand, const int power) {
         std::vector<double> output = std::vector<double>();
         for (double axis : joyMsg.axes) {
@@ -92,7 +91,7 @@ namespace robot {
         return output;
     }
 
-    std::vector<double> UserInput::scalarCut(const sensor_msgs::msg::Joy &joyMsg,
+    std::vector<double> UserInput::scalarCut(const MSG_JOY &joyMsg,
                                              const double deadBand, const int power, const std::vector<double> scalars) {
         auto output = evalDeadband(joyMsg, deadBand, power);
         for (int i = 0; i < scalars.size() && i < output.size(); i++) {
@@ -105,9 +104,9 @@ namespace robot {
         return (input + 1) * (maxOutput - minOutput) / (2) + minOutput;
     }
 
-    void UserInput::setStickZero(sensor_msgs::msg::Joy lastStick0) {
-        std_msgs::msg::Int16 flywheelModeMsg;
-        if(lastStick0.buttons.at(1) && !flywheelModePressed) {
+    void UserInput::setStickZero(MSG_JOY lastStick0) {
+        MSG_INT flywheelModeMsg;
+        if (lastStick0.buttons.at(1) && !flywheelModePressed) {
             flywheelModeUpdate = true;
             flywheelModePressed = true;
             flywheelModeMsg.data = 0;
@@ -130,8 +129,8 @@ namespace robot {
         }
     }
 
-    void UserInput::setStickOne(sensor_msgs::msg::Joy lastStick1) {
-        std_msgs::msg::Int16 intakeIndexerMsg;
+    void UserInput::setStickOne(MSG_JOY lastStick1) {
+        MSG_INT intakeIndexerMsg;
         if (lastStick1.buttons.at(2) && !intakeIndexerPressed) {
             intakeIndexerMsgUpdate = true;
             intakeIndexerPressed = true;
@@ -156,7 +155,7 @@ namespace robot {
             intakeIndexerMsgUpdate = false;
         }
 
-        std_msgs::msg::Int16 intakeSoleMsg;
+        MSG_INT intakeSoleMsg;
         if (lastStick1.buttons.at(6) && !intakeSolePressed) {
             intakeSoleMsgUpdate = true;
             intakeSolePressed = true;

@@ -14,7 +14,7 @@
 namespace robot {
 
     class SubsystemManager : public rclcpp::Node {
-        public: 
+    public: 
         
         SubsystemManager();
 
@@ -39,7 +39,7 @@ namespace robot {
          * @param ping This is empty and you can ignore it, it is merely a requirement of ROS
          * @param pong This is the response message with error status
          **/ 
-        void serviceReset(std::shared_ptr<std_msgs::msg::Bool> msg);
+        void serviceReset(std::shared_ptr<MSG_BOOL> msg);
 
         /**
          * Commands all susbsystems to enable or disable their debug modes
@@ -51,7 +51,7 @@ namespace robot {
          * @param ping This contains the ros message, and the boolean for debug to be set to
          * @param pong This is the response message with error status
          **/ 
-        void serviceDebug(std::shared_ptr<std_msgs::msg::Bool> msg);
+        void serviceDebug(std::shared_ptr<MSG_BOOL> msg);
 
         /**
          * starts the subsystem manager thread, and begins updating the subsystems in order. 
@@ -89,12 +89,12 @@ namespace robot {
         void disabledLoop();
         void spinRos();
 
-        ROS_PUB(std_msgs::msg::Bool) sysReset;
-        ROS_PUB(std_msgs::msg::Bool) sysDebug;
-        ROS_PUB(std_msgs::msg::Bool) autoKill;
-        ROS_PUB(std_msgs::msg::Int16) headingControlPub;
-        ROS_PUB(std_msgs::msg::Int16) shooterRequestPub;
-        ROS_PUB(std_msgs::msg::Int16) sysEnableEchoPub;
+        ROS_PUB(MSG_BOOL) sysReset;
+        ROS_PUB(MSG_BOOL) sysDebug;
+        ROS_PUB(MSG_BOOL) autoKill;
+        ROS_PUB(MSG_INT) headingControlPub;
+        ROS_PUB(MSG_INT) shooterRequestPub;
+        ROS_PUB(MSG_INT) sysEnableEchoPub;
         double sysDisableTime = 0;
     };
 

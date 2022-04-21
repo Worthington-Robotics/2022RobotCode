@@ -1,5 +1,6 @@
 #include "robot_lib/SModule.h"
 #include "Constants.h"
+#include "Util.h"
 #include <units/math.h>
 #include <units/angle.h>
 #include <units/velocity.h>
@@ -103,7 +104,7 @@ namespace robot {
     }
 
     void SModule::createRosBindings(rclcpp::Node* nodeHandle) {
-        jointStatePub = nodeHandle->create_publisher<sensor_msgs::msg::JointState>("/drive/" + name + "/joint_state", rclcpp::SystemDefaultsQoS());
+        jointStatePub = nodeHandle->create_publisher<sensor_msgs::msg::JointState>("/drive/" + name + "/joint_state", DEFAULT_QOS);
 
         anglePDIF = nodeHandle->create_service<can_msgs::srv::SetPIDFGains>("/drive/" + name + "/angle/pidfset", std::bind(&SModule::updateAnglePID, this, _1, _2));
         drivePIDF = nodeHandle->create_service<can_msgs::srv::SetPIDFGains>("/drive/" + name + "/drive/pidfset", std::bind(&SModule::updateDrivePID, this, _1, _2));

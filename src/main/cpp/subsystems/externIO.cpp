@@ -12,13 +12,13 @@ namespace robot {
    }
 
    void ExternIO::createRosBindings(rclcpp::Node *node) {
-      hoodLimitSwitchResetPub = node->create_publisher<std_msgs::msg::Bool>("/externIO/hood_motor/is_reset", rclcpp::SystemDefaultsQoS());
+      hoodLimitSwitchResetPub = node->create_publisher<MSG_BOOL>("/externIO/hood_motor/is_reset", DEFAULT_QOS);
       
       for (motors::TalonBrushless* motor : motorsFX) {
          motors::MotorContainer MC = {
             *motor,
-            node->create_subscription<can_msgs::msg::MotorMsg>("/externIO/" + motor->getName() + "/demand", rclcpp::SystemDefaultsQoS(), std::bind(&motors::Motor::setValue, std::ref(MC.motor), _1)),
-            node->create_publisher<sensor_msgs::msg::JointState>("/externIO/" + motor->getName() + "/state", rclcpp::SystemDefaultsQoS()),
+            node->create_subscription<can_msgs::msg::MotorMsg>("/externIO/" + motor->getName() + "/demand", DEFAULT_QOS, std::bind(&motors::Motor::setValue, std::ref(MC.motor), _1)),
+            node->create_publisher<sensor_msgs::msg::JointState>("/externIO/" + motor->getName() + "/state", DEFAULT_QOS),
             node->create_service<can_msgs::srv::SetPIDFGains>("/externIO/" + motor->getName() + "/pidfset", std::bind(&motors::Motor::configMotorPIDF, std::ref(MC.motor), _1, _2)),
          };
          motorsFXC.push_back(MC);
@@ -27,8 +27,8 @@ namespace robot {
       for (motors::TalonBrushed* motor : motorsSRX) {
          motors::MotorContainer MC = {
             *motor,
-            node->create_subscription<can_msgs::msg::MotorMsg>("/externIO/" + motor->getName() + "/demand", rclcpp::SystemDefaultsQoS(), std::bind(&motors::Motor::setValue, std::ref(*motor), _1)),
-            node->create_publisher<sensor_msgs::msg::JointState>("/externIO/" + motor->getName() + "/state", rclcpp::SystemDefaultsQoS()),
+            node->create_subscription<can_msgs::msg::MotorMsg>("/externIO/" + motor->getName() + "/demand", DEFAULT_QOS, std::bind(&motors::Motor::setValue, std::ref(*motor), _1)),
+            node->create_publisher<sensor_msgs::msg::JointState>("/externIO/" + motor->getName() + "/state", DEFAULT_QOS),
             node->create_service<can_msgs::srv::SetPIDFGains>("/externIO/" + motor->getName() + "/pidfset", std::bind(&motors::Motor::configMotorPIDF, std::ref(*motor), _1, _2)),
          };
          motorsSRXC.push_back(MC);
@@ -38,16 +38,16 @@ namespace robot {
       for (solenoid::Solenoid* solenoid : solenoids) {
          solenoid::SolenoidContainer SC{
             *solenoid,
-            node->create_subscription<std_msgs::msg::Int16>("/externIO/" + solenoid->getName() + "/state", rclcpp::SystemDefaultsQoS(), std::bind(&solenoid::Solenoid::set, std::ref(*solenoid), _1))
+            node->create_subscription<MSG_INT>("/externIO/" + solenoid->getName() + "/state", DEFAULT_QOS, std::bind(&solenoid::Solenoid::set, std::ref(*solenoid), _1))
          };
          solenoidsC.push_back(SC);
       }
       
       /* Publishers of sensor data */
-      externalTOFDistanceSub = node->create_subscription<std_msgs::msg::Float32>("/externIO/external_tof/distance", rclcpp::SensorDataQoS(), std::bind(&ExternIO::setTOF0, this, _1));
-      internalTOFDistanceSub = node->create_subscription<std_msgs::msg::Float32>("/externIO/internal_tof/distance", rclcpp::SensorDataQoS(), std::bind(&ExternIO::setTOF1, this, _1));
-      upperHoodLimitSwitchPub = node->create_publisher<std_msgs::msg::Bool>("/externIO/upper_hood/limit_switch", rclcpp::SystemDefaultsQoS());
-      lowerHoodLimitSwitchPub = node->create_publisher<std_msgs::msg::Bool>("/externIO/lower_hood/limit_switch", rclcpp::SystemDefaultsQoS());
+      externalTOFDistanceSub = node->create_subscription<MSG_FLOAT>("/externIO/external_tof/distance", SENSOR_QOS, std::bind(&ExternIO::setTOF0, this, _1));
+      internalTOFDistanceSub = node->create_subscription<MSG_FLOAT>("/externIO/internal_tof/distance", SENSOR_QOS, std::bind(&ExternIO::setTOF1, this, _1));
+      upperHoodLimitSwitchPub = node->create_publisher<MSG_BOOL>("/externIO/upper_hood/limit_switch", DEFAULT_QOS);
+      lowerHoodLimitSwitchPub = node->create_publisher<MSG_BOOL>("/externIO/lower_hood/limit_switch", DEFAULT_QOS);
       reset();
    }
 
@@ -168,16 +168,16 @@ namespace robot {
 
    void ExternIO::updateSensorData() {}
 
-   void ExternIO::setTOF0(const std_msgs::msg::Float32 msg) {
+   void ExternIO::setTOF0(const MSG_FLOAT msg) {
       frc::SmartDashboard::PutBoolean("externIO/external_tof", (msg.data < .05));
    }
 
-   void ExternIO::setTOF1(const std_msgs::msg::Float32 msg) {
+   void ExternIO::setTOF1(const MSG_FLOAT msg) {
       frc::SmartDashboard::PutBoolean("externIO/internal_tof", (msg.data < .05));
    }
 
    void ExternIO::onLoop(double currentTime) {
-      std_msgs::msg::Bool limit;
+      MSG_BOOL limit;
       if (!motorsSRX.at(1)->getMotor()->IsRevLimitSwitchClosed() && !hoodReset) {
          motorsSRX.at(1)->getMotor()->Set(ControlMode::PercentOutput, -.25);
          limit.data = false;
@@ -231,4 +231,4 @@ namespace robot {
    }
 
    void ExternIO::enableDebug(bool debug) {}
-}
+} // namespace robot

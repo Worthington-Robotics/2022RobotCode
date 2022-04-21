@@ -13,6 +13,8 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include <vector>
+#include <cmath>
+#include <string>
 
 namespace robot {
 
@@ -41,7 +43,7 @@ namespace robot {
          * @param power the power to apply to the joystick as a ramping function (recommend 2 or 3)
          * @return the output values of the different joystick axes
          **/
-        static std::vector<double> evalDeadband(const sensor_msgs::msg::Joy &joyMsg,
+        static std::vector<double> evalDeadband(const MSG_JOY &joyMsg,
                                                 const double deadBand, const int power);
 
         /**
@@ -53,7 +55,7 @@ namespace robot {
          * it will be left un-processed
          * @return the output values of the different joystick axes
          **/
-        static std::vector<double> scalarCut(const sensor_msgs::msg::Joy &joyMsg,
+        static std::vector<double> scalarCut(const MSG_JOY &joyMsg,
                                              const double deadBand, const int power, const std::vector<double> scalars);
 
         /**
@@ -65,24 +67,21 @@ namespace robot {
         static double mapValue(double input, double minOutput, double maxOutput);
 
     private:
-    //CLEANUP: multi defines
         std::vector<frc::Joystick> sticks = {};
-        std::vector<rclcpp::Publisher<sensor_msgs::msg::Joy>::SharedPtr> stickPubs = {};
+        std::vector<ROS_PUB(MSG_JOY)> stickPubs = {};
 
-        void setStickZero(sensor_msgs::msg::Joy lastStick0);
-        void setStickOne(sensor_msgs::msg::Joy lastStick1);
+        void setStickZero(MSG_JOY lastStick0);
+
+        void setStickOne(MSG_JOY lastStick1);
         
-        ROS_PUB(std_msgs::msg::Int16) intakeIndexerPub;
-        bool intakeIndexerMsgUpdate = false;
-        bool intakeIndexerPressed = false;
+        ROS_PUB(MSG_INT) intakeIndexerPub;
+        bool intakeIndexerMsgUpdate = false, intakeIndexerPressed = false;
 
-        ROS_PUB(std_msgs::msg::Int16) intakeSolePub;
-        bool intakeSoleMsgUpdate = false;
-        bool intakeSolePressed = false;
+        ROS_PUB(MSG_INT) intakeSolePub;
+        bool intakeSoleMsgUpdate = false, intakeSolePressed = false;
 
-        ROS_PUB(std_msgs::msg::Int16) flyWheelModePub;
-        bool flywheelModeUpdate = false;
-        bool flywheelModePressed = false;
+        ROS_PUB(MSG_INT) flyWheelModePub;
+        bool flywheelModeUpdate = false, flywheelModePressed = false;
     };
 
 } // namespace robot

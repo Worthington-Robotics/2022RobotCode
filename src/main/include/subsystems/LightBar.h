@@ -44,7 +44,7 @@ namespace robot {
 
         void publishData() override;
 
-        void lightModeCallback(const std_msgs::msg::Int16 msg);
+        void lightModeCallback(const MSG_INT msg);
 
     private:
 
@@ -74,17 +74,17 @@ namespace robot {
 
         void updateSensorData();
 
-        void setAngleOffset(const std_msgs::msg::Float32);
-        void setRange(const std_msgs::msg::Float32);
+        void setAngleOffset(const MSG_FLOAT);
+        void setRange(const MSG_FLOAT);
 
         /* Current time step for modes that animate over time */
         int step = 0;
 
         /* ROS Subscibers */
 
-        ROS_SUB(std_msgs::msg::Int16) LightModeSub;
-        ROS_SUB(std_msgs::msg::Float32) angleOffsetSub;
-        ROS_SUB(std_msgs::msg::Float32) rangeSub;
+        ROS_SUB(MSG_INT) LightModeSub;
+        ROS_SUB(MSG_FLOAT) angleOffsetSub;
+        ROS_SUB(MSG_FLOAT) rangeSub;
 
         /* Targeted Bool */
         bool isTargeted = false;

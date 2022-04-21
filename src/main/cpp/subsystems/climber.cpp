@@ -3,14 +3,15 @@
 using std::placeholders::_1;
 
 namespace robot {
+    
     Climber::Climber() {}
 
     void Climber::createRosBindings(rclcpp::Node* Node) {
-        soleStatePub = Node->create_publisher<std_msgs::msg::Int16>("externIO/climber_r_main_solenoid/state", rclcpp::SystemDefaultsQoS());
-        stick1Sub = Node->create_subscription<sensor_msgs::msg::Joy>("sticks/stick1", rclcpp::SensorDataQoS(), std::bind(&Climber::setStick1Input, this, _1));
+        soleStatePub = Node->create_publisher<MSG_INT>("externIO/climber_r_main_solenoid/state", DEFAULT_QOS);
+        stick1Sub = Node->create_subscription<MSG_JOY>("sticks/stick1", SENSOR_QOS, std::bind(&Climber::setStick1Input, this, _1));
         climberDemandsPubs = {
-            Node->create_publisher<can_msgs::msg::MotorMsg>("externIO/climber_l_motor/demand", rclcpp::SystemDefaultsQoS()),
-            Node->create_publisher<can_msgs::msg::MotorMsg>("externIO/climber_r_motor/demand", rclcpp::SystemDefaultsQoS())
+            Node->create_publisher<can_msgs::msg::MotorMsg>("externIO/climber_l_motor/demand", DEFAULT_QOS),
+            Node->create_publisher<can_msgs::msg::MotorMsg>("externIO/climber_r_motor/demand", DEFAULT_QOS)
         };
     }
 
@@ -34,11 +35,11 @@ namespace robot {
         } else {
             solePressed = false;
         }
-        std_msgs::msg::Int16 soleDemand;
+        MSG_INT soleDemand;
         soleDemand.data = -1;
         if (soleState) {
             soleDemand.data = 1;
         }
         soleStatePub->publish(soleDemand);
     }
-}
+} // namespace robot

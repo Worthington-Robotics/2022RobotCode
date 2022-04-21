@@ -6,7 +6,6 @@
 #include <units/velocity.h>
 #include <rospathmsgs/msg/waypoint.hpp>
 
-//#define SystemIndependent
 #define noRosDebug
 //#define PNU_DEBUG
 

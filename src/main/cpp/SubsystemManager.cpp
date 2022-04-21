@@ -1,6 +1,5 @@
 #include "SubsystemManager.h"
 #include "units/time.h"
-#include "Util.h"
 #include <exception>
 #include <frc/Errors.h>
 #include "rclcpp/rclcpp.hpp"
@@ -18,12 +17,12 @@ namespace robot {
                                            enabledNotif(std::bind(&SubsystemManager::enabledLoop, this)),
                                            disabledNotif(std::bind(&SubsystemManager::disabledLoop, this)),
                                            spinNotif(std::bind(&SubsystemManager::spinRos, this)) {
-        autoKill = this->create_publisher<std_msgs::msg::Bool>("/sys/auto_kill", rclcpp::SystemDefaultsQoS());
-        headingControlPub = this->create_publisher<std_msgs::msg::Int16>("/drive/heading_control", rclcpp::SystemDefaultsQoS());
-        shooterRequestPub = this->create_publisher<std_msgs::msg::Int16>("/actions/intake_indexer", rclcpp::SystemDefaultsQoS());
-        sysReset = this->create_subscription<std_msgs::msg::Bool>("/sys/reset", rclcpp::SystemDefaultsQoS(), std::bind(&SubsystemManager::serviceReset, this, _1));
-        sysDebug = this->create_subscription<std_msgs::msg::Bool>("/sys/debug", rclcpp::SystemDefaultsQoS(), std::bind(&SubsystemManager::serviceDebug, this, _1));
-        sysEnableEchoPub = this->create_publisher<std_msgs::msg::Int16>("/sys/enable_echo", rclcpp::SystemDefaultsQoS());
+        autoKill = this->create_publisher<MSG_BOOL>("/sys/auto_kill", DEFAULT_QOS);
+        headingControlPub = this->create_publisher<MSG_INT>("/drive/heading_control", DEFAULT_QOS);
+        shooterRequestPub = this->create_publisher<MSG_INT>("/actions/intake_indexer", DEFAULT_QOS);
+        sysReset = this->create_subscription<MSG_BOOL>("/sys/reset", DEFAULT_QOS, std::bind(&SubsystemManager::serviceReset, this, _1));
+        sysDebug = this->create_subscription<MSG_BOOL>("/sys/debug", DEFAULT_QOS, std::bind(&SubsystemManager::serviceDebug, this, _1));
+        sysEnableEchoPub = this->create_publisher<MSG_INT>("/sys/enable_echo", DEFAULT_QOS);
         spinNotif.StartSingle(0_ms);
     }
 
@@ -45,7 +44,7 @@ namespace robot {
         }
     }
 
-    void SubsystemManager::serviceReset(std::shared_ptr<std_msgs::msg::Bool> msg) {
+    void SubsystemManager::serviceReset(std::shared_ptr<MSG_BOOL> msg) {
         try {
             reset();
         } catch (std::exception err) {
@@ -53,7 +52,7 @@ namespace robot {
         }
     }
 
-    void SubsystemManager::serviceDebug(std::shared_ptr<std_msgs::msg::Bool> msg) {
+    void SubsystemManager::serviceDebug(std::shared_ptr<MSG_BOOL> msg) {
         try {
             for (std::shared_ptr<Subsystem> subsystem : subsystems) {
                 subsystem->enableDebug(msg->data);
@@ -73,11 +72,11 @@ namespace robot {
          * and the autos running over the endpoint of the phase
          **/
         
-        std_msgs::msg::Int16 killMsg;
+        MSG_INT killMsg;
         killMsg.data = 0;
         headingControlPub->publish(killMsg);
         shooterRequestPub->publish(killMsg);
-        std_msgs::msg::Bool autoEnd;
+        MSG_BOOL autoEnd;
         autoEnd.data = true;
         autoKill->publish(autoEnd);
     }
@@ -104,11 +103,11 @@ namespace robot {
         // std::cout << "enabledLoop has began at: " << now << std::endl;
         try {
             if (frc::DriverStation::IsTeleop()) {
-                std_msgs::msg::Int16 msg;
+                MSG_INT msg;
                 msg.data = 1;
                 sysEnableEchoPub->publish(msg);
             } else if (frc::DriverStation::IsAutonomousEnabled()) {
-                std_msgs::msg::Int16 msg;
+                MSG_INT msg;
                 msg.data = 2;
                 sysEnableEchoPub->publish(msg);
             }
@@ -143,7 +142,7 @@ namespace robot {
 
     void SubsystemManager::disabledLoop() {
         if (GET_TIME_DOUBLE - sysDisableTime > 5) {
-            std_msgs::msg::Int16 msg;
+            MSG_INT msg;
             msg.data = 0;
             sysEnableEchoPub->publish(msg);
         }

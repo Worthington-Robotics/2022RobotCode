@@ -24,7 +24,7 @@ void AutoSelect::saveAuto(const std_msgs::msg::String msg)
         {
             //std::cout << "the beginning of the next auto name is: " << delimB << " and the end is: " << delimE << std::endl;
             std::string autoName = autoList.substr(delimB, delimE - delimB);
-            if(autoName.length() > 4 && autoName.length() < autoList.length()){
+            if (autoName.length() > 4 && autoName.length() < autoList.length()) {
                 autos.push_back(autoName);
             }
             //std::cout << "the next auto name is: " << autoName << std::endl;
@@ -53,11 +53,11 @@ void AutoSelect::selectAuto(std::string name)
         req->tree_name = pathName;
         auto future = treeRunner->async_send_request(req);
         std::cout << "Tree started " << pathName << std::endl;
-        // while(!future.valid()){
+        // while (!future.valid()) {
 
         // }
         // auto res = future.get();
-        // if(!res->success){
+        // if (!res->success) {
         //     frc::ReportError(frc::err::TaskError, "AutoSelect.cpp", 27, "selectAuto",
         //  "Failed the start requested tree for reason: " + res->message);
         // }

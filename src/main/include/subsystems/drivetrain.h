@@ -3,13 +3,13 @@
 #include "subsystems/Subsystem.h"
 #include "robot_lib/PurePursuitController.h"
 #include "robot_lib/SModule.h"
-#include "rospathmsgs/srv/get_path.hpp"
 #include "Constants.h"
 #include "Util.h"
 #include "robot_lib/PurePursuitController.h"
 #include "robot_lib/util/PIDF.h"
 
 #include <ctre/Phoenix.h>
+#include <rospathmsgs/srv/get_path.hpp>
 #include <frc/controller/RamseteController.h>
 #include <rclcpp/rclcpp.hpp>
 #include <frc/kinematics/SwerveModuleState.h>
@@ -32,7 +32,6 @@
 #include "autobt_msgs/srv/string_service.hpp"
 
 #define DEBUG_enable
-#include <std_msgs/msg/bool.hpp>
 
 #define CREATE_SMODULE(CODE, NAME) std::make_shared<SModule>(DRIVE_CODE_DRIVE, DRIVE_CODE_ANGLE, DRIVE_CODE_ENCOD, NAME, CODE_ABS_OFFSET, PIDFDiscriptor{DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_KF}, PIDFDiscriptor{ANGLE_KP, ANGLE_KI, ANGLE_KD, ANGLE_KF})
 #define SPEED_STOPPED frc::ChassisSpeeds{0_mps, 0_mps, 0_rad_per_s}
@@ -114,8 +113,8 @@ namespace robot {
 
         /* ROS Publishers */
 
-        ROS_PUB(std_msgs::msg::Float32) drivetrainHeadingPub;
-        std_msgs::msg::Float32 drivetrainHeadingMsg;
+        ROS_PUB(MSG_FLOAT) drivetrainHeadingPub;
+        MSG_FLOAT drivetrainHeadingMsg;
 
         ROS_PUB(geometry_msgs::msg::Pose2D) robotPositionPub;
         geometry_msgs::msg::Pose2D robotPositionMsg;
@@ -127,80 +126,50 @@ namespace robot {
         ROS_PUB(rospathmsgs::msg::Waypoint) autoLookaheadPointPub;
         rospathmsgs::msg::Waypoint lookAheadPoint;
 
-        ROS_PUB(std_msgs::msg::Float32) autoToLookaheadAnglePub;
-        std_msgs::msg::Float32 autoToLookaheadAngleMsg;
+        ROS_PUB(MSG_FLOAT) autoToLookaheadAnglePub;
+        MSG_FLOAT autoToLookaheadAngleMsg;
 
-        ROS_PUB(std_msgs::msg::Int16) driveControlModePub;
-        std_msgs::msg::Int16 driveControlModeMsg;
+        ROS_PUB(MSG_INT) driveControlModePub;
+        MSG_INT driveControlModeMsg;
 
-        ROS_PUB(std_msgs::msg::Int16) allianceColorPub;
+        ROS_PUB(MSG_INT) allianceColorPub;
 
         bool headingControlUpdate = false;
 
-        /* Controller publishing (system independent only!) */
-#ifdef SystemIndependent
-        ROS_PUB(can_msgs::msg::MotorMsg) intakeDemandPublisher;
-        can_msgs::msg::MotorMsg intakeDemandMsg;
-
-        ROS_PUB(std_msgs::msg::Int16) intakeSoleDemandPublisher;
-        std_msgs::msg::Int16 intakeSoleDemandMsg;
-
-        ROS_PUB(can_msgs::msg::MotorMsg) indexerDemandPublisher;
-        can_msgs::msg::MotorMsg indexerDemandMsg;
-
-        ROS_PUB(can_msgs::msg::MotorMsg) deliveryDemandPublisher;
-        can_msgs::msg::MotorMsg deliveryDemandMsg;
-
-        ROS_PUB(can_msgs::msg::MotorMsg) flywheelDemandPublisher;
-        can_msgs::msg::MotorMsg flywheelDemandMsg;
-
-        ROS_PUB(can_msgs::msg::MotorMsg) hoodDemandPublisher;
-        can_msgs::msg::MotorMsg hoodDemandMsg;
-
-        ROS_PUB(can_msgs::msg::MotorMsg) climberLDemandPublisher;
-        ROS_PUB(can_msgs::msg::MotorMsg) climberRDemandPublisher;
-        can_msgs::msg::MotorMsg climberDemandMsg;
-#endif
-
         /* ROS Subscibers */
 
-        ROS_SUB(sensor_msgs::msg::Joy) stickSub0;
-        void setStick0(const sensor_msgs::msg::Joy);
+        ROS_SUB(MSG_JOY) stickSub0;
+        void setStick0(const MSG_JOY);
         geometry_msgs::msg::Twist stickTwist;
-        sensor_msgs::msg::Joy lastStick0;
+        MSG_JOY lastStick0;
 
 
-        ROS_SUB(sensor_msgs::msg::Joy) stickSub1;
-        void setStick1(const sensor_msgs::msg::Joy);
-        sensor_msgs::msg::Joy lastStick1;
+        ROS_SUB(MSG_JOY) stickSub1;
+        void setStick1(const MSG_JOY);
+        MSG_JOY lastStick1;
 
-        ROS_SUB(std_msgs::msg::Int16) DriveModeSub;
-        void setDriveMode(const std_msgs::msg::Int16);
+        ROS_SUB(MSG_INT) DriveModeSub;
+        void setDriveMode(const MSG_INT);
 
-        ROS_SUB(std_msgs::msg::Int16) HeadingControlSub;
-        ROS_SUB(std_msgs::msg::Float32) limelightRangeSub;
-        void setLimelightRange(const std_msgs::msg::Float32);
-        void setHeadingControlEnabled(const std_msgs::msg::Int16);
+        ROS_SUB(MSG_INT) HeadingControlSub;
+        ROS_SUB(MSG_FLOAT) limelightRangeSub;
+        void setLimelightRange(const MSG_FLOAT);
+        void setHeadingControlEnabled(const MSG_INT);
         void setHeadingControlSetpoint(double);
-        void setAIAngleOffset(const std_msgs::msg::Float32);
+        void setAIAngleOffset(const MSG_FLOAT);
         PIDF headingController = PIDF(HEADING_CONTROL_GAINS_TELE, "gyro_pid");
         int headingControl = 0; /* (0, disabled), (1, gyroLock), (2, limelightAngle) */
         double headingControlSetpoint = 0;
         double range = 0;
 
-        ROS_SUB(std_msgs::msg::Float32) limelightAngleOffsetSub;
-        ROS_SUB(std_msgs::msg::Float32) aiAngleOffsetSub;
-        void setLimelightAngleOffset(const std_msgs::msg::Float32);
-
-        #ifdef SystemIndependent
-        ROS_SUB(std_msgs::msg::Bool) hoodResetSub;
-        void setHoodReset(const std_msgs::msg::Bool);
-        #endif
+        ROS_SUB(MSG_FLOAT) limelightAngleOffsetSub;
+        ROS_SUB(MSG_FLOAT) aiAngleOffsetSub;
+        void setLimelightAngleOffset(const MSG_FLOAT);
 
         /* ROS services */
 
-        ROS_SERVICE(autobt_msgs::srv::StringService) startPath;
-        void enablePathFollowerS(std::shared_ptr<autobt_msgs::srv::StringService_Request>, std::shared_ptr<autobt_msgs::srv::StringService_Response>);
+        ROS_SERVICE(MSG_STRING) startPath;
+        void enablePathFollowerS(std::shared_ptr<MSG_STRING_Request>, std::shared_ptr<MSG_STRING_Response>);
 
         ROS_SERVICE(can_msgs::srv::SetPIDFGains) setGyroGains;
         void updateGyroPIDGains(const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request>,
@@ -233,25 +202,6 @@ namespace robot {
         double ballAngleOffset = 0;
         /* Button for gyro reset */
         bool gyroReset = false;
-        /* Button for intake */
-
-#ifdef SystemIndependent
-        bool intake = false;
-        bool intakeDeploy = false;
-        bool intakeRetract = false;
-        bool unintake = false;
-        bool shoot = false;
-
-        bool hoodReset = 0;
-        double hoodDemand = 0;
-
-        bool climberEnabled = false;
-        double climberDemand = 0;
-
-        bool flywheelState = false;
-        bool flywheelHeld = false;
-        bool flywheelButton = false;
-#endif
 
         /* Vector of iterators to check if currents values are too high */
         std::vector<double> currentIterators = {0, 0, 0, 0};

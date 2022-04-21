@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <frc/smartdashboard/SmartDashboard.h>
-#include "Util.h"
 
 using std::placeholders::_1;
 
@@ -10,9 +9,9 @@ namespace robot {
     Battery::Battery() {}
 
     void Battery::createRosBindings(rclcpp::Node *node) {
-        IdleStageSub = node->create_subscription<std_msgs::msg::Int16>("/battery/idle", rclcpp::SensorDataQoS(), std::bind(&Battery::idleStageCallback, this, _1));
-        ResetStageSub = node->create_subscription<std_msgs::msg::Int16>("/battery/idle", rclcpp::SensorDataQoS(), std::bind(&Battery::idleStageCallback, this, _1));
-        node->create_publisher<std_msgs::msg::Int16>("/battery/idle", rclcpp::SystemDefaultsQoS());
+        IdleStageSub = node->create_subscription<MSG_INT>("/battery/idle", SENSOR_QOS, std::bind(&Battery::idleStageCallback, this, _1));
+        ResetStageSub = node->create_subscription<MSG_INT>("/battery/idle", SENSOR_QOS, std::bind(&Battery::idleStageCallback, this, _1));
+        node->create_publisher<MSG_INT>("/battery/idle", DEFAULT_QOS);
     }
 
     void Battery::reset() {}
@@ -53,10 +52,11 @@ namespace robot {
         return amt;
     }
 
-    void Battery::idleStageCallback(const std_msgs::msg::Int16 msg) {
+    void Battery::idleStageCallback(const MSG_INT msg) {
         std::cout << "changing idle mode to " << msg.data << std::endl;
         idleStage = msg.data;
     }
-    
+
     void Battery::updateSensorData() {}
-}
+
+} // namespace robot

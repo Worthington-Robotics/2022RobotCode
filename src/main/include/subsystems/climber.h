@@ -36,17 +36,17 @@ namespace robot {
         bool soleState = false;
 
         ROS_SUB(sensor_msgs::msg::Joy) stick1Sub;
-        std::vector<rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr> climberEnabledSubs;
-        std::vector<rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr> climberDemandsPubs;
-        ROS_PUB(std_msgs::msg::Int16) soleStatePub;
+        std::vector<ROS_SUB(MSG_INT)> climberEnabledSubs;
+        std::vector<ROS_PUB(can_msgs::msg::MotorMsg)> climberDemandsPubs;
+        ROS_PUB(MSG_INT) soleStatePub;
         std::vector<bool> climberEnabled {false, false}; 
         std::vector<double> climberDemands {0, 0}; 
 
-        void setLClimberEnabled(const std_msgs::msg::Int16 msg) {
+        void setLClimberEnabled(const MSG_INT msg) {
             climberEnabled.at(0) = (msg.data == 1);
         }
 
-        void setRClimberEnabled(const std_msgs::msg::Int16 msg) {
+        void setRClimberEnabled(const MSG_INT msg) {
             climberEnabled.at(1) = (msg.data == 1);
         }
 
@@ -59,4 +59,4 @@ namespace robot {
         }
     };
 
-}
+} // namespace robot
