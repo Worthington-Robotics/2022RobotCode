@@ -2,6 +2,7 @@
 
 #include "subsystems/Subsystem.h"
 #include "Constants.h"
+#include "Util.h"
 
 #include <std_msgs/msg/float32.hpp>
 #include <std_msgs/msg/int16.hpp>
@@ -34,10 +35,10 @@ namespace robot {
         bool solePressed = false; 
         bool soleState = false;
 
-        rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr stick1Sub;
+        ROS_SUB(sensor_msgs::msg::Joy) stick1Sub;
         std::vector<rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr> climberEnabledSubs;
         std::vector<rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr> climberDemandsPubs;
-        rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr soleStatePub;
+        ROS_PUB(std_msgs::msg::Int16) soleStatePub;
         std::vector<bool> climberEnabled {false, false}; 
         std::vector<double> climberDemands {0, 0}; 
 

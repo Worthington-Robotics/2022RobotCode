@@ -2,12 +2,13 @@
 
 #include "subsystems/Subsystem.h"
 #include "Constants.h"
+#include "Util.h"
 
 #include <rclcpp/rclcpp.hpp>
-#include "frc/AddressableLED.h"
-#include "frc/util/Color.h"
-#include "frc/Timer.h"
-#include "frc/DriverStation.h"
+#include <frc/AddressableLED.h>
+#include <frc/util/Color.h>
+#include <frc/Timer.h>
+#include <frc/DriverStation.h>
 
 #include <std_msgs/msg/int16.hpp>
 #include <std_msgs/msg/float32.hpp>
@@ -60,7 +61,7 @@ namespace robot {
          * @param value - Value from 0 to the led count to measure
          **/
         frc::Color meterColor(int pos, int value);
-        
+
         /* Addressable led bar */
         frc::AddressableLED leds{LED_BAR};
         /* Number of leds */
@@ -81,9 +82,9 @@ namespace robot {
 
         /* ROS Subscibers */
 
-        rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr LightModeSub;
-        rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr angleOffsetSub;
-        rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr rangeSub;
+        ROS_SUB(std_msgs::msg::Int16) LightModeSub;
+        ROS_SUB(std_msgs::msg::Float32) angleOffsetSub;
+        ROS_SUB(std_msgs::msg::Float32) rangeSub;
 
         /* Targeted Bool */
         bool isTargeted = false;

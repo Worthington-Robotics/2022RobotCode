@@ -2,6 +2,7 @@
 
 #include "subsystems/Subsystem.h"
 #include "Constants.h"
+#include "Util.h"
 
 #include <std_msgs/msg/float32.hpp>
 #include <std_msgs/msg/int16.hpp>
@@ -44,14 +45,14 @@ namespace robot {
     private:
         /* Publishers of sensor data */
 
-        rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr hoodEncoderPub;
-        rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr colesStupidFuckingLimelightPub;
-        rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr flywheelEncoderPub;
-        rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr externalTOFDistanceSub;
-        rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr internalTOFDistanceSub;
-        rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr upperHoodLimitSwitchPub;
-        rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr lowerHoodLimitSwitchPub;
-        rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr hoodLimitSwitchResetPub;
+        ROS_PUB(sensor_msgs::msg::JointState) hoodEncoderPub;
+        ROS_PUB(std_msgs::msg::Bool) colesStupidFuckingLimelightPub;
+        ROS_PUB(sensor_msgs::msg::JointState) flywheelEncoderPub;
+        ROS_SUB(std_msgs::msg::Float32) externalTOFDistanceSub;
+        ROS_SUB(std_msgs::msg::Float32) internalTOFDistanceSub;
+        ROS_PUB(std_msgs::msg::Bool) upperHoodLimitSwitchPub;
+        ROS_PUB(std_msgs::msg::Bool) lowerHoodLimitSwitchPub;
+        ROS_PUB(std_msgs::msg::Bool) hoodLimitSwitchResetPub;
 
         /* Messages used in the publishers listed above */
 
@@ -77,7 +78,6 @@ namespace robot {
         };
         std::vector<motors::MotorContainer> motorsSRXC;      
         //std::shared_ptr<frc::TimeOfFlight> internalTOF, externalTOF;
-
 
         std::vector<solenoid::Solenoid*> solenoids {
             new solenoid::Solenoid(frc::PneumaticsModuleType::CTREPCM, CLIMBER_SOLENOID_R_MAIN_HIGH_ID, CLIMBER_SOLENOID_R_MAIN_LOW_ID, "climber_r_main"),

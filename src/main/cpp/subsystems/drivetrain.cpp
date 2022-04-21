@@ -209,7 +209,7 @@ namespace robot {
                 // if we are safe, set motor demands,
                 speed = frc::ChassisSpeeds{2_mps, 0_mps, 0_rad_per_s};
 
-                // FR, FL, RR, RL
+                /* FR, FL, RR, RL */
 
                 break;
             case kPURSUIT:
@@ -241,14 +241,14 @@ namespace robot {
         switch (driveState) {
             case kOPEN_LOOP_FIELD_REL:
             case kOPEN_LOOP_ROBOT_REL:
-                //FR, FL, RR, RL
+                /* FR, FL, RR, RL */
                 for (int i = 0; i < sModules.size(); i++) {
                     sModules[i]->setMotors(moduleStates[i]);
                 }
                 break;
             case kPURSUIT: 
             case kVELOCITY_TWIST:
-                // FR, FL, RR, RL
+                /* FR, FL, RR, RL */
                 // std::cout << "requested speed is: " << moduleStates[0].speed.to<double>() << std::endl;
 
                 for (int i = 0; i < sModules.size(); i++) {
@@ -363,7 +363,7 @@ namespace robot {
             headingControlUpdate = false;
         }
 
-        #ifdef systemIndependent
+#ifdef systemIndependent
         shoot = lastStick1.buttons.at(0);
         intake = lastStick1.buttons.at(2);
         flywheelButton = lastStick1.buttons.at(4);
@@ -373,7 +373,7 @@ namespace robot {
         climberEnabled = lastStick1.buttons.at(9);
         hoodDemand = MAKE_SCALAR(-lastStick1.axes.at(3));
         climberDemand = ((-lastStick1.axes.at(1) * .75));
-        #endif
+#endif
     }
 
     /* Services */

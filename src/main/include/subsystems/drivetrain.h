@@ -114,71 +114,71 @@ namespace robot {
 
         /* ROS Publishers */
 
-        rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr drivetrainHeadingPub;
+        ROS_PUB(std_msgs::msg::Float32) drivetrainHeadingPub;
         std_msgs::msg::Float32 drivetrainHeadingMsg;
 
-        rclcpp::Publisher<geometry_msgs::msg::Pose2D>::SharedPtr robotPositionPub;
+        ROS_PUB(geometry_msgs::msg::Pose2D) robotPositionPub;
         geometry_msgs::msg::Pose2D robotPositionMsg;
         frc::Pose2d pose;
 
-        rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr robotVelocityPub;
+        ROS_PUB(geometry_msgs::msg::Twist) robotVelocityPub;
         geometry_msgs::msg::Twist robotVelocityMsg;
 
-        rclcpp::Publisher<rospathmsgs::msg::Waypoint>::SharedPtr autoLookaheadPointPub;
+        ROS_PUB(rospathmsgs::msg::Waypoint) autoLookaheadPointPub;
         rospathmsgs::msg::Waypoint lookAheadPoint;
 
-        rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr autoToLookaheadAnglePub;
+        ROS_PUB(std_msgs::msg::Float32) autoToLookaheadAnglePub;
         std_msgs::msg::Float32 autoToLookaheadAngleMsg;
 
-        rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr driveControlModePub;
+        ROS_PUB(std_msgs::msg::Int16) driveControlModePub;
         std_msgs::msg::Int16 driveControlModeMsg;
 
-        rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr allianceColorPub;
+        ROS_PUB(std_msgs::msg::Int16) allianceColorPub;
 
         bool headingControlUpdate = false;
 
         /* Controller publishing (system independent only!) */
 #ifdef SystemIndependent
-        rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr intakeDemandPublisher;
+        ROS_PUB(can_msgs::msg::MotorMsg) intakeDemandPublisher;
         can_msgs::msg::MotorMsg intakeDemandMsg;
 
-        rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr intakeSoleDemandPublisher;
+        ROS_PUB(std_msgs::msg::Int16) intakeSoleDemandPublisher;
         std_msgs::msg::Int16 intakeSoleDemandMsg;
 
-        rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr indexerDemandPublisher;
+        ROS_PUB(can_msgs::msg::MotorMsg) indexerDemandPublisher;
         can_msgs::msg::MotorMsg indexerDemandMsg;
 
-        rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr deliveryDemandPublisher;
+        ROS_PUB(can_msgs::msg::MotorMsg) deliveryDemandPublisher;
         can_msgs::msg::MotorMsg deliveryDemandMsg;
 
-        rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr flywheelDemandPublisher;
+        ROS_PUB(can_msgs::msg::MotorMsg) flywheelDemandPublisher;
         can_msgs::msg::MotorMsg flywheelDemandMsg;
 
-        rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr hoodDemandPublisher;
+        ROS_PUB(can_msgs::msg::MotorMsg) hoodDemandPublisher;
         can_msgs::msg::MotorMsg hoodDemandMsg;
 
-        rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr climberLDemandPublisher;
-        rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr climberRDemandPublisher;
+        ROS_PUB(can_msgs::msg::MotorMsg) climberLDemandPublisher;
+        ROS_PUB(can_msgs::msg::MotorMsg) climberRDemandPublisher;
         can_msgs::msg::MotorMsg climberDemandMsg;
 #endif
 
         /* ROS Subscibers */
 
-        rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr stickSub0;
+        ROS_SUB(sensor_msgs::msg::Joy) stickSub0;
         void setStick0(const sensor_msgs::msg::Joy);
         geometry_msgs::msg::Twist stickTwist;
         sensor_msgs::msg::Joy lastStick0;
 
 
-        rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr stickSub1;
+        ROS_SUB(sensor_msgs::msg::Joy) stickSub1;
         void setStick1(const sensor_msgs::msg::Joy);
         sensor_msgs::msg::Joy lastStick1;
 
-        rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr DriveModeSub;
+        ROS_SUB(std_msgs::msg::Int16) DriveModeSub;
         void setDriveMode(const std_msgs::msg::Int16);
 
-        rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr HeadingControlSub;
-        rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr limelightRangeSub;
+        ROS_SUB(std_msgs::msg::Int16) HeadingControlSub;
+        ROS_SUB(std_msgs::msg::Float32) limelightRangeSub;
         void setLimelightRange(const std_msgs::msg::Float32);
         void setHeadingControlEnabled(const std_msgs::msg::Int16);
         void setHeadingControlSetpoint(double);
@@ -188,33 +188,33 @@ namespace robot {
         double headingControlSetpoint = 0;
         double range = 0;
 
-        rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr limelightAngleOffsetSub;
-        rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr aiAngleOffsetSub;
+        ROS_SUB(std_msgs::msg::Float32) limelightAngleOffsetSub;
+        ROS_SUB(std_msgs::msg::Float32) aiAngleOffsetSub;
         void setLimelightAngleOffset(const std_msgs::msg::Float32);
 
         #ifdef SystemIndependent
-        rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr hoodResetSub;
+        ROS_SUB(std_msgs::msg::Bool) hoodResetSub;
         void setHoodReset(const std_msgs::msg::Bool);
         #endif
 
         /* ROS services */
 
-        rclcpp::Service<autobt_msgs::srv::StringService>::SharedPtr startPath;
+        ROS_SERVICE(autobt_msgs::srv::StringService) startPath;
         void enablePathFollowerS(std::shared_ptr<autobt_msgs::srv::StringService_Request>, std::shared_ptr<autobt_msgs::srv::StringService_Response>);
 
-        rclcpp::Service<can_msgs::srv::SetPIDFGains>::SharedPtr setGyroGains;
+        ROS_SERVICE(can_msgs::srv::SetPIDFGains) setGyroGains;
         void updateGyroPIDGains(const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request>,
                                 std::shared_ptr<can_msgs::srv::SetPIDFGains::Response>);
-        rclcpp::Service<can_msgs::srv::SetPIDFGains>::SharedPtr setXGains;
+        ROS_SERVICE(can_msgs::srv::SetPIDFGains) setXGains;
         void updateXPIDGains(const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request>,
                                 std::shared_ptr<can_msgs::srv::SetPIDFGains::Response>);
-        rclcpp::Service<can_msgs::srv::SetPIDFGains>::SharedPtr setYGains;
+        ROS_SERVICE(can_msgs::srv::SetPIDFGains) setYGains;
         void updateYPIDGains(const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request>,
                                 std::shared_ptr<can_msgs::srv::SetPIDFGains::Response>);
 
         /* Ros clients */
 
-        rclcpp::Client<rospathmsgs::srv::GetPath>::SharedPtr GPClient;
+        ROS_CLIENT(rospathmsgs::srv::GetPath) GPClient;
         rospathmsgs::srv::GetPath::Request::SharedPtr GPReq;
 
         /* Last update time for safety critical topics */

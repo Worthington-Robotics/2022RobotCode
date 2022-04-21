@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Util.h"
+
 #include <rclcpp/rclcpp.hpp>
 #include <autobt_msgs/srv/run_tree.hpp>
 #include <std_msgs/msg/string.hpp>
@@ -19,8 +21,8 @@ public:
     
 private:
 
-    rclcpp::Client<autobt_msgs::srv::RunTree>::SharedPtr treeRunner;
-    rclcpp::Subscription<std_msgs::msg::String>::SharedPtr delimAutoListSub;
+    ROS_CLIENT(autobt_msgs::srv::RunTree) treeRunner;
+    ROS_SUB(std_msgs::msg::String) delimAutoListSub;
     std::vector<std::string> autos = {};
     bool isAutoLoaded = false;
 };

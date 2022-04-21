@@ -1,6 +1,7 @@
 #pragma once
 
 #include "subsystems/Subsystem.h"
+#include "Util.h"
 
 #include <frc/DriverStation.h>
 #include <frc/Joystick.h>
@@ -64,21 +65,22 @@ namespace robot {
         static double mapValue(double input, double minOutput, double maxOutput);
 
     private:
+    //CLEANUP: multi defines
         std::vector<frc::Joystick> sticks = {};
         std::vector<rclcpp::Publisher<sensor_msgs::msg::Joy>::SharedPtr> stickPubs = {};
 
         void setStickZero(sensor_msgs::msg::Joy lastStick0);
         void setStickOne(sensor_msgs::msg::Joy lastStick1);
         
-        rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr intakeIndexerPub;
+        ROS_PUB(std_msgs::msg::Int16) intakeIndexerPub;
         bool intakeIndexerMsgUpdate = false;
         bool intakeIndexerPressed = false;
 
-        rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr intakeSolePub;
+        ROS_PUB(std_msgs::msg::Int16) intakeSolePub;
         bool intakeSoleMsgUpdate = false;
         bool intakeSolePressed = false;
 
-        rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr flyWheelModePub;
+        ROS_PUB(std_msgs::msg::Int16) flyWheelModePub;
         bool flywheelModeUpdate = false;
         bool flywheelModePressed = false;
     };

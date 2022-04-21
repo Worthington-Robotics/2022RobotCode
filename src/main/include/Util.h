@@ -14,3 +14,10 @@
 
 /* Converts a -1:1 range value to be 0:1 */
 #define MAKE_SCALAR(v) (((v) + 1) / 2)
+
+/* ROS functions */
+
+#define ROS_PUB(msg) rclcpp::Publisher<msg>::SharedPtr
+#define ROS_SUB(msg) rclcpp::Subscription<msg>::SharedPtr
+#define ROS_SERVICE(msg) rclcpp::Service<msg>::SharedPtr
+#define ROS_CLIENT(msg) rclcpp::Client<msg>::SharedPtr

@@ -2,6 +2,7 @@
 
 #include "subsystems/Subsystem.h"
 #include "rclcpp/rclcpp.hpp"
+#include "Util.h"
 
 #include <frc/Notifier.h>
 
@@ -88,12 +89,12 @@ namespace robot {
         void disabledLoop();
         void spinRos();
 
-        rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr sysReset;
-        rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr sysDebug;
-        rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr autoKill;
-        rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr headingControlPub;
-        rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr shooterRequestPub;
-        rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr sysEnableEchoPub;
+        ROS_PUB(std_msgs::msg::Bool) sysReset;
+        ROS_PUB(std_msgs::msg::Bool) sysDebug;
+        ROS_PUB(std_msgs::msg::Bool) autoKill;
+        ROS_PUB(std_msgs::msg::Int16) headingControlPub;
+        ROS_PUB(std_msgs::msg::Int16) shooterRequestPub;
+        ROS_PUB(std_msgs::msg::Int16) sysEnableEchoPub;
         double sysDisableTime = 0;
     };
 

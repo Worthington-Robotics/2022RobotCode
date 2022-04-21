@@ -2,7 +2,7 @@
 
 #include "subsystems/Subsystem.h"
 #include "Constants.h"
-
+#include "Util.h"
 
 #include <rclcpp/rclcpp.hpp>
 #include <frc/Timer.h>
@@ -61,7 +61,7 @@ namespace robot {
 
         /* ROS Subscibers */
 
-        rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr IdleStageSub;
-        rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr ResetStageSub;
+        ROS_SUB(std_msgs::msg::Int16) IdleStageSub;
+        ROS_SUB(std_msgs::msg::Int16) ResetStageSub;
     };
 } // namespace robot
