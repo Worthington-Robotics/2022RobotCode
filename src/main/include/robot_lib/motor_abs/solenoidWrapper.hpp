@@ -1,50 +1,42 @@
 #pragma once
 
 #include <std_msgs/msg/int16.hpp>
-#include <string>
 #include <rclcpp/rclcpp.hpp>
 #include <frc/DoubleSolenoid.h>
 
+#include <string>
+
 #define PCMID 0
 
-namespace solenoid
-{
+namespace solenoid {
 
-    class Solenoid
-    {
+    class Solenoid {
     public:
         frc::DoubleSolenoid::Value state = frc::DoubleSolenoid::kReverse;
 
-        Solenoid(frc::PneumaticsModuleType type, int highID, int lowID, const std::string& solenoidName)
-        {
+        Solenoid(frc::PneumaticsModuleType type, int highID, int lowID, const std::string& solenoidName) {
             solenoid = std::make_shared<frc::DoubleSolenoid>(PCMID, type, highID, lowID);
             name = solenoidName;
         }
 
-        void set(const std::shared_ptr<std_msgs::msg::Int16> msg)
-        {
-            #ifdef PNU_DEBUG
+        void set(const std::shared_ptr<std_msgs::msg::Int16> msg) {
+#ifdef PNU_DEBUG
                 std::cout << name << " has been set to " << msg->data << std::endl;
-            #endif
-            if (msg->data < 0)
-            {
+#endif
+            if (msg->data < 0) {
                 state = frc::DoubleSolenoid::kReverse;
-            }
-            else if (msg->data > 0)
-            {
+            } else if (msg->data > 0) {
                 state = frc::DoubleSolenoid::kForward;
-            }
-            else
-            {
+            } else {
                 state = frc::DoubleSolenoid::kOff;
             }
         }
 
-        std::string getName(){
+        std::string getName() {
             return name + "_solenoid";
         }
 
-        std::shared_ptr<frc::DoubleSolenoid> getSolenoid(){
+        std::shared_ptr<frc::DoubleSolenoid> getSolenoid() {
             return solenoid;
         }
 
@@ -53,8 +45,7 @@ namespace solenoid
         std::shared_ptr<frc::DoubleSolenoid> solenoid;
     };
 
-    struct SolenoidContainer
-    {
+    struct SolenoidContainer {
         Solenoid solenoid;
         rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr sub;
     };

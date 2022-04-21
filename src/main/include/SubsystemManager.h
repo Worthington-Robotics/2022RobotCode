@@ -1,20 +1,18 @@
 #pragma once
 
-#include <vector>
+#include "subsystems/Subsystem.h"
+#include "rclcpp/rclcpp.hpp"
 
 #include <frc/Notifier.h>
 
-#include "rclcpp/rclcpp.hpp"
-#include "subsystems/Subsystem.h"
+#include <std_msgs/msg/bool.hpp>
+#include <std_msgs/msg/int16.hpp>
 
-#include "std_msgs/msg/bool.hpp"
-#include "std_msgs/msg/int16.hpp"
+#include <vector>
 
-namespace robot
-{
+namespace robot {
 
-    class SubsystemManager : public rclcpp::Node
-    {
+    class SubsystemManager : public rclcpp::Node {
         public: 
         
         SubsystemManager();
@@ -78,11 +76,6 @@ namespace robot
          * threads should not be running at the same time.
          **/ 
         void stopDisabledLoop();
-
-        /*
-        static std::shared_ptr<SubsystemManager> getInstance();
-        static std::shared_ptr<SubsystemManager> manager;
-        */
 
     private:
         bool isFirstIteration = false;

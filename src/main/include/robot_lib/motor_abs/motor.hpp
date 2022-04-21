@@ -2,20 +2,20 @@
 
 #include <can_msgs/msg/motor_msg.hpp>
 #include <can_msgs/srv/set_pidf_gains.hpp>
-#include <string>
 #include <rclcpp/rclcpp.hpp>
 
-namespace motors
-{
+#include <string>
+
+namespace motors {
     struct JointState {
         std::string name;
         double position, velocity, effort;
     };
 
-    class Motor{
-        public:
+    class Motor {
+    public:
 
-        virtual void setValue(const std::shared_ptr<can_msgs::msg::MotorMsg> msg){
+        virtual void setValue(const std::shared_ptr<can_msgs::msg::MotorMsg> msg) {
             std::cout << "If you see this message you did not bind to this object with std::ref" << std::endl;
         }
 

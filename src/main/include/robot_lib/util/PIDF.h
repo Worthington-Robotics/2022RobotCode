@@ -4,26 +4,22 @@
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/float32.hpp>
 
-namespace robot
-{
+namespace robot {
     /**
      * A struct for encoding the PIDF gains of a control loop
      * @param p the proportional response to error (ex. kp * error / 1023 = motor responce)
      * @param i the integrated response of the error (ex. ki * S error dt / 1023 = motor responce) [This is VERY DANGEROUS and should be used with an iAccum]
      * @param d the derivative of error (ex. kd * [d/dt] error / 1023 = motor responce)
      * @param f the feedforward response to the setpoint (ex. kf * setpoint / 1023 = motor responce)
-     */
-    struct PIDFDiscriptor
-    {
+     **/
+    struct PIDFDiscriptor {
         double p;
         double i;
         double d;
         double f;
     };
     class PIDF {
-
-        
-
+//CLEANUP: explain what ANY of these do
     public:
         PIDF(PIDFDiscriptor, std::string name);
         void setPIDFDisc(PIDFDiscriptor);
@@ -52,5 +48,5 @@ namespace robot
         PIDFDiscriptor mParams = {0, 0, 0, 0};
         rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr errorPub, effortPub;
         rclcpp::Service<can_msgs::srv::SetPIDFGains>::SharedPtr gainService;
-};
+    };
 } // namespace robot

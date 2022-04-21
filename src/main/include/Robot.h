@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <frc/TimedRobot.h>
-#include <frc/DriverStation.h>
 #include "SubsystemManager.h"
 #include "subsystems/drivetrain.h"
 #include "subsystems/userinput.h"
@@ -14,33 +12,34 @@
 #include "subsystems/climber.h"
 #include "AutoSelect.h"
 
+#include <frc/TimedRobot.h>
+#include <frc/DriverStation.h>
 
 class Robot : public frc::TimedRobot {
-  
- public:
-  void RobotInit() override;
-  void RobotPeriodic() override;
+public:
+    void RobotInit() override;
+    void RobotPeriodic() override;
 
-  void AutonomousInit() override;
-  void AutonomousPeriodic() override;
+    void AutonomousInit() override;
+    void AutonomousPeriodic() override;
 
-  void TeleopInit() override;
-  void TeleopPeriodic() override;
+    void TeleopInit() override;
+    void TeleopPeriodic() override;
 
-  void DisabledInit() override;
-  void DisabledPeriodic() override;
+    void DisabledInit() override;
+    void DisabledPeriodic() override;
 
-  void TestInit() override;
-  void TestPeriodic() override;
-  
-  static std::shared_ptr<robot::SubsystemManager> getSubManager();
+    void TestInit() override;
+    void TestPeriodic() override;
+    
+    static std::shared_ptr<robot::SubsystemManager> getSubManager();
 
-  private:
-  std::shared_ptr<robot::SubsystemManager> manager;
-  std::shared_ptr<robot::ExternIO> externIO;
-  std::shared_ptr<robot::Drivetrain> drive;
-  std::shared_ptr<robot::UserInput> sticks;
-  std::shared_ptr<robot::LightBar> lightBar;
-  std::shared_ptr<robot::Climber> climber;
-  std::shared_ptr<AutoSelect> autoSel;
+private:
+    std::shared_ptr<robot::SubsystemManager> manager;
+    std::shared_ptr<robot::ExternIO> externIO;
+    std::shared_ptr<robot::Drivetrain> drive;
+    std::shared_ptr<robot::UserInput> sticks;
+    std::shared_ptr<robot::LightBar> lightBar;
+    std::shared_ptr<robot::Climber> climber;
+    std::shared_ptr<AutoSelect> autoSel;
 };

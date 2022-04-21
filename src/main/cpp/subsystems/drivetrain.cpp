@@ -107,7 +107,7 @@ namespace robot {
         imu->SetStatusFramePeriod(PigeonIMU_StatusFrame::PigeonIMU_CondStatus_11_GyroAccum, 251, 0);
         imu->SetStatusFramePeriod(PigeonIMU_StatusFrame::PigeonIMU_CondStatus_10_SixDeg_Quat, 249, 0);
 
-        driveState = OPEN_LOOP_ROBOT_REL;
+        driveState = kOPEN_LOOP_ROBOT_REL;
 
         for (std::shared_ptr<SModule> module : sModules) {
             module->reset();
@@ -118,7 +118,7 @@ namespace robot {
 
     void Drivetrain::onStart() {
         if (frc::DriverStation::IsTeleop()) {
-            driveState = OPEN_LOOP_FIELD_REL;
+            driveState = kOPEN_LOOP_FIELD_REL;
         }
     }
 
@@ -176,7 +176,7 @@ namespace robot {
             PPC->setPath(pathStack);
 
             hasPathStart = true;
-            driveState = PURSUIT;
+            driveState = kPURSUIT;
         }
 
         execActions();
@@ -184,7 +184,7 @@ namespace robot {
         frc::ChassisSpeeds speed;
   
         switch (driveState) {
-            case OPEN_LOOP_FIELD_REL:
+            case kOPEN_LOOP_FIELD_REL:
                 // if we are safe, set motor demands,
                 if (lastStickTime + DRIVE_TIMEOUT > GET_TIME_DOUBLE) {
 
@@ -195,7 +195,7 @@ namespace robot {
                     speed = SPEED_STOPPED;
                 }
                 break;
-            case OPEN_LOOP_ROBOT_REL:
+            case kOPEN_LOOP_ROBOT_REL:
                 // if we are safe, set motor demands,
                 if (lastStickTime + DRIVE_TIMEOUT > GET_TIME_DOUBLE) {
                     // convert to demands
@@ -205,14 +205,14 @@ namespace robot {
                     speed = SPEED_STOPPED;
                 }
                 break;
-            case VELOCITY_TWIST:
+            case kVELOCITY_TWIST:
                 // if we are safe, set motor demands,
                 speed = frc::ChassisSpeeds{2_mps, 0_mps, 0_rad_per_s};
 
                 // FR, FL, RR, RL
 
                 break;
-            case PURSUIT:
+            case kPURSUIT:
                 if (!PPC->isDone(sOdom.GetPose()) /*&& !frc::DriverStation::IsTeleop()*/) {
                     auto [mSpeed, mLookAheadPoint, inertialHeading] = PPC->update(sOdom.GetPose(), currState, currentTime);
                     speed = mSpeed;
@@ -220,7 +220,7 @@ namespace robot {
                 }
                 else {
                     std::cout << "Completed path" << std::endl;
-                    driveState = OPEN_LOOP_FIELD_REL;
+                    driveState = kOPEN_LOOP_FIELD_REL;
                 }
                 break;
             default:
@@ -230,7 +230,7 @@ namespace robot {
         if (headingControl > 0) {
             // TODO:: THIS MIGHT BE AN AREA WITH ISSUE REGARDING THE CONTROLLER
             speed.omega = -units::radians_per_second_t{headingController.update(drivetrainHeadingMsg.data)};
-        } else if (driveState == PURSUIT) {
+        } else if (driveState == kPURSUIT) {
             headingController.setSetpoint(lookAheadPoint.heading, false);
             speed.omega = -units::radians_per_second_t{headingController.update(drivetrainHeadingMsg.data)};
         }
@@ -239,15 +239,15 @@ namespace robot {
         moduleStates = sKinematics.ToSwerveModuleStates(speed);
 
         switch (driveState) {
-            case OPEN_LOOP_FIELD_REL:
-            case OPEN_LOOP_ROBOT_REL:
+            case kOPEN_LOOP_FIELD_REL:
+            case kOPEN_LOOP_ROBOT_REL:
                 //FR, FL, RR, RL
                 for (int i = 0; i < sModules.size(); i++) {
                     sModules[i]->setMotors(moduleStates[i]);
                 }
                 break;
-            case PURSUIT: 
-            case VELOCITY_TWIST:
+            case kPURSUIT: 
+            case kVELOCITY_TWIST:
                 // FR, FL, RR, RL
                 // std::cout << "requested speed is: " << moduleStates[0].speed.to<double>() << std::endl;
 
@@ -391,7 +391,7 @@ namespace robot {
     /* Utility Functions */
 
     void Drivetrain::enableOpenLoop() {
-        driveState = OPEN_LOOP_FIELD_REL;
+        driveState = kOPEN_LOOP_FIELD_REL;
     }
 
     void Drivetrain::resetPose() {
@@ -404,13 +404,13 @@ namespace robot {
     }
 
     void Drivetrain::execActions() {
-        // if (isRobotRel && (driveState == OPEN_LOOP_FIELD_REL || driveState == OPEN_LOOP_ROBOT_REL))
+        // if (isRobotRel && (driveState == kOPEN_LOOP_FIELD_REL || driveState == kOPEN_LOOP_ROBOT_REL))
         // {
-        //     driveState = OPEN_LOOP_ROBOT_REL;
+        //     driveState = kOPEN_LOOP_ROBOT_REL;
         // }
-        // else if (driveState == OPEN_LOOP_FIELD_REL || driveState == OPEN_LOOP_ROBOT_REL)
+        // else if (driveState == kOPEN_LOOP_FIELD_REL || driveState == kOPEN_LOOP_ROBOT_REL)
         // {
-        //     driveState = OPEN_LOOP_FIELD_REL;
+        //     driveState = kOPEN_LOOP_FIELD_REL;
         // }
 
         if (gyroReset) {
@@ -424,8 +424,8 @@ namespace robot {
             headingControlSetpoint = drivetrainHeadingMsg.data + ballAngleOffset;   
         }
         headingController.setSetpoint(headingControlSetpoint, false);
-        // factor this out into a stuct/class thing!
-        // setup for toggle button that puts robot into tankdrive mode!
+        /* Factor this out into a stuct/class thing! */
+        /* Setup for toggle button that puts robot into tankdrive mode! */
 
         // // first, if the button state changes to true change the states to HELD
         // if (tankLockButton && !tankLockHeld)
@@ -440,7 +440,7 @@ namespace robot {
         // // if in tank drive, overwrite the drive state and set strafing to zero
         // if (tankLockState)
         // {
-        //     driveState = OPEN_LOOP_ROBOT_REL;
+        //     driveState = kOPEN_LOOP_ROBOT_REL;
         //     stickTwist.linear.y = 0;
         // }
 

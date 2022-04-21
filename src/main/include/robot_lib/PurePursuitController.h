@@ -1,30 +1,29 @@
 #pragma once
 
+#include "robot_lib/util/PIDF.h"
+
 #include <frc/kinematics/ChassisSpeeds.h>
 #include <frc/geometry/Rotation2d.h>
 #include <frc/geometry/Twist2d.h>
 #include <rospathmsgs/msg/waypoint.hpp>
 #include <frc/geometry/Pose2d.h>
 #include <rclcpp/rclcpp.hpp>
-#include <stack>
-#include <robot_lib/util/PIDF.h>
 
+#include <stack>
 #define _USE_MATH_DEFINES
 #include <cmath>
 
-namespace robot
-{
+//CLEANUP: could someone provide docs for what literally any of these methods and properties are for?
+namespace robot {
     const double kEpsilon = 1E-9;
 
-    struct updateReturnType
-    {
+    struct updateReturnType {
         frc::ChassisSpeeds speed;
         rospathmsgs::msg::Waypoint lookaheadPoint;
         frc::Rotation2d inertialHeading;
     };
 
-    struct APPCDiscriptor
-    {
+    struct APPCDiscriptor {
         double mFixedLookahead;
         double mVelocityLookaheadCoeff;
         double mLastTime;
@@ -36,15 +35,13 @@ namespace robot
         PIDFDiscriptor mYPIDFDescriptor;
     };
 
-    struct Circle
-    {
+    struct Circle {
         frc::Rotation2d curvature;
         bool isRight;
         bool exsists;
     };
 
-    class PurePursuitController
-    {
+    class PurePursuitController {
     public:
         frc::Rotation2d inertialHeading;
         PurePursuitController(APPCDiscriptor params);
@@ -55,7 +52,6 @@ namespace robot
         void createRosBindings(rclcpp::Node*);
         updateReturnType update(frc::Pose2d currPos, frc::ChassisSpeeds currState, double now);
         rospathmsgs::msg::Waypoint mLastpoint;
-        
 
     private:
         PIDF xPID = PIDF(PIDFDiscriptor{0, 0, 0, 0}, "xPID");

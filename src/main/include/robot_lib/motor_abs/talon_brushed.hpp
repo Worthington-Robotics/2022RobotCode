@@ -1,12 +1,12 @@
 #pragma once
 
 #include "robot_lib/motor_abs/motor.hpp"
+
 #include <ctre/Phoenix.h>
 
 namespace motors {
     class TalonBrushed : public Motor {
-        public:
-
+    public:
         TalonBrushed(int id, std::string motorName) {
             motor = std::make_shared<TalonSRX>(id);
             name = motorName;
@@ -22,7 +22,7 @@ namespace motors {
             motor->Config_kF(req->pid_slot, req->k_f, 0);
             resp->success = motor->GetLastError() == OK;
         }
-
+        //CLEANUP: use ssfp macro over here as well
         void muzzleMotor() {
             motor->SetStatusFramePeriod(StatusFrameEnhanced::Status_1_General, 255, 0);
             motor->SetStatusFramePeriod(StatusFrameEnhanced::Status_2_Feedback0, 255, 0);
@@ -55,28 +55,25 @@ namespace motors {
 
         void setValue(std::shared_ptr<can_msgs::msg::MotorMsg> msg) override {
             // std::cout << "motor " << name << " got data" << std::endl;
+            //CLEANUP: auto
             auto controlMode = static_cast<ctre::phoenix::motorcontrol::ControlMode>(msg->control_mode);
             switch(controlMode) {
                 case ControlMode::PercentOutput:
-                motor->Set(controlMode, msg->demand);
-                break;
-
+                    motor->Set(controlMode, msg->demand);
+                    break;
                 case ControlMode::Velocity:
-                motor->Set(controlMode, (msg->demand) / 10.0 * 1024.0 / M_PI);
-                break;
-
+                    motor->Set(controlMode, (msg->demand) / 10.0 * 1024.0 / M_PI);
+                    break;
                 case ControlMode::Position:
-                motor->Set(controlMode, msg->demand  * 1024.0 / M_PI);
-                break;
-
+                    motor->Set(controlMode, msg->demand  * 1024.0 / M_PI);
+                    break;
                 case ControlMode::Follower:
-                motor->Set(controlMode, msg->demand);
-                break;
-
+                    motor->Set(controlMode, msg->demand);
+                    break;
                 case ControlMode::Disabled:
                 default:
-                motor->Set(ControlMode::Disabled, 0);
-                break;
+                    motor->Set(ControlMode::Disabled, 0);
+                    break;
             }
         }
 
@@ -84,11 +81,11 @@ namespace motors {
             return motor;
         }
 
-        std::string getName(){
+        std::string getName() {
             return name + "_motor";
         }
 
-        JointState getJointState(){
+        JointState getJointState() {
             return {
                 name,
                 motor->GetSelectedSensorPosition() / 1024.0 * M_PI,
@@ -97,7 +94,7 @@ namespace motors {
             };
         }
 
-     private:
+    private:
         std::shared_ptr<TalonSRX> motor;
         std::string name;
     };

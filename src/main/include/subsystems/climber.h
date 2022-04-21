@@ -3,7 +3,6 @@
 #include "subsystems/Subsystem.h"
 #include "Constants.h"
 
-// msgs used in this package
 #include <std_msgs/msg/float32.hpp>
 #include <std_msgs/msg/int16.hpp>
 #include <std_msgs/msg/bool.hpp>
@@ -12,46 +11,22 @@
 
 #include <vector>
 
+namespace robot {
 
-
-namespace robot
-{
-
-    class Climber : public Subsystem
-    {
+    class Climber : public Subsystem {
     public:
         Climber();
 
-        /**
-         * Override this function with all the nessecary code needed to reset a subsystem
-         **/ 
         void reset() {}
 
-        /**
-         * Overrride this function with any code needed to be called only once on the first onloop iteration
-         **/ 
         void onStart() {}
 
-        /**
-         * Override this function for any code that must be called periodically by the subsystem
-         **/ 
         void onLoop(double currentTime) {}
 
-        /**
-         * Override this function with code needed to update sensors assosiated with the robot
-         **/ 
         void updateSensorData() {}
 
-
-        /**
-         * Override this function in order to create pulbishers or subscribers against the parent node.
-         * NOTE: This function is automatically called by the subsystem manager on registration
-         **/
         void createRosBindings(rclcpp::Node *node) override;
 
-        /**
-         * Override this function with code needed to publish all data out to the ros network
-         **/
         void publishData() override;
 
     private:
@@ -67,30 +42,20 @@ namespace robot
         std::vector<double> climberDemands {0, 0}; 
 
         void setLClimberEnabled(const std_msgs::msg::Int16 msg) {
-            if(msg.data == 1)
-                climberEnabled.at(0) = true;
-            else
-                climberEnabled.at(0) = false;
+            climberEnabled.at(0) = (msg.data == 1);
         }
 
         void setRClimberEnabled(const std_msgs::msg::Int16 msg) {
-            if(msg.data == 1)
-                climberEnabled.at(1) = true;
-            else
-                climberEnabled.at(1) = false;
+            climberEnabled.at(1) = (msg.data == 1);
         }
 
         void setStick1Input(const sensor_msgs::msg::Joy msg) {
-                climberDemands.at(0) = -msg.axes.at(1);
-                climberDemands.at(1) = -msg.axes.at(1);
-                climberEnabled.at(0) = msg.buttons.at(8) || msg.buttons.at(11);
-                climberEnabled.at(1) = msg.buttons.at(9) || msg.buttons.at(11);
-                enableSole = msg.buttons.at(10);
+            climberDemands.at(0) = -msg.axes.at(1);
+            climberDemands.at(1) = -msg.axes.at(1);
+            climberEnabled.at(0) = msg.buttons.at(8) || msg.buttons.at(11);
+            climberEnabled.at(1) = msg.buttons.at(9) || msg.buttons.at(11);
+            enableSole = msg.buttons.at(10);
         }
-
-
-
-
     };
 
 }

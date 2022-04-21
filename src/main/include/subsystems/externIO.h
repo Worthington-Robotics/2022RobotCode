@@ -3,14 +3,14 @@
 #include "subsystems/Subsystem.h"
 #include "Constants.h"
 
-// msgs used in this package
 #include <std_msgs/msg/float32.hpp>
 #include <std_msgs/msg/int16.hpp>
 #include <std_msgs/msg/bool.hpp>
 #include <can_msgs/msg/motor_msg.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
 
-// motor libs and such
+/* Motor libs and such */
+
 #include <ctre/Phoenix.h>
 // #include <TimeOfFlight.h>
 #include <frc/DoubleSolenoid.h>
@@ -18,42 +18,22 @@
 #include <robot_lib/motor_abs/talon_brushed.hpp>
 #include <robot_lib/motor_abs/solenoidWrapper.hpp>
 
+namespace robot {
 
-
-namespace robot
-{
-
-    class ExternIO : public Subsystem
-    {
+    class ExternIO : public Subsystem {
     public:
         ExternIO();
 
-        /**
-         * Override this function in order to create pulbishers or subscribers against the parent node.
-         * NOTE: This function is automatically called by the subsystem manager on registration
-         **/
         void createRosBindings(rclcpp::Node *node) override;
 
-        /**
-         * Override this function with all the nessecary code needed to reset a subsystem
-         **/
         void reset() override;
 
-        /**
-         * Overrride this function with any code needed to be called only once on the first onloop iteration
-         **/
         void onStart() override;
 
-        /**
-         * Override this function for any code that must be called periodically by the subsystem
-         **/
         void onLoop(double currentTime) override;
 
         void updateSensorData() override;
 
-        /**
-         * Override this function with code needed to publish all data out to the ros network
-         **/
         void publishData() override;
 
         void setTOF0(const std_msgs::msg::Float32);
@@ -62,7 +42,8 @@ namespace robot
         void enableDebug(bool debug) override;
 
     private:
-        // publishers of sensor data
+        /* Publishers of sensor data */
+
         rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr hoodEncoderPub;
         rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr colesStupidFuckingLimelightPub;
         rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr flywheelEncoderPub;
@@ -72,14 +53,16 @@ namespace robot
         rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr lowerHoodLimitSwitchPub;
         rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr hoodLimitSwitchResetPub;
 
-        // msgs used in the publishers of the listed above
+        /* Messages used in the publishers listed above */
+
         sensor_msgs::msg::JointState hoodEncoderPosition;
         sensor_msgs::msg::JointState flywheelEncoderVelocity;
         std_msgs::msg::Float32 internalTOFDistance;
         std_msgs::msg::Bool upperHoodLimitSwitch;
         std_msgs::msg::Bool lowerHoodLimitSwitch;
 
-        // motors to be controlled by copro code and other systems
+        /* Motors to be controlled by coprocessor code and other systems */
+
         std::vector<motors::TalonBrushless*> motorsFX {
             new motors::TalonBrushless(INTAKE_MOTOR_ID, "intake"),
             new motors::TalonBrushless(FLYWHEEL_MOTOR_ID, "flywheel"),
@@ -104,7 +87,5 @@ namespace robot
         std::vector<solenoid::SolenoidContainer> solenoidsC;
 
         bool hoodReset = false;
-
     };
-
 }

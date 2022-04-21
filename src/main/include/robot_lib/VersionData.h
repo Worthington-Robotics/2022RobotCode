@@ -1,7 +1,6 @@
 #pragma once
 
-namespace robot
-{
+namespace robot {
 
     void ShowVersionData();
     

@@ -2,6 +2,13 @@
 
 #include "subsystems/Subsystem.h"
 #include "robot_lib/PurePursuitController.h"
+#include "robot_lib/SModule.h"
+#include "rospathmsgs/srv/get_path.hpp"
+#include "Constants.h"
+#include "Util.h"
+#include "robot_lib/PurePursuitController.h"
+#include "robot_lib/util/PIDF.h"
+
 #include <ctre/Phoenix.h>
 #include <frc/controller/RamseteController.h>
 #include <rclcpp/rclcpp.hpp>
@@ -10,12 +17,6 @@
 #include <frc/kinematics/SwerveDriveKinematics.h>
 #include <frc/kinematics/ChassisSpeeds.h>
 #include <frc/geometry/Rotation2d.h>
-#include "robot_lib/SModule.h"
-#include "rospathmsgs/srv/get_path.hpp"
-#include "Constants.h"
-#include "Util.h"
-#include "robot_lib/PurePursuitController.h"
-#include "robot_lib/util/PIDF.h"
 
 #include <trajectory_msgs/msg/joint_trajectory.hpp>
 #include <sensor_msgs/msg/imu.hpp>
@@ -36,57 +37,34 @@
 #define CREATE_SMODULE(CODE, NAME) std::make_shared<SModule>(DRIVE_CODE_DRIVE, DRIVE_CODE_ANGLE, DRIVE_CODE_ENCOD, NAME, CODE_ABS_OFFSET, PIDFDiscriptor{DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_KF}, PIDFDiscriptor{ANGLE_KP, ANGLE_KI, ANGLE_KD, ANGLE_KF})
 #define SPEED_STOPPED frc::ChassisSpeeds{0_mps, 0_mps, 0_rad_per_s}
 
-namespace robot
-{
+namespace robot {
 
-    /**
-     * Possible control states for the drivetrain to be in
-     **/
-    enum ControlState
-    {
-        OPEN_LOOP_ROBOT_REL,
-        OPEN_LOOP_FIELD_REL,
-        VELOCITY_TWIST,
-        PURSUIT
+    /* Possible control states for the drivetrain to be in */
+    enum ControlState {
+        kOPEN_LOOP_ROBOT_REL,
+        kOPEN_LOOP_FIELD_REL,
+        kVELOCITY_TWIST,
+        kPURSUIT
     };
 
-    class Drivetrain : public Subsystem
-    {
+    class Drivetrain : public Subsystem {
     public:
     
         Drivetrain();
 
-        /**
-         * Override this function in order to create pulbishers or subscribers against the parent node.
-         * NOTE: This function is automatically called by the subsystem manager on registration
-         **/
         void createRosBindings(rclcpp::Node *node) override;
 
-        /**
-         * Override this function with all the nessecary code needed to reset a subsystem
-         **/
         void reset() override;
 
-        /**
-         * Overrride this function with any code needed to be called only once on the first onloop iteration
-         **/
         void onStart() override;
 
-        /**
-         * Override this function for any code that must be called periodically by the subsystem
-         **/
         void onLoop(double currentTime) override;
 
-        /**
-         * Override this function with code needed to publish all data out to the ros network
-         **/
         void publishData() override;
 
         void enableDebug(bool debug) override;
 
-        /**
-         * Request a path from the path generator with the given name, assuming it is baked
-         */
+        /* Request a path from the path generator with the given name, assuming it is baked */
         bool enablePathFollower(std::string name);
         
         void setHeadingControlGains(PIDFDiscriptor);
@@ -98,22 +76,25 @@ namespace robot
     private:
         bool DEBUG = true;
 
-        // IO devices
+        /* IO devices */
+
         std::shared_ptr<SModule> frontRMod, frontLMod, rearRMod, rearLMod;
         std::vector<std::shared_ptr<SModule>> sModules;
         std::shared_ptr<PigeonIMU> imu;
 
-        // underlying controllers
+        /* Underlying controllers */
+
         frc::Translation2d sFrontRight{CHASSIS_LENGTH, CHASSIS_LENGTH};
         frc::Translation2d sFrontLeft{CHASSIS_LENGTH, -CHASSIS_LENGTH};
         frc::Translation2d sRearRight{-CHASSIS_LENGTH, CHASSIS_LENGTH};
         frc::Translation2d sRearLeft{-CHASSIS_LENGTH, -CHASSIS_LENGTH};
         frc::SwerveDriveKinematics<4> sKinematics{sFrontRight, sFrontLeft, sRearRight, sRearLeft};
         frc::SwerveDriveOdometry<4> sOdom{sKinematics, frc::Rotation2d{units::degree_t{0}}};
-        std::array<frc::SwerveModuleState, 4> moduleStates; // fr, fl, rr, rl
+        std::array<frc::SwerveModuleState, 4> moduleStates; /* FR, FL, RR, RL */
 
-        // Control states for the DT
-        ControlState driveState = OPEN_LOOP_ROBOT_REL;
+        /* Control states for the DT */
+
+        ControlState driveState = kOPEN_LOOP_ROBOT_REL;
         APPCDiscriptor params;
         std::shared_ptr<PurePursuitController> PPC;
         frc::ChassisSpeeds currState;
@@ -131,7 +112,7 @@ namespace robot
         frc::ChassisSpeeds twistDrive(const geometry_msgs::msg::Twist &twist, const frc::Rotation2d &orientation0);
         frc::ChassisSpeeds twistDrive(const geometry_msgs::msg::Twist &twist);
 
-        // ROS Publishers
+        /* ROS Publishers */
 
         rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr drivetrainHeadingPub;
         std_msgs::msg::Float32 drivetrainHeadingMsg;
@@ -156,7 +137,7 @@ namespace robot
 
         bool headingControlUpdate = false;
 
-// Controller publishing (system independent only!)
+        /* Controller publishing (system independent only!) */
 #ifdef SystemIndependent
         rclcpp::Publisher<can_msgs::msg::MotorMsg>::SharedPtr intakeDemandPublisher;
         can_msgs::msg::MotorMsg intakeDemandMsg;
@@ -181,7 +162,8 @@ namespace robot
         can_msgs::msg::MotorMsg climberDemandMsg;
 #endif
 
-        // ROS Subscibers
+        /* ROS Subscibers */
+
         rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr stickSub0;
         void setStick0(const sensor_msgs::msg::Joy);
         geometry_msgs::msg::Twist stickTwist;
@@ -202,7 +184,7 @@ namespace robot
         void setHeadingControlSetpoint(double);
         void setAIAngleOffset(const std_msgs::msg::Float32);
         PIDF headingController = PIDF(HEADING_CONTROL_GAINS_TELE, "gyro_pid");
-        int headingControl = 0; //(0, disabled), (1, gyroLock), (2, limelightAngle)
+        int headingControl = 0; /* (0, disabled), (1, gyroLock), (2, limelightAngle) */
         double headingControlSetpoint = 0;
         double range = 0;
 
@@ -215,7 +197,8 @@ namespace robot
         void setHoodReset(const std_msgs::msg::Bool);
         #endif
 
-        // Ros services
+        /* ROS services */
+
         rclcpp::Service<autobt_msgs::srv::StringService>::SharedPtr startPath;
         void enablePathFollowerS(std::shared_ptr<autobt_msgs::srv::StringService_Request>, std::shared_ptr<autobt_msgs::srv::StringService_Response>);
 
@@ -229,25 +212,28 @@ namespace robot
         void updateYPIDGains(const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request>,
                                 std::shared_ptr<can_msgs::srv::SetPIDFGains::Response>);
 
-        // Ros clients
+        /* Ros clients */
+
         rclcpp::Client<rospathmsgs::srv::GetPath>::SharedPtr GPClient;
         rospathmsgs::srv::GetPath::Request::SharedPtr GPReq;
 
-        // last update time for safety critical topics
+        /* Last update time for safety critical topics */
         double lastStickTime;
 
-        // button bool for robot relitive drive
+        /* Button bool for robot relative drive */
         bool isRobotRel = false;
-        // a set of three buttons for a toggle function that set the robot to tank mode
+
+        /* A set of three buttons for a toggle function that set the robot to tank mode */
+
         bool tankLockState = false;
         bool tankLockHeld = false;
         bool tankLockButton = false;
 
         double targetAngleOffset = 0;
         double ballAngleOffset = 0;
-        // button for gyro reset
+        /* Button for gyro reset */
         bool gyroReset = false;
-        // button for intake
+        /* Button for intake */
 
 #ifdef SystemIndependent
         bool intake = false;
@@ -267,7 +253,7 @@ namespace robot
         bool flywheelButton = false;
 #endif
 
-        // vector of iterators to check if currents values are too high
+        /* Vector of iterators to check if currents values are too high */
         std::vector<double> currentIterators = {0, 0, 0, 0};
     };
 

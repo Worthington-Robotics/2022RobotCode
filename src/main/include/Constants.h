@@ -1,15 +1,19 @@
 #pragma once
+
+#include "robot_lib/util/PIDF.h"
+
 #include <units/time.h>
 #include <units/velocity.h>
 #include <rospathmsgs/msg/waypoint.hpp>
-#include "robot_lib/util/PIDF.h"
+
 //#define SystemIndependent
 #define noRosDebug
 //#define PNU_DEBUG
 
-// Canbus ID mappings
+/* CAN bus ID mappings */
 
-// TALON FX
+/* Talon FX */
+
 #define DRIVE_FR_DRIVE 1
 #define DRIVE_FR_ANGLE 2
 #define DRIVE_FR_ENCOD 1
@@ -35,11 +39,13 @@
 #define CLIMBER_C_MOTOR_ID 13
 #define CLIMBER_R_MOTOR_ID 14
 
-// TALON SRX
+/* Talon SRX */
+
 #define HOOD_MOTOR_ID 21
 #define INDEXER_MOTOR_ID 22
 
-//Motor defines
+/* Motor defines */
+
 #define VOLTAGE_COMP 11
 
 #define HOOD_KP .3
@@ -88,33 +94,37 @@
 #define CLIMBER_MAX_TIME 2
 #define CLIMBER_HOLD_AMPS 30
 
-//SOLENOIDS
+/* Solenoids */
+
 #define CLIMBER_SOLENOID_R_MAIN_HIGH_ID 0
 #define CLIMBER_SOLENOID_R_MAIN_LOW_ID 1
 #define INTAKE_SOLENOID_HIGH_ID 2
 #define INTAKE_SOLENOID_LOW_ID 3
 
-// TOFs
+/* Time of Flights */
+
 #define EXTERNAL_TOF_ID 1
 #define INTERNAL_TOF_ID 2
 
-// Square size of chassis
+/* Square size of chassis */
 #define CHASSIS_LENGTH 0.65_m
 
-// Adaptive Pure Pursuit Controller
+/* Adaptive Pure Pursuit Controller */
+
 #define FIXED_LOOKAHEAD .05
 #define VELOCITY_LOOKAHEAD_COEFF .1
 #define MAX_ACCEL .5
 #define PATH_COMPLETE_TOLERANCE .08
 
-// Controller Axis
+/* Controller Axes */
+
 #define X_AXIS 1
 #define Y_AXIS 0
 #define Z_AXIS 4
 
 #define IMU_ID 0
 
-// Which sticks to watch from the driverstation
+/* Which sticks to watch from the driverstation */
 #define USER_STICKS {0, 1}
 
 #define DRIVE_STICK_TOPIC "/sticks/stick0" 
@@ -122,27 +132,29 @@
 #define DRIVE_STICK_DEADBAND 0.2
 #define DRIVE_STICK_POWER 4
 
+/* Constants for the drivetrain */
+
 /**
- *  Constants for the drivetrain
- **/ 
+ * How long before the drivetrain locks up after not recieving a new twist packet.
+ * Applies for both velocity, and open loop twist mode
+ **/
+#define DRIVE_TIMEOUT 0.050 /* In seconds */
 
-// How long before the drivetrain locks up after not recieving a new twist packet.
-// Applies for both velocity, and open loop twist mode
-#define DRIVE_TIMEOUT 0.050 // seconds
-
-// Allowable difference between swerve modules and the average current
+/* Allowable difference between swerve modules and the average current */
 #define DELTA_CURRENT_THRESHOLD 10
 
-// IMU covariance matricies (3x3) Row major about x, y, z axes
-#define IMU_ORIENT_COVAR {1, 0, 0, 0, 1, 0, 0, 0, 1} // only show variances of data
-#define IMU_ACCEL_COVAR {1, 0, 0, 0, 1, 0, 0, 0, 1} // only show variances of data
-#define IMU_ANG_VEL_COVAR {1, 0, 0, 0, 1, 0, 0, 0, 1} // only show variances of data
+/* IMU covariance matricies (3x3) Row major about x, y, z axes */
 
-// PID constants for left and right transmission velocity control
+#define IMU_ORIENT_COVAR {1, 0, 0, 0, 1, 0, 0, 0, 1} /* Only show variances of data */
+#define IMU_ACCEL_COVAR {1, 0, 0, 0, 1, 0, 0, 0, 1} /* Only show variances of data */
+#define IMU_ANG_VEL_COVAR {1, 0, 0, 0, 1, 0, 0, 0, 1} /* Only show variances of data */
+
+/* PID constants for left and right transmission velocity control */
+
 #define ANGLE_KF 0
 #define ANGLE_KP .7
 #define ANGLE_KI 0.00001
-#define ANGLE_KD 0 // originally 1, at 2 for debug
+#define ANGLE_KD 0 /* Originally 1, at 2 for debug */
 #define DRIVE_LEFT_IACCUM 300
 #define DRIVE_KF 0.0522
 #define DRIVE_KP 0.2
@@ -150,11 +162,12 @@
 #define DRIVE_KD 2
 #define DRIVE_RIGHT_IACCUM 300
 
-// voltage compensation voltage
+/* Voltage compensation voltage */
 #define DRIVE_VCOMP_VOLTAGE 11.0
 
-// physical constants
-#define DRIVE_TRACK_WIDTH 0.5 // (meters)
+/* Physical constants */
+
+#define DRIVE_TRACK_WIDTH 0.5 /* (meters) */
 #define TICKS_PER_DEGREE (2048.0/360)
 
 #define SWERVE_DRIVE_GEARING 6.12
@@ -168,15 +181,15 @@
 #define RR_ABS_OFFSET 145.8
 #define RL_ABS_OFFSET -171.0
 
-//LIMELIGHT
+/* LIMELIGHT */
 
 #define LIMELIGHT_MAX_ERROR 1.75
 
 #define none 0
 
+/* PATH FOLLOWING STUFFS (EXPERIEMTAL ;-;) */
+
 #define HEADING_CONTROL_GAINS_AUTO robot::PIDFDiscriptor{.009, 0, 0.0007, 0}
 #define HEADING_CONTROL_GAINS_TELE robot::PIDFDiscriptor{.009, 0, 0.0007, 0}
 #define PURSUIT_Y_PID_GAINS robot::PIDFDiscriptor{2.5, 0, 0.83, 0}
 #define PURSUIT_X_PID_GAINS robot::PIDFDiscriptor{2.5, 0, 0.83, 0}
-
-// PATH FOLLOWING STUFFS (EXPERIEMTAL ;-;)
