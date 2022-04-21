@@ -44,7 +44,8 @@ namespace robot {
          * @return the output values of the different joystick axes
          **/
         static std::vector<double> evalDeadband(const MSG_JOY &joyMsg,
-                                                const double deadBand, const int power);
+                                                const double deadBand,
+                                                const int power);
 
         /**
          * Get the deadbanded value of the joystick and apply a scalar factor to adjust the maximum range
@@ -56,7 +57,9 @@ namespace robot {
          * @return the output values of the different joystick axes
          **/
         static std::vector<double> scalarCut(const MSG_JOY &joyMsg,
-                                             const double deadBand, const int power, const std::vector<double> scalars);
+                                            const double deadBand,
+                                            const int power,
+                                            const std::vector<double> scalars);
 
         /**
          * Maps a value bounded from [-1, 1] to [minOutput, maxOutput]

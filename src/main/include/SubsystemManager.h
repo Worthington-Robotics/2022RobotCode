@@ -54,14 +54,14 @@ namespace robot {
         void serviceDebug(std::shared_ptr<MSG_BOOL> msg);
 
         /**
-         * starts the subsystem manager thread, and begins updating the subsystems in order. 
+         * Starts the subsystem manager thread, and begins updating the subsystems in order. 
          * Each subsystem is attempted to be updated at a fixed rate of 100 hz.
          * Both the enabled and disabled threads should not be running at the same time.
          **/ 
         void startEnabledLoop();
 
         /**
-         * starts the disabled state subsystem manager thread to keep ticking ros while running.
+         * Starts the disabled state subsystem manager thread to keep ticking ros while running.
          * Both the enabled and disabled threads should not be running at the same time.
          **/ 
         void startDisabledLoop();
@@ -86,7 +86,9 @@ namespace robot {
         frc::Notifier enabledNotif, disabledNotif, spinNotif;
 
         void enabledLoop();
+
         void disabledLoop();
+
         void spinRos();
 
         ROS_PUB(MSG_BOOL) sysReset;

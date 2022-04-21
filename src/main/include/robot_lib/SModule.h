@@ -30,7 +30,13 @@ namespace robot {
          * @param dValues
          * @param aValues
          **/
-        SModule(int driveID, int angleID, int encoderID, std::string name, double offset, PIDFDiscriptor dValues, PIDFDiscriptor aValues);
+        SModule(int driveID,
+                int angleID,
+                int encoderID,
+                std::string name,
+                double offset,
+                PIDFDiscriptor dValues,
+                PIDFDiscriptor aValues);
 
         void reset();
 
@@ -46,15 +52,20 @@ namespace robot {
 
         void setInvertDrive(bool);
 
+        void updatePID(std::shared_ptr<TalonFX> motor,
+                        const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request>,
+                        std::shared_ptr<can_msgs::srv::SetPIDFGains::Response>);
+
         void updateDrivePID(const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request>,
-                         std::shared_ptr<can_msgs::srv::SetPIDFGains::Response>);
+                            std::shared_ptr<can_msgs::srv::SetPIDFGains::Response>);
         
         void updateAnglePID(const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request>,
-                         std::shared_ptr<can_msgs::srv::SetPIDFGains::Response>);
+                            std::shared_ptr<can_msgs::srv::SetPIDFGains::Response>);
 
         frc::SwerveModuleState optimizeCTREModule(frc::SwerveModuleState desiredState, frc::Rotation2d);
 
-        double placeInAppropriate0To360Scope(double scopeReference, double newAngle);
+        /* Places the angle in the appropriate 0 to 360 scope */
+        double correctScope(double scopeReference, double newAngle);
 
     private:
         /* Configure the associated motor controllers with their settings as specified in constants */ 

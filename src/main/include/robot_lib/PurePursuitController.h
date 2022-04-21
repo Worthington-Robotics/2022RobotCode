@@ -67,7 +67,6 @@ namespace robot {
         frc::Rotation2d joinPath(frc::Pose2d currPos, rospathmsgs::msg::Waypoint lookAheadPoint);
         double getRemainingDistance(frc::Pose2d currPos);
         rospathmsgs::msg::Waypoint getLookAheadPoint(double lookAheadDist);
-
         
     };
 

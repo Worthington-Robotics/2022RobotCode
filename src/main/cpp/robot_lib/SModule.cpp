@@ -15,6 +15,7 @@ namespace robot {
 
     SModule::SModule(int driveID, int angleID, int encodID, std::string moduleName, double offset, PIDFDiscriptor dValues, PIDFDiscriptor aValues) {
         name = moduleName;
+        //CLEANUP: why default?
         angle = std::make_shared<TalonFX>(angleID, "Default Name");
         drive = std::make_shared<TalonFX>(driveID, "Default Name");
         encod = std::make_shared<CANCoder>(encodID, "Default Name");
@@ -113,23 +114,22 @@ namespace robot {
     void SModule::setInvertDrive(bool invert) {
         drive->SetInverted(invert);
     }
-    //CLEANUP: template these
-    void SModule::updateDrivePID(const can_msgs::srv::SetPIDFGains::Request::SharedPtr req, can_msgs::srv::SetPIDFGains::Response::SharedPtr resp) {
-        drive->Config_kF(0, req->k_f, 0);
-        drive->Config_kP(0, req->k_p, 0);
-        drive->Config_kI(0, req->k_i, 0);
-        drive->Config_kD(0, req->k_d, 0);
+
+    void SModule::updatePID(std::shared_ptr<TalonFX> motor, const can_msgs::srv::SetPIDFGains::Request::SharedPtr req, can_msgs::srv::SetPIDFGains::Response::SharedPtr resp) {
+        motor->Config_kF(0, req->k_f, 0);
+        motor->Config_kP(0, req->k_p, 0);
+        motor->Config_kI(0, req->k_i, 0);
+        motor->Config_kD(0, req->k_d, 0);
 
         resp->success = true;
     }
+    
+    void SModule::updateDrivePID(const can_msgs::srv::SetPIDFGains::Request::SharedPtr req, can_msgs::srv::SetPIDFGains::Response::SharedPtr resp) {
+        updatePID(drive, req, resp);
+    }
 
     void SModule::updateAnglePID(const can_msgs::srv::SetPIDFGains::Request::SharedPtr req, can_msgs::srv::SetPIDFGains::Response::SharedPtr resp) {
-        angle->Config_kF(0, req->k_f, 0);
-        angle->Config_kP(0, req->k_p, 0);
-        angle->Config_kI(0, req->k_i, 0);
-        angle->Config_kD(0, req->k_d, 0);
-
-        resp->success = true;
+        updatePID(angle, req, resp);
     }
 
     void SModule::reset() {
@@ -203,7 +203,7 @@ namespace robot {
     }
 
     frc::SwerveModuleState SModule::optimizeCTREModule(frc::SwerveModuleState desiredState, frc::Rotation2d currentAngle) {
-        double targetAngle = placeInAppropriate0To360Scope(
+        double targetAngle = correctScope(
             currentAngle.Degrees().to<double>(),
             desiredState.angle.Degrees().to<double>()
         );
@@ -216,7 +216,8 @@ namespace robot {
         return frc::SwerveModuleState{units::meters_per_second_t{targetSpeed}, frc::Rotation2d{units::degree_t{targetAngle}}};
     }
 
-    double SModule::placeInAppropriate0To360Scope(double scopeReference, double newAngle) {
+    //CLEANUP: what the hell is this 
+    double SModule::correctScope(double scopeReference, double newAngle) {
         double lowerBound;
         double upperBound;
         double lowerOffset = std::fmod(scopeReference, 360);
@@ -227,6 +228,7 @@ namespace robot {
             upperBound = scopeReference - lowerOffset;
             lowerBound = scopeReference - (360 + lowerOffset);
         }
+        //CLEANUP: you could probably use modulo for this
         while (newAngle < lowerBound) {
             newAngle += 360;
         }
