@@ -1,11 +1,13 @@
 #include "subsystems/Battery.h"
 
-#include <iostream>
 #include <frc/smartdashboard/SmartDashboard.h>
+
+#include <iostream>
 
 using std::placeholders::_1;
 
 namespace robot {
+    
     Battery::Battery() {}
 
     void Battery::createRosBindings(rclcpp::Node *node) {

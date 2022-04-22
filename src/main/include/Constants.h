@@ -180,13 +180,13 @@
 #define RR_ABS_OFFSET 145.8
 #define RL_ABS_OFFSET -171.0
 
-/* LIMELIGHT */
+/* Limelight */
 
 #define LIMELIGHT_MAX_ERROR 1.75
 
 #define none 0
 
-/* PATH FOLLOWING STUFFS (EXPERIEMTAL ;-;) */
+/* Path following stuffs (experiemtal ;-;) */
 
 #define HEADING_CONTROL_GAINS_AUTO robot::PIDFDiscriptor{.009, 0, 0.0007, 0}
 #define HEADING_CONTROL_GAINS_TELE robot::PIDFDiscriptor{.009, 0, 0.0007, 0}

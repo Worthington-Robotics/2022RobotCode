@@ -9,7 +9,6 @@
 #include <frc/util/Color.h>
 #include <frc/Timer.h>
 #include <frc/DriverStation.h>
-
 #include <std_msgs/msg/int16.hpp>
 #include <std_msgs/msg/float32.hpp>
 
@@ -45,7 +44,6 @@ namespace robot {
         void publishData() override;
 
         void lightModeCallback(const MSG_INT msg);
-
     private:
 
         void execActions();
@@ -55,6 +53,7 @@ namespace robot {
          * @param pos - Position to get the color at
          **/
         frc::Color getColor(int pos);
+
         /** 
          * Function to build light modes that display a meter value
          * @param pos - Position to get the color at
@@ -91,4 +90,5 @@ namespace robot {
         double angleOffset = 0.0;
         double range = -1;       
     };
+
 } // namespace robot

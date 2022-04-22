@@ -12,6 +12,7 @@ namespace solenoid {
 
     class Solenoid {
     public:
+
         frc::DoubleSolenoid::Value state = frc::DoubleSolenoid::kReverse;
 
         Solenoid(frc::PneumaticsModuleType type, int highID, int lowID, const std::string& solenoidName) {
@@ -49,4 +50,5 @@ namespace solenoid {
         Solenoid solenoid;
         rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr sub;
     };
+
 } // namespace motors

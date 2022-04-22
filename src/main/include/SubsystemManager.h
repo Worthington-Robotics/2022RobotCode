@@ -14,8 +14,7 @@
 namespace robot {
 
     class SubsystemManager : public rclcpp::Node {
-    public: 
-        
+    public:
         SubsystemManager();
 
         /**
@@ -82,6 +81,7 @@ namespace robot {
         bool isFirstIteration = false;
         double previousTime = 0.0;
         double dt = 0.0;
+
         std::vector<std::shared_ptr<Subsystem>> subsystems;
         frc::Notifier enabledNotif, disabledNotif, spinNotif;
 

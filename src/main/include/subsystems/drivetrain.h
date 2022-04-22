@@ -29,7 +29,7 @@
 #include <std_msgs/msg/int16.hpp>
 #include <rospathmsgs/srv/get_path.hpp>
 #include <std_msgs/msg/float32.hpp>
-#include "autobt_msgs/srv/string_service.hpp"
+#include <autobt_msgs/srv/string_service.hpp>
 
 #define DEBUG_enable
 
@@ -48,7 +48,6 @@ namespace robot {
 
     class Drivetrain : public Subsystem {
     public:
-    
         Drivetrain();
 
         void createRosBindings(rclcpp::Node *node) override;

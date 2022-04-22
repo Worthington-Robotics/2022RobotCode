@@ -15,7 +15,7 @@
 
 //CLEANUP: could someone provide docs for what literally any of these methods and properties are for?
 namespace robot {
-    const double kEpsilon = 1E-9;
+    const double kEpsilon = 1E-9; //CLEANUP: why is this k? it isnt an enum, it should be a define
 
     struct updateReturnType {
         frc::ChassisSpeeds speed;
@@ -43,6 +43,7 @@ namespace robot {
 
     class PurePursuitController {
     public:
+
         frc::Rotation2d inertialHeading;
         PurePursuitController(APPCDiscriptor params);
         void setPath(std::stack<rospathmsgs::msg::Waypoint> mPath);
@@ -67,7 +68,6 @@ namespace robot {
         frc::Rotation2d joinPath(frc::Pose2d currPos, rospathmsgs::msg::Waypoint lookAheadPoint);
         double getRemainingDistance(frc::Pose2d currPos);
         rospathmsgs::msg::Waypoint getLookAheadPoint(double lookAheadDist);
-        
     };
 
 } // namespace robot

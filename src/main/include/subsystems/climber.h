@@ -16,6 +16,7 @@ namespace robot {
 
     class Climber : public Subsystem {
     public:
+
         Climber();
 
         void reset() {}

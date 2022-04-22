@@ -7,10 +7,8 @@
 #include <rclcpp/rclcpp.hpp>
 #include <frc/Timer.h>
 #include <frc/DriverStation.h>
-
 #include <frc/PowerDistribution.h>
 #include <frc/RobotController.h>
-
 #include <std_msgs/msg/int16.hpp>
 
 namespace robot {
@@ -39,7 +37,6 @@ namespace robot {
         void resetIdle();
         
     private:
-
         void execActions();
 
         void updateSensorData();
@@ -64,4 +61,5 @@ namespace robot {
         ROS_SUB(MSG_INT) IdleStageSub;
         ROS_SUB(MSG_INT) ResetStageSub;
     };
+
 } // namespace robot

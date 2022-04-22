@@ -1,4 +1,5 @@
 #pragma once
+
 #include <units/time.h>
 #include <can_msgs/srv/set_pidf_gains.hpp>
 #include <rclcpp/rclcpp.hpp>
@@ -18,6 +19,7 @@ namespace robot {
         double d;
         double f;
     };
+
     class PIDF {
 //CLEANUP: explain what ANY of these do
     public:
@@ -41,14 +43,14 @@ namespace robot {
         void setPIDGains(const can_msgs::srv::SetPIDFGains::Request::SharedPtr req, can_msgs::srv::SetPIDFGains::Response::SharedPtr resp);
 
         double setpoint = 0.0;
+        
     private:
-
         double getContinuousError(double error);
 
         double getI(double error);
 
         double getD(double error);
-        
+
         double error = 0.0;
         double power = 0.0;
         double iMax = 0.0;

@@ -23,6 +23,7 @@ namespace robot {
 
     class ExternIO : public Subsystem {
     public:
+
         ExternIO();
 
         void createRosBindings(rclcpp::Node *node) override;
@@ -88,4 +89,5 @@ namespace robot {
 
         bool hoodReset = false;
     };
+
 } // namespace robot

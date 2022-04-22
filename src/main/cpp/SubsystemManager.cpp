@@ -17,12 +17,14 @@ namespace robot {
                                            enabledNotif(std::bind(&SubsystemManager::enabledLoop, this)),
                                            disabledNotif(std::bind(&SubsystemManager::disabledLoop, this)),
                                            spinNotif(std::bind(&SubsystemManager::spinRos, this)) {
+
         autoKill = this->create_publisher<MSG_BOOL>("/sys/auto_kill", DEFAULT_QOS);
         headingControlPub = this->create_publisher<MSG_INT>("/drive/heading_control", DEFAULT_QOS);
         shooterRequestPub = this->create_publisher<MSG_INT>("/actions/intake_indexer", DEFAULT_QOS);
         sysReset = this->create_subscription<MSG_BOOL>("/sys/reset", DEFAULT_QOS, std::bind(&SubsystemManager::serviceReset, this, _1));
         sysDebug = this->create_subscription<MSG_BOOL>("/sys/debug", DEFAULT_QOS, std::bind(&SubsystemManager::serviceDebug, this, _1));
         sysEnableEchoPub = this->create_publisher<MSG_INT>("/sys/enable_echo", DEFAULT_QOS);
+
         spinNotif.StartSingle(0_ms);
     }
 
@@ -118,7 +120,6 @@ namespace robot {
                 for (std::shared_ptr<Subsystem> subsystem : subsystems) {
                     subsystem->onStart();
                     subsystem->updateSensorData();
-                    subsystem->publishData();
                 }
                 isFirstIteration = false;
             /* For all others run onloop */
@@ -127,9 +128,9 @@ namespace robot {
                 for (std::shared_ptr<Subsystem> subsystem : subsystems) {
                     subsystem->updateSensorData();
                     subsystem->onLoop(GET_TIME_DOUBLE);
-                    subsystem->publishData();
                 }
             }
+            subsystem->publishData();
         } catch (const std::exception &err) {
             frc::ReportError(frc::err::Error, "SubsystemManager.cpp", 131, "enabledLoop()", err.what());
         } catch (...) {
@@ -158,4 +159,5 @@ namespace robot {
             frc::ReportError(frc::err::Error, "SubsystemManager.cpp", 135, "disabledLoop()", "Looper Thread died with unknown exception");
         }
     }
+
 } // namespace robot

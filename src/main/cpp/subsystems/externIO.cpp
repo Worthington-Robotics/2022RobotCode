@@ -1,4 +1,5 @@
 #include "subsystems/externIO.h"
+
 #include <frc/smartdashboard/SmartDashboard.h>
 
 using std::placeholders::_1;
@@ -17,7 +18,7 @@ namespace robot {
       for (motors::TalonBrushless* motor : motorsFX) {
          motors::MotorContainer MC = {
             *motor,
-            node->create_subscription<can_msgs::msg::MotorMsg>("/externIO/" + motor->getName() + "/demand", DEFAULT_QOS, std::bind(&motors::Motor::setValue, std::ref(MC.motor), _1)),
+            node->create_subscription<can_msgs::msg::MotorMsg>("/externIO/" + motor->getName() + "/demand", DEFAULT_QOS, std::bind(&motors::Motor::setValue, std::ref(MC.motor), _1)), //CLEANUP: why are these different pointers?
             node->create_publisher<sensor_msgs::msg::JointState>("/externIO/" + motor->getName() + "/state", DEFAULT_QOS),
             node->create_service<can_msgs::srv::SetPIDFGains>("/externIO/" + motor->getName() + "/pidfset", std::bind(&motors::Motor::configMotorPIDF, std::ref(MC.motor), _1, _2)),
          };
@@ -178,14 +179,16 @@ namespace robot {
 
    void ExternIO::onLoop(double currentTime) {
       MSG_BOOL limit;
-      if (!motorsSRX.at(1)->getMotor()->IsRevLimitSwitchClosed() && !hoodReset) {
+      bool switchClosed = motorsSRX.at(1)->getMotor()->IsRevLimitSwitchClosed();
+//CLEANUP: this
+      if (!switchClosed && !hoodReset) {
          motorsSRX.at(1)->getMotor()->Set(ControlMode::PercentOutput, -.25);
          limit.data = false;
-      } else if (motorsSRX.at(1)->getMotor()->IsRevLimitSwitchClosed() && !hoodReset) {
+      } else if (switchClosed && !hoodReset) {
          hoodReset = true;
          motorsSRX.at(1)->getMotor()->SetSelectedSensorPosition(0, 0, 0);
          limit.data = true;
-      } else if (motorsSRX.at(1)->getMotor()->IsRevLimitSwitchClosed() || hoodReset) {
+      } else if (switchClosed || hoodReset) {
          hoodReset = true;
          limit.data = true;
       }
@@ -231,4 +234,5 @@ namespace robot {
    }
 
    void ExternIO::enableDebug(bool debug) {}
+   
 } // namespace robot

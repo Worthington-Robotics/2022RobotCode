@@ -8,6 +8,7 @@ namespace robot {
 
     class Subsystem {
     public:
+
         /**
          * Override this function in order to create pulbishers or subscribers against the parent node.
          * NOTE: This function is automatically called by the subsystem manager on registration
@@ -33,7 +34,6 @@ namespace robot {
         virtual void enableDebug(bool debugEnable) {
             frc::ReportError(frc::warn::Warning, "Subsystem X", 666, "enableDebug", "At least one subsystem does not override enableDebug");
         }
-
     };
     
 } // namespace robot

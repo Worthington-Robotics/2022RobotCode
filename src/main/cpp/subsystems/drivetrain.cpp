@@ -1,10 +1,12 @@
 #include "subsystems/drivetrain.h"
-#include <frc/DriverStation.h>
-#include "subsystems/userinput.h"
-#include <frc/Errors.h>
+
 #include "SubsystemManager.h"
 #include "Robot.h"
+#include "subsystems/userinput.h"
+
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/DriverStation.h>
+#include <frc/Errors.h>
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -56,10 +58,9 @@ namespace robot {
 
 
         /* Create subscribers */
+
         stickSub0 = node->create_subscription<MSG_JOY>("/sticks/stick0", SENSOR_QOS, std::bind(&Drivetrain::setStick0, this, _1));
-
         stickSub1 = node->create_subscription<MSG_JOY>("/sticks/stick1", SENSOR_QOS, std::bind(&Drivetrain::setStick1, this, _1));
-
 
         DriveModeSub = node->create_subscription<MSG_INT>("/drive/control_mode", DEFAULT_QOS, std::bind(&Drivetrain::setDriveMode, this, _1));
 
@@ -103,7 +104,7 @@ namespace robot {
     }
 
     void Drivetrain::updateSensorData() {
-        //TODO this might be a spot for the PIDF issue
+        /* TODO this might be a spot for the PIDF issue */
         drivetrainHeadingMsg.data = -(std::fmod((imu->GetFusedHeading() + 360), 360));
         sOdom.Update(
             frc::Rotation2d{units::degree_t{drivetrainHeadingMsg.data}},
@@ -196,15 +197,13 @@ namespace robot {
                 speed = frc::ChassisSpeeds{2_mps, 0_mps, 0_rad_per_s};
 
                 /* FR, FL, RR, RL */
-
                 break;
             case kPURSUIT:
                 if (!PPC->isDone(sOdom.GetPose()) /*&& !frc::DriverStation::IsTeleop()*/) {
                     auto [mSpeed, mLookAheadPoint, inertialHeading] = PPC->update(sOdom.GetPose(), currState, currentTime);
                     speed = mSpeed;
                     lookAheadPoint = mLookAheadPoint;
-                }
-                else {
+                } else {
                     std::cout << "Completed path" << std::endl;
                     driveState = kOPEN_LOOP_FIELD_REL;
                 }
@@ -214,7 +213,7 @@ namespace robot {
                 speed = SPEED_STOPPED;
         }
         if (headingControl > 0) {
-            // TODO:: THIS MIGHT BE AN AREA WITH ISSUE REGARDING THE CONTROLLER
+            /* TODO:: THIS MIGHT BE AN AREA WITH ISSUE REGARDING THE CONTROLLER */
             speed.omega = -units::radians_per_second_t{headingController.update(drivetrainHeadingMsg.data)};
         } else if (driveState == kPURSUIT) {
             headingController.setSetpoint(lookAheadPoint.heading, false);
@@ -259,6 +258,7 @@ namespace robot {
         } else {
             allianceColorMsg.data = 2;
         }
+
         allianceColorPub->publish(allianceColorMsg);
         autoLookaheadPointPub->publish(lookAheadPoint);
         robotPositionPub->publish(robotPositionMsg);
@@ -287,7 +287,7 @@ namespace robot {
     }
 
     void Drivetrain::setDriveMode(const MSG_INT msg) {
-        std::cout << "changing drivetrain to mode " << msg.data << std::endl;
+        std::cout << "Changing drivetrain to mode: " << msg.data << std::endl;
         driveState = static_cast<ControlState>(msg.data);
     }
 

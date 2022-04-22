@@ -14,6 +14,7 @@
 #include <cmath>
 
 namespace robot {
+
     /**
      * SModule is a class designed to house all information assosiated with a single swerve module on the robot
      * It contains two CTRE TalonFX motors, and one CTRE CANcoder working in tandem to excecute swerveStates
@@ -91,7 +92,6 @@ namespace robot {
 
         rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr jointStatePub;
         rclcpp::Service<can_msgs::srv::SetPIDFGains>::SharedPtr anglePDIF, drivePIDF;
-        
     };
 
 } // namespace robot

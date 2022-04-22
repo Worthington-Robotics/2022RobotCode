@@ -5,8 +5,10 @@
 #include <ctre/Phoenix.h>
 
 namespace motors {
+
     class TalonBrushed : public Motor {
     public:
+    
         TalonBrushed(int id, std::string motorName) {
             motor = std::make_shared<TalonSRX>(id);
             name = motorName;

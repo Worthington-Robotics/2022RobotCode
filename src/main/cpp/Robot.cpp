@@ -3,22 +3,23 @@
 // the WPILib BSD license file in the root directory of this project.
 
 #include "Robot.h"
-#include <iostream>
 #include "Constants.h"
 #include "robot_lib/VersionData.h"
 #include "SubsystemManager.h"
 #include "robot_lib/util/PIDF.h"
-#include "cameraserver/CameraServer.h"
+#include <cameraserver/CameraServer.h>
+
+#include <iostream>
 
 void Robot::RobotInit() {
-    std::cout << "code init started" << std::endl;
+    std::cout << "Code initialization has begun" << std::endl;
 
     frc::CameraServer::StartAutomaticCapture();
 
     const char* argv[] = {"--ros-args", "--log-level", "DEBUG"};
     rclcpp::init(3, argv);
 
-    frc::ReportError(frc::warn::Warning, "Robot.cpp", 14, "RobotInit()", "ROS Sucessfully Init!");
+    frc::ReportError(frc::warn::Warning, "Robot.cpp", 14, "RobotInit()", "ROS sucessfully initialized!");
 
     /* Construct subsystems */
     externIO = std::make_shared<robot::ExternIO>();
@@ -85,7 +86,6 @@ void Robot::TestInit() {
 }
 
 void Robot::TestPeriodic() {}
-
 
 #ifndef RUNNING_FRC_TESTS
 int main() {

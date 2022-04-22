@@ -1,11 +1,13 @@
 #include "robot_lib/SModule.h"
 #include "Constants.h"
 #include "Util.h"
+
 #include <units/math.h>
 #include <units/angle.h>
 #include <units/velocity.h>
 #include <frc/geometry/Rotation2d.h>
 #include <frc/smartdashboard/SmartDashboard.h>
+
 #include <iostream>
 
 using std::placeholders::_1;
@@ -242,4 +244,5 @@ namespace robot {
         }
         return newAngle;
     }
+    
 } // namespace robot

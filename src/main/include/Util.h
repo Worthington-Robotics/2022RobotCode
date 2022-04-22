@@ -16,6 +16,8 @@
 
 /* Converts a -1:1 range value to be 0:1 */
 #define MAKE_SCALAR(v) (((v) + 1) / 2)
+/* Checks if a value is within two other values, inclusive */
+#define IS_WITHIN(v, min, max) ((v >= min) && (v <= max))
 
 /* ROS functions */
 

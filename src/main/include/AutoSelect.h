@@ -11,16 +11,15 @@
 
 class AutoSelect {
 public:
-    AutoSelect(std::vector<std::string>);
+    AutoSelect(std::vector<std::string> autos);
 
-    void createRosBindings(rclcpp::Node *);
+    void createRosBindings(rclcpp::Node* node);
 
-    void selectAuto(std::string);
+    void selectAuto(std::string pathName);
 
-    void saveAuto(const std_msgs::msg::String);
-    
+    void saveAuto(const std_msgs::msg::String msg);
+
 private:
-
     ROS_CLIENT(autobt_msgs::srv::RunTree) treeRunner;
     ROS_SUB(std_msgs::msg::String) delimAutoListSub;
     std::vector<std::string> autos = {};

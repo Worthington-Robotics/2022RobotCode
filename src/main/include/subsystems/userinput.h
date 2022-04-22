@@ -20,6 +20,7 @@ namespace robot {
 
     class UserInput : public Subsystem {
     public:
+    
         UserInput();
 
         void registerSticks(std::vector<int> stickIds);

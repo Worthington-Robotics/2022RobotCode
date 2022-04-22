@@ -7,6 +7,7 @@
 #include <string>
 
 namespace motors {
+
     struct JointState {
         std::string name;
         double position, velocity, effort;
@@ -23,7 +24,6 @@ namespace motors {
                          std::shared_ptr<can_msgs::srv::SetPIDFGains::Response> resp) = 0;
 
         virtual JointState getJointState() {}
-
     };
 
     struct MotorContainer {
@@ -33,4 +33,5 @@ namespace motors {
         rclcpp::Service<can_msgs::srv::SetPIDFGains>::SharedPtr pidfSrv;
         bool shutUp = false;
     };
+    
 } // namespace motors

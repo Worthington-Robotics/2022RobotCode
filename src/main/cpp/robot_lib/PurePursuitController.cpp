@@ -1,8 +1,10 @@
 #include "robot_lib/PurePursuitController.h"
 #include "Constants.h"
+
 #include <units/math.h>
 #include <units/angle.h>
 #include <units/velocity.h>
+
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <iostream>
@@ -119,11 +121,9 @@ namespace robot {
         return angle;
     }
 
-    updateReturnType PurePursuitController::update(frc::Pose2d currPos, frc::ChassisSpeeds currState, double now)
-    {
+    updateReturnType PurePursuitController::update(frc::Pose2d currPos, frc::ChassisSpeeds currState, double now) {
         /* Check if the path is done, if it is, send a stop command and nothing else */
-        if (isDone(currPos))
-        {
+        if (isDone(currPos)) {
             return {frc::ChassisSpeeds{units::meters_per_second_t{0}, units::meters_per_second_t{0}, units::radians_per_second_t{0}}};
         }
         /* If we *aren't* done, walk to the closest point on the path */

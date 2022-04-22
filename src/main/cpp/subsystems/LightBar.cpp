@@ -5,8 +5,8 @@
 
 using std::placeholders::_1;
 
-namespace robot
-{
+namespace robot {
+
     LightBar::LightBar() {
         leds.SetLength(60);
     }
@@ -26,13 +26,11 @@ namespace robot
     void LightBar::onLoop(double currentTime) {}
 
     void LightBar::publishData() {
-        if (range == -1 || angleOffset > LIMELIGHT_MAX_ERROR) {
-            isTargeted = false;
-        } else {
-            isTargeted = true;
-        }
+        isTargeted = !(range == -1 || angleOffset > LIMELIGHT_MAX_ERROR);
+
         frc::SmartDashboard::PutBoolean("limelight/is_target", isTargeted);
         frc::SmartDashboard::PutNumber("Lights/Mode", lightMode);
+
         for (int i = 0; i < ledCount; i++) {
             frc::Color color = LightBar::getColor(i);
             buffer[i].SetRGB(color.red * 255, color.green * 255, color.blue * 255);
@@ -49,38 +47,37 @@ namespace robot
                 int speed = 130;
                 double scale = ((double)(step % speed) / (double)(speed - 1));
                 double h = (por + scale - floor(por + scale)) * 180.0;
-                return frc::Color::FromHSV((int)h, 255, 230);
+                output = frc::Color::FromHSV((int)h, 255, 230);
             }
             case kTEST: {
                 if (GET_TIME_INT % 3 == 0) {
-                    return frc::Color(0, 1, 0);
+                    output = frc::Color(0, 1, 0);
+                } else {
+                    output = frc::Color(1, 0, 0);
                 }
-                return frc::Color(1, 0, 0);
             }
             case kALLIANCE: {
                 frc::Color allianceColor;
                 std::vector<frc::Color> colors = {frc::Color(1, 0, 0), frc::Color(0, 0, 1), frc::Color(0, 0, 0)};
                 frc::SmartDashboard::PutNumber("Test/Alliance", frc::DriverStation::GetAlliance());
                 allianceColor = colors.at(frc::DriverStation::GetAlliance());
-                return allianceColor;
                 if (ledCount < 17) {
-                    return allianceColor;
+                    output = allianceColor;
                 }
                 bool pattern[17] = {true, true, true, true, false, true, false, true, true, true, true, false, true, true, true, true, true};
                 double margin = (ledCount - 17) / 2;
+
                 frc::SmartDashboard::PutNumber("Test/Margin", margin);
                 frc::SmartDashboard::PutNumber("Test/Pos", pos);
+
                 if (pos < margin || pos > margin + 17) {
                     return allianceColor;
+                } else if (pattern[(int)(pos - margin)]) {
+                    std::cout << (int)(pos - margin) << std::endl;
+                    output = frc::Color(1, 1, 1);
+                } else {
+                    output = allianceColor;
                 }
-                else
-                {
-                    if (pattern[(int)(pos - margin)]) {
-                        std::cout << (int)(pos - margin) << std::endl;
-                        return frc::Color(1, 1, 1);
-                    }
-                }
-                return allianceColor;
             }
             case kINDEX: {
                 return frc::Color::FromHSV((int)(por * 180.0), 255, 255);
@@ -90,29 +87,18 @@ namespace robot
             }
             case kONE: {
                 if (pos == 0) {
-                    return frc::Color(1, 1, 1);
-                }
-                else
-                {
-                    return frc::Color(0, 0, 0);
+                    output = frc::Color(1, 1, 1);
+                } else {
+                    output = frc::Color(0, 0, 0);
                 }
             }
             case kTARGETING: {
                 if (range == -1) {
-                    output.red = 1;
-                    output.green = 0;
-                    output.blue = 0;
-                }
-                else if (angleOffset > LIMELIGHT_MAX_ERROR) {
-                    output.red = 1;
-                    output.green = .5;
-                    output.blue = 0;
-                }
-                else
-                {
-                    output.red = 0;
-                    output.green = 1;
-                    output.blue = 0;
+                    output = frc::Color(1, 0, 0);
+                } else if (angleOffset > LIMELIGHT_MAX_ERROR) {
+                    output = frc::Color(1, 0.5, 0);
+                } else {
+                    output = frc::Color(0, 1, 0);
                 }
             }
         }
@@ -150,4 +136,5 @@ namespace robot
     }
 
     void LightBar::updateSensorData() {}
+    
 } // namespace robot
