@@ -12,9 +12,9 @@ namespace robot {
     }
 
     void LightBar::createRosBindings(rclcpp::Node *node) {
-        LightModeSub = node->create_subscription<MSG_INT>("/lights/mode", SENSOR_QOS, std::bind(LightBar::lightModeCallback, this, _1));
-        angleOffsetSub = node->create_subscription<MSG_FLOAT>("/limelight/angle_offset", SENSOR_QOS, std::bind(LightBar::setAngleOffset, this, _1));
-        rangeSub = node->create_subscription<MSG_FLOAT>("/limelight/range", SENSOR_QOS, std::bind(LightBar::setRange, this, _1));
+        LightModeSub = node->create_subscription<IntMsg>("/lights/mode", SENSOR_QOS, std::bind(LightBar::lightModeCallback, this, _1));
+        angleOffsetSub = node->create_subscription<FloatMsg>("/limelight/angle_offset", SENSOR_QOS, std::bind(LightBar::setAngleOffset, this, _1));
+        rangeSub = node->create_subscription<FloatMsg>("/limelight/range", SENSOR_QOS, std::bind(LightBar::setRange, this, _1));
     }
 
     void LightBar::reset() {
@@ -122,16 +122,16 @@ namespace robot {
         return frc::Color(0, 0, 0);
     }
     
-    void LightBar::lightModeCallback(const MSG_INT msg) {
+    void LightBar::lightModeCallback(const IntMsg msg) {
         std::cout << "Changing lights to mode " << msg.data << std::endl;
         lightMode = static_cast<LightState>(msg.data);
     }
 
-    void LightBar::setAngleOffset(const MSG_FLOAT msg) {
+    void LightBar::setAngleOffset(const FloatMsg msg) {
         angleOffset = std::abs(msg.data) - (6 / range);
     }
 
-    void LightBar::setRange(const MSG_FLOAT msg) {
+    void LightBar::setRange(const FloatMsg msg) {
         range = msg.data;
     }
 

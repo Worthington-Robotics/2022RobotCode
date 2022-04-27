@@ -47,31 +47,31 @@ namespace robot {
         /* Create sensor data publishers */
         headingController.createRosBindings(node);
         PPC->createRosBindings(node);
-        allianceColorPub = node->create_publisher<MSG_INT>("/sys/a_color", DEFAULT_QOS);
+        allianceColorPub = node->create_publisher<IntMsg>("/sys/a_color", DEFAULT_QOS);
 
         robotVelocityPub = node->create_publisher<geometry_msgs::msg::Twist>("/drive/dt/velocity", DEFAULT_QOS);
         robotPositionPub = node->create_publisher<geometry_msgs::msg::Pose2D>("/drive/dt/pose", DEFAULT_QOS);
-        drivetrainHeadingPub = node->create_publisher<MSG_FLOAT>("/drive/dt/heading", DEFAULT_QOS);
+        drivetrainHeadingPub = node->create_publisher<FloatMsg>("/drive/dt/heading", DEFAULT_QOS);
         autoLookaheadPointPub = node->create_publisher<rospathmsgs::msg::Waypoint>("/drive/auto/lookahead_point", DEFAULT_QOS);
-        autoToLookaheadAnglePub = node->create_publisher<MSG_FLOAT>("/drive/auto/lookahead_point_angle", DEFAULT_QOS);
-        driveControlModePub = node->create_publisher<MSG_INT>("/drive/control_mode_echo", DEFAULT_QOS);
+        autoToLookaheadAnglePub = node->create_publisher<FloatMsg>("/drive/auto/lookahead_point_angle", DEFAULT_QOS);
+        driveControlModePub = node->create_publisher<IntMsg>("/drive/control_mode_echo", DEFAULT_QOS);
 
 
         /* Create subscribers */
 
-        stickSub0 = node->create_subscription<MSG_JOY>("/sticks/stick0", SENSOR_QOS, std::bind(&Drivetrain::setStick0, this, _1));
-        stickSub1 = node->create_subscription<MSG_JOY>("/sticks/stick1", SENSOR_QOS, std::bind(&Drivetrain::setStick1, this, _1));
+        stickSub0 = node->create_subscription<JoyMsg>("/sticks/stick0", SENSOR_QOS, std::bind(&Drivetrain::setStick0, this, _1));
+        stickSub1 = node->create_subscription<JoyMsg>("/sticks/stick1", SENSOR_QOS, std::bind(&Drivetrain::setStick1, this, _1));
 
-        DriveModeSub = node->create_subscription<MSG_INT>("/drive/control_mode", DEFAULT_QOS, std::bind(&Drivetrain::setDriveMode, this, _1));
+        DriveModeSub = node->create_subscription<IntMsg>("/drive/control_mode", DEFAULT_QOS, std::bind(&Drivetrain::setDriveMode, this, _1));
 
-        HeadingControlSub = node->create_subscription<MSG_INT>("/actions/heading_control", DEFAULT_QOS, std::bind(&Drivetrain::setHeadingControlEnabled, this, _1));
-        limelightAngleOffsetSub = node->create_subscription<MSG_FLOAT>("/limelight/angle_offset", SENSOR_QOS, std::bind(&Drivetrain::setLimelightAngleOffset, this, _1));
-        limelightRangeSub = node->create_subscription<MSG_FLOAT>("/limelight/range", SENSOR_QOS, std::bind(&Drivetrain::setLimelightRange, this, _1));
-        aiAngleOffsetSub = node->create_subscription<MSG_FLOAT>("/ai/angle_offset", SENSOR_QOS, std::bind(&Drivetrain::setAIAngleOffset, this, _1));
+        HeadingControlSub = node->create_subscription<IntMsg>("/actions/heading_control", DEFAULT_QOS, std::bind(&Drivetrain::setHeadingControlEnabled, this, _1));
+        limelightAngleOffsetSub = node->create_subscription<FloatMsg>("/limelight/angle_offset", SENSOR_QOS, std::bind(&Drivetrain::setLimelightAngleOffset, this, _1));
+        limelightRangeSub = node->create_subscription<FloatMsg>("/limelight/range", SENSOR_QOS, std::bind(&Drivetrain::setLimelightRange, this, _1));
+        aiAngleOffsetSub = node->create_subscription<FloatMsg>("/ai/angle_offset", SENSOR_QOS, std::bind(&Drivetrain::setAIAngleOffset, this, _1));
 
         /* Creating clients and services */
 
-        startPath = node->create_service<MSG_STRING>("/drive/start_path", std::bind(&Drivetrain::enablePathFollowerS, this, _1, _2));
+        startPath = node->create_service<StringSrv>("/drive/start_path", std::bind(&Drivetrain::enablePathFollowerS, this, _1, _2));
 
         GPClient = node->create_client<rospathmsgs::srv::GetPath>("/get_path");
     }
@@ -173,7 +173,7 @@ namespace robot {
         switch (driveState) {
             case kOPEN_LOOP_FIELD_REL:
                 /* If we are safe, set motor demands */
-                if (lastStickTime + DRIVE_TIMEOUT > GET_TIME_DOUBLE) {
+                if (lastStickTime + DRIVE_TIMEOUT > currentTime) {
 
                     /* Convert to demands */
                     speed = twistDrive(stickTwist, frc::Rotation2d{units::degree_t{drivetrainHeadingMsg.data}});
@@ -184,7 +184,7 @@ namespace robot {
                 break;
             case kOPEN_LOOP_ROBOT_REL:
                 /* If we are safe, set motor demands */
-                if (lastStickTime + DRIVE_TIMEOUT > GET_TIME_DOUBLE) {
+                if (lastStickTime + DRIVE_TIMEOUT > currentTime) {
                     /* Convert to demands */
                     speed = twistDrive(stickTwist);
                 } else { /* Otherwise force motors to zero, there is stale data */
@@ -252,7 +252,7 @@ namespace robot {
         for (std::shared_ptr<SModule> mod : sModules) {
             mod->publishModuleInfo();
         }
-        MSG_INT allianceColorMsg;
+        IntMsg allianceColorMsg;
         if (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kBlue) {
             allianceColorMsg.data = 1;
         } else {
@@ -271,27 +271,27 @@ namespace robot {
 
     /* Setters */
 
-    void Drivetrain::setLimelightAngleOffset(const MSG_FLOAT setpoint) {
+    void Drivetrain::setLimelightAngleOffset(const FloatMsg setpoint) {
         targetAngleOffset = setpoint.data;
     }
 
-    void Drivetrain::setLimelightRange(const MSG_FLOAT lRange) {
+    void Drivetrain::setLimelightRange(const FloatMsg lRange) {
         range = lRange.data;
 #ifdef noRosDebug
         frc::SmartDashboard::PutNumber("limelight/range", range);
 #endif
     }
 
-    void Drivetrain::setAIAngleOffset(const MSG_FLOAT setpoint) {
+    void Drivetrain::setAIAngleOffset(const FloatMsg setpoint) {
         ballAngleOffset = setpoint.data;
     }
 
-    void Drivetrain::setDriveMode(const MSG_INT msg) {
+    void Drivetrain::setDriveMode(const IntMsg msg) {
         std::cout << "Changing drivetrain to mode: " << msg.data << std::endl;
         driveState = static_cast<ControlState>(msg.data);
     }
 
-    void Drivetrain::setHeadingControlEnabled(const MSG_INT engaged) {
+    void Drivetrain::setHeadingControlEnabled(const IntMsg engaged) {
         headingControl = engaged.data;
         switch (headingControl) {
             case 1:
@@ -311,7 +311,7 @@ namespace robot {
         headingController.setSetpoint(headingControlSetpoint, true);
     }
 
-    void Drivetrain::setStick0(const MSG_JOY msg) {
+    void Drivetrain::setStick0(const JoyMsg msg) {
         lastStickTime = GET_TIME_DOUBLE;
         lastStick0 = msg;
         isRobotRel = lastStick0.buttons.at(0);
@@ -319,7 +319,7 @@ namespace robot {
         tankLockButton = lastStick0.buttons.at(5);
     }
 
-    void Drivetrain::setStick1(const MSG_JOY msg) {
+    void Drivetrain::setStick1(const JoyMsg msg) {
         lastStickTime = GET_TIME_DOUBLE;
         lastStick1 = msg;
 
@@ -334,7 +334,7 @@ namespace robot {
 
     /* Services */
 
-    void Drivetrain::enablePathFollowerS(std::shared_ptr<MSG_STRING_Request> ping, std::shared_ptr<MSG_STRING_Response> pong) {
+    void Drivetrain::enablePathFollowerS(std::shared_ptr<StringSrv_Request> ping, std::shared_ptr<StringSrv_Response> pong) {
         enablePathFollower(ping->request_string);
         pong->success = true;
     }

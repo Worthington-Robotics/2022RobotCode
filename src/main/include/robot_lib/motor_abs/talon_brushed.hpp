@@ -61,6 +61,7 @@ namespace motors {
             auto controlMode = static_cast<ctre::phoenix::motorcontrol::ControlMode>(msg->control_mode);
             switch(controlMode) {
                 case ControlMode::PercentOutput:
+                case ControlMode::Follower:
                     motor->Set(controlMode, msg->demand);
                     break;
                 case ControlMode::Velocity:
@@ -68,9 +69,6 @@ namespace motors {
                     break;
                 case ControlMode::Position:
                     motor->Set(controlMode, msg->demand  * 1024.0 / M_PI);
-                    break;
-                case ControlMode::Follower:
-                    motor->Set(controlMode, msg->demand);
                     break;
                 case ControlMode::Disabled:
                 default:

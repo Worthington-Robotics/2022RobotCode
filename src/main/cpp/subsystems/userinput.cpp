@@ -13,12 +13,12 @@ namespace robot {
     }
 
     void UserInput::createRosBindings(rclcpp::Node *node) {
-        intakeIndexerPub = node->create_publisher<MSG_INT>("/actions/intake_indexer", DEFAULT_QOS);
-        intakeSolePub = node->create_publisher<MSG_INT>("/externIO/intake_solenoid/state", DEFAULT_QOS);
-        flyWheelModePub = node->create_publisher<MSG_INT>("/actions/flywheel_mode", DEFAULT_QOS);
+        intakeIndexerPub = node->create_publisher<IntMsg>("/actions/intake_indexer", DEFAULT_QOS);
+        intakeSolePub = node->create_publisher<IntMsg>("/externIO/intake_solenoid/state", DEFAULT_QOS);
+        flyWheelModePub = node->create_publisher<IntMsg>("/actions/flywheel_mode", DEFAULT_QOS);
         for (auto stick = sticks.begin(); stick != sticks.end(); ++stick) {
             stickPubs.push_back(
-                node->create_publisher<MSG_JOY>("/sticks/stick" + std::to_string(stick->GetPort()), SENSOR_QOS)
+                node->create_publisher<JoyMsg>("/sticks/stick" + std::to_string(stick->GetPort()), SENSOR_QOS)
             );
         }
     }
@@ -26,7 +26,7 @@ namespace robot {
     void UserInput::reset() {}
 
     void UserInput::onStart() {
-        MSG_INT flywheelStart;
+        IntMsg flywheelStart;
         flywheelStart.data = 0;
         flyWheelModePub->publish(flywheelStart);
     }
@@ -38,7 +38,7 @@ namespace robot {
     void UserInput::publishData() {
         for (int i = 0; i < sticks.size(); i++) {
             if (frc::DriverStation::IsJoystickConnected(i)) {
-                MSG_JOY stickData;
+                JoyMsg stickData;
 
                 int numAxes = sticks.at(i).GetAxisCount();
                 //std::cout << "Stick " << i << " axis count: " << numAxes << " axis values :[";
@@ -71,7 +71,7 @@ namespace robot {
         }
     }
 
-    std::vector<double> UserInput::evalDeadband(const MSG_JOY &joyMsg,
+    std::vector<double> UserInput::evalDeadband(const JoyMsg &joyMsg,
                                                 const double deadBand, const int power) {
         std::vector<double> output = std::vector<double>();
         for (double axis : joyMsg.axes) {
@@ -91,7 +91,7 @@ namespace robot {
         return output;
     }
 
-    std::vector<double> UserInput::scalarCut(const MSG_JOY &joyMsg,
+    std::vector<double> UserInput::scalarCut(const JoyMsg &joyMsg,
                                              const double deadBand, const int power, const std::vector<double> scalars) {
         auto output = evalDeadband(joyMsg, deadBand, power);
         for (int i = 0; i < scalars.size() && i < output.size(); i++) {
@@ -104,8 +104,8 @@ namespace robot {
         return (input + 1) * (maxOutput - minOutput) / (2) + minOutput;
     }
 
-    void UserInput::setStickZero(MSG_JOY lastStick0) {
-        MSG_INT flywheelModeMsg;
+    void UserInput::setStickZero(JoyMsg lastStick0) {
+        IntMsg flywheelModeMsg;
         if (lastStick0.buttons.at(1) && !flywheelModePressed) {
             flywheelModeUpdate = true;
             flywheelModePressed = true;
@@ -129,8 +129,8 @@ namespace robot {
         }
     }
 
-    void UserInput::setStickOne(MSG_JOY lastStick1) {
-        MSG_INT intakeIndexerMsg;
+    void UserInput::setStickOne(JoyMsg lastStick1) {
+        IntMsg intakeIndexerMsg;
         if (lastStick1.buttons.at(2) && !intakeIndexerPressed) {
             intakeIndexerMsgUpdate = true;
             intakeIndexerPressed = true;
@@ -155,7 +155,7 @@ namespace robot {
             intakeIndexerMsgUpdate = false;
         }
 
-        MSG_INT intakeSoleMsg;
+        IntMsg intakeSoleMsg;
         if (lastStick1.buttons.at(6) && !intakeSolePressed) {
             intakeSoleMsgUpdate = true;
             intakeSolePressed = true;

@@ -112,8 +112,8 @@ namespace robot {
 
         /* ROS Publishers */
 
-        ROS_PUB(MSG_FLOAT) drivetrainHeadingPub;
-        MSG_FLOAT drivetrainHeadingMsg;
+        ROS_PUB(FloatMsg) drivetrainHeadingPub;
+        FloatMsg drivetrainHeadingMsg;
 
         ROS_PUB(geometry_msgs::msg::Pose2D) robotPositionPub;
         geometry_msgs::msg::Pose2D robotPositionMsg;
@@ -125,50 +125,50 @@ namespace robot {
         ROS_PUB(rospathmsgs::msg::Waypoint) autoLookaheadPointPub;
         rospathmsgs::msg::Waypoint lookAheadPoint;
 
-        ROS_PUB(MSG_FLOAT) autoToLookaheadAnglePub;
-        MSG_FLOAT autoToLookaheadAngleMsg;
+        ROS_PUB(FloatMsg) autoToLookaheadAnglePub;
+        FloatMsg autoToLookaheadAngleMsg;
 
-        ROS_PUB(MSG_INT) driveControlModePub;
-        MSG_INT driveControlModeMsg;
+        ROS_PUB(IntMsg) driveControlModePub;
+        IntMsg driveControlModeMsg;
 
-        ROS_PUB(MSG_INT) allianceColorPub;
+        ROS_PUB(IntMsg) allianceColorPub;
 
         bool headingControlUpdate = false;
 
         /* ROS Subscibers */
 
-        ROS_SUB(MSG_JOY) stickSub0;
-        void setStick0(const MSG_JOY);
+        ROS_SUB(JoyMsg) stickSub0;
+        void setStick0(const JoyMsg);
         geometry_msgs::msg::Twist stickTwist;
-        MSG_JOY lastStick0;
+        JoyMsg lastStick0;
 
 
-        ROS_SUB(MSG_JOY) stickSub1;
-        void setStick1(const MSG_JOY);
-        MSG_JOY lastStick1;
+        ROS_SUB(JoyMsg) stickSub1;
+        void setStick1(const JoyMsg);
+        JoyMsg lastStick1;
 
-        ROS_SUB(MSG_INT) DriveModeSub;
-        void setDriveMode(const MSG_INT);
+        ROS_SUB(IntMsg) DriveModeSub;
+        void setDriveMode(const IntMsg);
 
-        ROS_SUB(MSG_INT) HeadingControlSub;
-        ROS_SUB(MSG_FLOAT) limelightRangeSub;
-        void setLimelightRange(const MSG_FLOAT);
-        void setHeadingControlEnabled(const MSG_INT);
+        ROS_SUB(IntMsg) HeadingControlSub;
+        ROS_SUB(FloatMsg) limelightRangeSub;
+        void setLimelightRange(const FloatMsg);
+        void setHeadingControlEnabled(const IntMsg);
         void setHeadingControlSetpoint(double);
-        void setAIAngleOffset(const MSG_FLOAT);
+        void setAIAngleOffset(const FloatMsg);
         PIDF headingController = PIDF(HEADING_CONTROL_GAINS_TELE, "gyro_pid");
         int headingControl = 0; /* (0, disabled), (1, gyroLock), (2, limelightAngle) */
         double headingControlSetpoint = 0;
         double range = 0;
 
-        ROS_SUB(MSG_FLOAT) limelightAngleOffsetSub;
-        ROS_SUB(MSG_FLOAT) aiAngleOffsetSub;
-        void setLimelightAngleOffset(const MSG_FLOAT);
+        ROS_SUB(FloatMsg) limelightAngleOffsetSub;
+        ROS_SUB(FloatMsg) aiAngleOffsetSub;
+        void setLimelightAngleOffset(const FloatMsg);
 
         /* ROS services */
 
-        ROS_SERVICE(MSG_STRING) startPath;
-        void enablePathFollowerS(std::shared_ptr<MSG_STRING_Request>, std::shared_ptr<MSG_STRING_Response>);
+        ROS_SERVICE(StringSrv) startPath;
+        void enablePathFollowerS(std::shared_ptr<StringSrv_Request>, std::shared_ptr<StringSrv_Response>);
 
         ROS_SERVICE(can_msgs::srv::SetPIDFGains) setGyroGains;
         void updateGyroPIDGains(const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request>,

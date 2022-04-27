@@ -31,13 +31,7 @@ namespace robot {
          * @param dValues
          * @param aValues
          **/
-        SModule(int driveID,
-                int angleID,
-                int encoderID,
-                std::string name,
-                double offset,
-                PIDFDiscriptor dValues,
-                PIDFDiscriptor aValues);
+        SModule(int driveID, int angleID, int encoderID, std::string name, double offset, PIDFDiscriptor dValues, PIDFDiscriptor aValues);
 
         void reset();
 
@@ -54,8 +48,7 @@ namespace robot {
         void setInvertDrive(bool);
 
         void updatePID(std::shared_ptr<TalonFX> motor,
-                        const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request>,
-                        std::shared_ptr<can_msgs::srv::SetPIDFGains::Response>);
+                        const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request>, std::shared_ptr<can_msgs::srv::SetPIDFGains::Response>);
 
         void updateDrivePID(const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request>,
                             std::shared_ptr<can_msgs::srv::SetPIDFGains::Response>);

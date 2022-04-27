@@ -44,7 +44,7 @@ namespace robot {
          * @param power the power to apply to the joystick as a ramping function (recommend 2 or 3)
          * @return the output values of the different joystick axes
          **/
-        static std::vector<double> evalDeadband(const MSG_JOY &joyMsg,
+        static std::vector<double> evalDeadband(const JoyMsg &joyMsg,
                                                 const double deadBand,
                                                 const int power);
 
@@ -57,7 +57,7 @@ namespace robot {
          * it will be left un-processed
          * @return the output values of the different joystick axes
          **/
-        static std::vector<double> scalarCut(const MSG_JOY &joyMsg,
+        static std::vector<double> scalarCut(const JoyMsg &joyMsg,
                                             const double deadBand,
                                             const int power,
                                             const std::vector<double> scalars);
@@ -72,19 +72,19 @@ namespace robot {
 
     private:
         std::vector<frc::Joystick> sticks = {};
-        std::vector<ROS_PUB(MSG_JOY)> stickPubs = {};
+        std::vector<ROS_PUB(JoyMsg)> stickPubs = {};
 
-        void setStickZero(MSG_JOY lastStick0);
+        void setStickZero(JoyMsg lastStick0);
 
-        void setStickOne(MSG_JOY lastStick1);
+        void setStickOne(JoyMsg lastStick1);
         
-        ROS_PUB(MSG_INT) intakeIndexerPub;
+        ROS_PUB(IntMsg) intakeIndexerPub;
         bool intakeIndexerMsgUpdate = false, intakeIndexerPressed = false;
 
-        ROS_PUB(MSG_INT) intakeSolePub;
+        ROS_PUB(IntMsg) intakeSolePub;
         bool intakeSoleMsgUpdate = false, intakeSolePressed = false;
 
-        ROS_PUB(MSG_INT) flyWheelModePub;
+        ROS_PUB(IntMsg) flyWheelModePub;
         bool flywheelModeUpdate = false, flywheelModePressed = false;
     };
 

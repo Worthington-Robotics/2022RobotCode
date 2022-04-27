@@ -37,17 +37,17 @@ namespace robot {
         bool soleState = false;
 
         ROS_SUB(sensor_msgs::msg::Joy) stick1Sub;
-        std::vector<ROS_SUB(MSG_INT)> climberEnabledSubs;
+        std::vector<ROS_SUB(IntMsg)> climberEnabledSubs;
         std::vector<ROS_PUB(can_msgs::msg::MotorMsg)> climberDemandsPubs;
-        ROS_PUB(MSG_INT) soleStatePub;
+        ROS_PUB(IntMsg) soleStatePub;
         std::vector<bool> climberEnabled {false, false}; 
         std::vector<double> climberDemands {0, 0}; 
 
-        void setLClimberEnabled(const MSG_INT msg) {
+        void setLClimberEnabled(const IntMsg msg) {
             climberEnabled.at(0) = (msg.data == 1);
         }
 
-        void setRClimberEnabled(const MSG_INT msg) {
+        void setRClimberEnabled(const IntMsg msg) {
             climberEnabled.at(1) = (msg.data == 1);
         }
 

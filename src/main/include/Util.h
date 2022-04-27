@@ -28,11 +28,11 @@
 
 /* Common message types */
 
-#define MSG_INT std_msgs::msg::Int16
-#define MSG_FLOAT std_msgs::msg::Float32
-#define MSG_BOOL std_msgs::msg::Bool
-#define MSG_STRING autobt_msgs::srv::StringService
-#define MSG_JOY sensor_msgs::msg::Joy
+typedef std_msgs::msg::Int16 IntMsg 
+typedef std_msgs::msg::Float32 FloatMsg
+typedef std_msgs::msg::Bool BoolMsg
+typedef autobt_msgs::srv::StringService StringSrv
+typedef sensor_msgs::msg::Joy JoyMsg
 
 /* QoS types */
 

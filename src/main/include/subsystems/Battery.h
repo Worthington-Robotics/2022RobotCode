@@ -30,7 +30,7 @@ namespace robot {
 
         /* Callbacks for ROS Subscribers */
 
-        void idleStageCallback(const MSG_INT msg);
+        void idleStageCallback(const IntMsg msg);
         void resetStageCallback();
 
         /* Reset idle countdown */
@@ -58,8 +58,8 @@ namespace robot {
 
         /* ROS Subscibers */
 
-        ROS_SUB(MSG_INT) IdleStageSub;
-        ROS_SUB(MSG_INT) ResetStageSub;
+        ROS_SUB(IntMsg) IdleStageSub;
+        ROS_SUB(IntMsg) ResetStageSub;
     };
 
 } // namespace robot

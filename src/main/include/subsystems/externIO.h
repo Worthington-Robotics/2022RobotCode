@@ -38,8 +38,8 @@ namespace robot {
 
         void publishData() override;
 
-        void setTOF0(const MSG_FLOAT);
-        void setTOF1(const MSG_FLOAT);
+        void setTOF0(const FloatMsg);
+        void setTOF1(const FloatMsg);
 
         void enableDebug(bool debug) override;
 
@@ -47,21 +47,21 @@ namespace robot {
         /* Publishers of sensor data */
 
         ROS_PUB(sensor_msgs::msg::JointState) hoodEncoderPub;
-        ROS_PUB(MSG_BOOL) colesStupidFuckingLimelightPub;
+        ROS_PUB(BoolMsg) colesStupidFuckingLimelightPub;
         ROS_PUB(sensor_msgs::msg::JointState) flywheelEncoderPub;
-        ROS_SUB(MSG_FLOAT) externalTOFDistanceSub;
-        ROS_SUB(MSG_FLOAT) internalTOFDistanceSub;
-        ROS_PUB(MSG_BOOL) upperHoodLimitSwitchPub;
-        ROS_PUB(MSG_BOOL) lowerHoodLimitSwitchPub;
-        ROS_PUB(MSG_BOOL) hoodLimitSwitchResetPub;
+        ROS_SUB(FloatMsg) externalTOFDistanceSub;
+        ROS_SUB(FloatMsg) internalTOFDistanceSub;
+        ROS_PUB(BoolMsg) upperHoodLimitSwitchPub;
+        ROS_PUB(BoolMsg) lowerHoodLimitSwitchPub;
+        ROS_PUB(BoolMsg) hoodLimitSwitchResetPub;
 
         /* Messages used in the publishers listed above */
 
         sensor_msgs::msg::JointState hoodEncoderPosition;
         sensor_msgs::msg::JointState flywheelEncoderVelocity;
-        MSG_FLOAT internalTOFDistance;
-        MSG_BOOL upperHoodLimitSwitch;
-        MSG_BOOL lowerHoodLimitSwitch;
+        FloatMsg internalTOFDistance;
+        BoolMsg upperHoodLimitSwitch;
+        BoolMsg lowerHoodLimitSwitch;
 
         /* Motors to be controlled by coprocessor code and other systems */
 

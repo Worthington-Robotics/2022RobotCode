@@ -38,7 +38,7 @@ namespace robot {
          * @param ping This is empty and you can ignore it, it is merely a requirement of ROS
          * @param pong This is the response message with error status
          **/ 
-        void serviceReset(std::shared_ptr<MSG_BOOL> msg);
+        void serviceReset(std::shared_ptr<BoolMsg> msg);
 
         /**
          * Commands all susbsystems to enable or disable their debug modes
@@ -50,7 +50,7 @@ namespace robot {
          * @param ping This contains the ros message, and the boolean for debug to be set to
          * @param pong This is the response message with error status
          **/ 
-        void serviceDebug(std::shared_ptr<MSG_BOOL> msg);
+        void serviceDebug(std::shared_ptr<BoolMsg> msg);
 
         /**
          * Starts the subsystem manager thread, and begins updating the subsystems in order. 
@@ -91,12 +91,12 @@ namespace robot {
 
         void spinRos();
 
-        ROS_PUB(MSG_BOOL) sysReset;
-        ROS_PUB(MSG_BOOL) sysDebug;
-        ROS_PUB(MSG_BOOL) autoKill;
-        ROS_PUB(MSG_INT) headingControlPub;
-        ROS_PUB(MSG_INT) shooterRequestPub;
-        ROS_PUB(MSG_INT) sysEnableEchoPub;
+        ROS_PUB(BoolMsg) sysReset;
+        ROS_PUB(BoolMsg) sysDebug;
+        ROS_PUB(BoolMsg) autoKill;
+        ROS_PUB(IntMsg) headingControlPub;
+        ROS_PUB(IntMsg) shooterRequestPub;
+        ROS_PUB(IntMsg) sysEnableEchoPub;
         double sysDisableTime = 0;
     };
 

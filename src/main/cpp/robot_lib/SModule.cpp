@@ -17,7 +17,6 @@ namespace robot {
 
     SModule::SModule(int driveID, int angleID, int encodID, std::string moduleName, double offset, PIDFDiscriptor dValues, PIDFDiscriptor aValues) {
         name = moduleName;
-        //CLEANUP: why default?
         angle = std::make_shared<TalonFX>(angleID, "Default Name");
         drive = std::make_shared<TalonFX>(driveID, "Default Name");
         encod = std::make_shared<CANCoder>(encodID, "Default Name");

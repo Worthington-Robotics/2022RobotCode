@@ -11,9 +11,9 @@ namespace robot {
     Battery::Battery() {}
 
     void Battery::createRosBindings(rclcpp::Node *node) {
-        IdleStageSub = node->create_subscription<MSG_INT>("/battery/idle", SENSOR_QOS, std::bind(&Battery::idleStageCallback, this, _1));
-        ResetStageSub = node->create_subscription<MSG_INT>("/battery/idle", SENSOR_QOS, std::bind(&Battery::idleStageCallback, this, _1));
-        node->create_publisher<MSG_INT>("/battery/idle", DEFAULT_QOS);
+        IdleStageSub = node->create_subscription<IntMsg>("/battery/idle", SENSOR_QOS, std::bind(&Battery::idleStageCallback, this, _1));
+        ResetStageSub = node->create_subscription<IntMsg>("/battery/idle", SENSOR_QOS, std::bind(&Battery::idleStageCallback, this, _1));
+        node->create_publisher<IntMsg>("/battery/idle", DEFAULT_QOS);
     }
 
     void Battery::reset() {}
@@ -54,7 +54,7 @@ namespace robot {
         return amt;
     }
 
-    void Battery::idleStageCallback(const MSG_INT msg) {
+    void Battery::idleStageCallback(const IntMsg msg) {
         std::cout << "changing idle mode to " << msg.data << std::endl;
         idleStage = msg.data;
     }
