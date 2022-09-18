@@ -102,6 +102,11 @@ namespace robot
         rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr flyWheelModePub;
         bool flywheelModeUpdate = false;
         bool flywheelModePressed = false;
+
+        
+        rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr driveControlModePub;
+        bool driveControlModeUpdate = false;
+        bool driveControlModePressed = false;
     };
 
 } // namespace robot

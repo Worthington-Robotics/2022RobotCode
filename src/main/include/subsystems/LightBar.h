@@ -97,6 +97,7 @@ namespace robot
 
         void updateSensorData();
 
+        void setReadyToFire(const std_msgs::msg::Int16);
         void setAngleOffset(const std_msgs::msg::Float32);
         void setRange(const std_msgs::msg::Float32);
 
@@ -106,11 +107,13 @@ namespace robot
 
         // ROS Subscibers
         rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr LightModeSub;
+        rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr shooterSysRTFSub;
         rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr angleOffsetSub;
         rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr rangeSub;
 
         // Targeted Bool
         bool isTargeted = false;
+        bool isHoodReady = false;
         double angleOffset = 0.0;
         double range = -1;
 

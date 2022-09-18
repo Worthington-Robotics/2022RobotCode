@@ -20,8 +20,6 @@ namespace robot
     **/
    void ExternIO::createRosBindings(rclcpp::Node *node)
    {
-
-
       hoodLimitSwitchResetPub = node->create_publisher<std_msgs::msg::Bool>("/externIO/hood_motor/is_reset", rclcpp::SystemDefaultsQoS());
       for (motors::TalonBrushless * motor : motorsFX)
       {
@@ -182,10 +180,12 @@ namespace robot
 
    void ExternIO::setTOF0(const std_msgs::msg::Float32 msg){
       frc::SmartDashboard::PutBoolean("externIO/external_tof", (msg.data < .05));
+      frc::SmartDashboard::PutNumber("externIO/external_tof_distance", msg.data);
    }
 
    void ExternIO::setTOF1(const std_msgs::msg::Float32 msg){
-      frc::SmartDashboard::PutBoolean("externIO/internal_tof", (msg.data < .05));
+      frc::SmartDashboard::PutBoolean("externIO/internal_tof", (msg.data < .065));
+      frc::SmartDashboard::PutNumber("externIO/internal_tof_distance", msg.data);
    }
 
    /**
@@ -211,6 +211,8 @@ namespace robot
       for(solenoid::Solenoid* solenoid : solenoids){
          solenoid->getSolenoid()->Set(solenoid->state);
       }
+
+      backspinWheel.Set(1);
 
       
    }
@@ -246,6 +248,10 @@ namespace robot
          if(!MC.shutUp){
             sensor_msgs::msg::JointState jointState;
             motors::JointState JS = MC.motor.getJointState();
+            #ifdef noRosDebug
+            frc::SmartDashboard::PutNumber(JS.name + "/position", JS.position);
+            frc::SmartDashboard::PutNumber(JS.name + "/velocity", JS.velocity);
+            #endif
             jointState.position.push_back(JS.position);
             jointState.velocity.push_back(JS.velocity);
             jointState.effort.push_back(JS.effort);

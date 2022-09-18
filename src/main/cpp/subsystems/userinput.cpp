@@ -21,6 +21,7 @@ namespace robot
         intakeIndexerPub = node->create_publisher<std_msgs::msg::Int16>("/actions/intake_indexer", rclcpp::SystemDefaultsQoS());
         intakeSolePub = node->create_publisher<std_msgs::msg::Int16>("/externIO/intake_solenoid/state", rclcpp::SystemDefaultsQoS());
         flyWheelModePub = node->create_publisher<std_msgs::msg::Int16>("/actions/flywheel_mode", rclcpp::SystemDefaultsQoS());
+        driveControlModePub = node->create_publisher<std_msgs::msg::Int16>("/drive/control_mode", rclcpp::SystemDefaultsQoS());
         for (auto stick = sticks.begin(); stick != sticks.end(); ++stick)
         {
             stickPubs.push_back(
@@ -148,9 +149,28 @@ namespace robot
             flyWheelModePub->publish(flywheelModeMsg);
             flywheelModeUpdate = false;
         }
+        
+        std_msgs::msg::Int16 driveControlModeMsg;
+        if (lastStick0.buttons.at(5) && !driveControlModePressed) {
+            driveControlModeUpdate = true;
+            driveControlModePressed = true;
+            driveControlModeMsg.data = 0;
+        } else if (lastStick0.buttons.at(5)) {
+            driveControlModePressed = true;
+        } else if(driveControlModePressed) {
+            driveControlModePressed = false;
+            driveControlModeUpdate = true;
+            driveControlModeMsg.data = 1;
+        }
+        if(driveControlModeUpdate){
+            driveControlModePub->publish(driveControlModeMsg);
+            driveControlModeUpdate = false;
+        }
     }
 
     void UserInput::setStickOne(sensor_msgs::msg::Joy lastStick1) {
+
+
         std_msgs::msg::Int16 intakeIndexerMsg;
         if(lastStick1.buttons.at(2) && !intakeIndexerPressed){
             intakeIndexerMsgUpdate = true;

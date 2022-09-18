@@ -42,13 +42,13 @@
 //Motor defines
 #define VOLTAGE_COMP 11
 
-#define HOOD_KP .3
+#define HOOD_KP .4
 #define HOOD_KI 0
 #define HOOD_KD 0
 #define HOOD_KF 0
 #define HOOD_IMAX 0
 
-#define FLYWHEEL_KP 0.2
+#define FLYWHEEL_KP 0.25
 #define FLYWHEEL_KI 0
 #define FLYWHEEL_KD 0
 #define FLYWHEEL_KF .048
@@ -101,11 +101,6 @@
 // Square size of chassis
 #define CHASSIS_LENGTH 0.65_m
 
-// Adaptive Pure Pursuit Controller
-#define FIXED_LOOKAHEAD .05
-#define VELOCITY_LOOKAHEAD_COEFF .1
-#define MAX_ACCEL .5
-#define PATH_COMPLETE_TOLERANCE .08
 
 // Controller Axis
 #define X_AXIS 1
@@ -174,9 +169,15 @@
 
 #define none 0
 
-#define HEADING_CONTROL_GAINS_AUTO robot::PIDFDiscriptor{.009, 0, 0.0007, 0}
-#define HEADING_CONTROL_GAINS_TELE robot::PIDFDiscriptor{.009, 0, 0.0007, 0}
-#define PURSUIT_Y_PID_GAINS robot::PIDFDiscriptor{2.5, 0, 0.83, 0}
-#define PURSUIT_X_PID_GAINS robot::PIDFDiscriptor{2.5, 0, 0.83, 0}
+#define HEADING_CONTROL_GAINS_AUTO robot::PIDFDiscriptor{.4, 0, 0.016, 0}
+#define HEADING_CONTROL_GAINS_TELE robot::PIDFDiscriptor{.4, 0, 0.016, 0}
 
 // PATH FOLLOWING STUFFS (EXPERIEMTAL ;-;)
+#define PURSUIT_Y_PID_GAINS robot::PIDFDiscriptor{8, 0, 0.53, 0}
+#define PURSUIT_X_PID_GAINS robot::PIDFDiscriptor{8, 0, 0.53, 0}
+
+// Adaptive Pure Pursuit Controller
+#define FIXED_LOOKAHEAD .1
+#define VELOCITY_LOOKAHEAD_COEFF .1
+#define MAX_ACCEL .5
+#define PATH_COMPLETE_TOLERANCE .05

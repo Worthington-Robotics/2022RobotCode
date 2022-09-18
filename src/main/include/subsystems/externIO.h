@@ -12,6 +12,7 @@
 
 // motor libs and such
 #include <ctre/Phoenix.h>
+#include <rev/CANSparkMax.h>
 // #include <TimeOfFlight.h>
 #include <frc/DoubleSolenoid.h>
 #include <robot_lib/motor_abs/talon_brushless.hpp>
@@ -101,6 +102,7 @@ namespace robot
             new solenoid::Solenoid(frc::PneumaticsModuleType::CTREPCM, INTAKE_SOLENOID_HIGH_ID, INTAKE_SOLENOID_LOW_ID, "intake")
         };
 
+        rev::CANSparkMax backspinWheel = rev::CANSparkMax(1, rev::CANSparkMaxLowLevel::MotorType::kBrushless);
         std::vector<solenoid::SolenoidContainer> solenoidsC;
 
         bool hoodReset = false;

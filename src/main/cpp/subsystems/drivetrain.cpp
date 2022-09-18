@@ -48,7 +48,7 @@ namespace robot
         reset();
 
         headingController.setContinuous(true);
-        headingController.setInputRange(360);
+        headingController.setInputRange(2 * M_PI);
         headingController.setIMax(5);
     }
 
@@ -62,8 +62,6 @@ namespace robot
         headingController.createRosBindings(node);
         PPC->createRosBindings(node);
         allianceColorPub = node->create_publisher<std_msgs::msg::Int16>("/sys/a_color", rclcpp::SystemDefaultsQoS());
-
-
         robotVelocityPub = node->create_publisher<geometry_msgs::msg::Twist>("/drive/dt/velocity", rclcpp::SystemDefaultsQoS());
         robotPositionPub = node->create_publisher<geometry_msgs::msg::Pose2D>("/drive/dt/pose", rclcpp::SystemDefaultsQoS());
         drivetrainHeadingPub = node->create_publisher<std_msgs::msg::Float32>("/drive/dt/heading", rclcpp::SystemDefaultsQoS());
@@ -93,6 +91,8 @@ namespace robot
         DriveModeSub = node->create_subscription<std_msgs::msg::Int16>("/drive/control_mode", rclcpp::SystemDefaultsQoS(), std::bind(&Drivetrain::setDriveMode, this, _1));
 
         HeadingControlSub = node->create_subscription<std_msgs::msg::Int16>("/actions/heading_control", rclcpp::SystemDefaultsQoS(), std::bind(&Drivetrain::setHeadingControlEnabled, this, _1));
+        HeadingControlSetpointSub = node->create_subscription<std_msgs::msg::Float32>("/actions/heading_control_setpoint", rclcpp::SystemDefaultsQoS(), std::bind(&Drivetrain::setHeadingControlSetpoint, this, _1));
+        DriveVelocityTwistSub = node->create_subscription<geometry_msgs::msg::Twist>("/drive/dt/velocity_request", rclcpp::SystemDefaultsQoS(), std::bind(&Drivetrain::setDriveVelocity, this, _1));
         limelightAngleOffsetSub = node->create_subscription<std_msgs::msg::Float32>("/limelight/angle_offset", rclcpp::SensorDataQoS(), std::bind(&Drivetrain::setLimelightAngleOffset, this, _1));
         limelightRangeSub = node->create_subscription<std_msgs::msg::Float32>("/limelight/range", rclcpp::SensorDataQoS(), std::bind(&Drivetrain::setLimelightRange, this, _1));
         aiAngleOffsetSub = node->create_subscription<std_msgs::msg::Float32>("/ai/angle_offset", rclcpp::SensorDataQoS(), std::bind(&Drivetrain::setAIAngleOffset, this, _1));
@@ -141,8 +141,8 @@ namespace robot
     void Drivetrain::updateSensorData()
     {
         //TODO this might be a spot for the PIDF issue
-        drivetrainHeadingMsg.data = -(std::fmod((imu->GetFusedHeading() + 360), 360));
-        sOdom.Update(frc::Rotation2d{units::degree_t{drivetrainHeadingMsg.data}}, frontRMod->getState(),
+        drivetrainHeadingMsg.data = -(std::fmod(((imu->GetFusedHeading() * M_PI / 180) + 2 * M_PI), 2 * M_PI));
+        sOdom.Update(frc::Rotation2d{units::radian_t{drivetrainHeadingMsg.data}}, frontRMod->getState(),
                      frontLMod->getState(), rearRMod->getState(), rearLMod->getState());
 
         pose = sOdom.GetPose();
@@ -213,7 +213,7 @@ namespace robot
             {
 
                 // convert to demands
-                speed = twistDrive(stickTwist, frc::Rotation2d{units::degree_t{drivetrainHeadingMsg.data}});
+                speed = twistDrive(stickTwist, frc::Rotation2d{units::radian_t{drivetrainHeadingMsg.data}});
             }
             else
             { // otherwise force motors to zero, there is stale data
@@ -239,7 +239,9 @@ namespace robot
         }
         case VELOCITY_TWIST:
             // if we are safe, set motor demands,
-            speed = frc::ChassisSpeeds{2_mps, 0_mps, 0_rad_per_s};
+            speed.omega = units::radians_per_second_t{manualVelocity.angular.x};
+            speed.vx = units::meters_per_second_t{manualVelocity.linear.x};
+            speed.vy = units::meters_per_second_t{manualVelocity.linear.y};
 
             // FR, FL, RR, RL
 
@@ -338,14 +340,17 @@ namespace robot
             hoodDemandPublisher->publish(hoodDemandMsg);
         }
 #endif
-        frc::SmartDashboard::PutNumber("drive/heading", std::fmod(drivetrainHeadingMsg.data + 360, 360));
+        frc::SmartDashboard::PutNumber("drive/heading", std::fmod((drivetrainHeadingMsg.data * 180 / M_PI) + 360, 360));
     }
 
+    void Drivetrain::setDriveVelocity(geometry_msgs::msg::Twist msg) {
+        manualVelocity = msg;
+    }
     // Setters
 
     void Drivetrain::setLimelightAngleOffset(const std_msgs::msg::Float32 setpoint)
     {
-        targetAngleOffset = setpoint.data;
+        targetAngleOffset = (setpoint.data  *  (2 * M_PI) / 180);
     }
 
     void Drivetrain::setLimelightRange(const std_msgs::msg::Float32 lRange)
@@ -358,7 +363,7 @@ namespace robot
 
     void Drivetrain::setAIAngleOffset(const std_msgs::msg::Float32 setpoint)
     {
-        ballAngleOffset = setpoint.data;
+        ballAngleOffset = (setpoint.data  *  (2 * M_PI) / 180);
     }
 
 #ifdef SystemIndependent
@@ -480,8 +485,12 @@ namespace robot
             imu->SetFusedHeading(0);
         }
         frc::SmartDashboard::PutNumber("drive/heading control", headingControl);
-        frc::SmartDashboard::PutNumber("drive/heading control setpoint", std::fmod((headingControlSetpoint + 360), 360));
-        if (headingControl == 2 && range != -1)
+        frc::SmartDashboard::PutNumber("drive/heading control setpoint", std::fmod((headingControlSetpoint + (2 * M_PI)),  (2 * M_PI)));
+        if (headingControl == 1)
+        {
+            headingController.setSetpoint(headingControlSetpoint, false);
+        } 
+        else if (headingControl == 2 && range != -1)
         {
             headingControlSetpoint = drivetrainHeadingMsg.data - targetAngleOffset;
             headingController.setSetpoint(headingControlSetpoint, false);
@@ -626,9 +635,9 @@ namespace robot
         return speeds;
     }
 
-    void Drivetrain::setHeadingControlSetpoint(double newHeadingSetpoint)
+    void Drivetrain::setHeadingControlSetpoint(std_msgs::msg::Float32 newHeadingSetpoint)
     {
-        headingControlSetpoint = newHeadingSetpoint;
+        headingControlSetpoint = newHeadingSetpoint.data / 180 * M_PI;
     }
 
     void Drivetrain::setHeadingControlGains(PIDFDiscriptor nGains)

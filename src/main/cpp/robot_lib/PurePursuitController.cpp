@@ -154,7 +154,7 @@ namespace robot
         double ySpeed = yPID.update(currPos.Translation().Y().to<double>());
         //convert where we should be going to relitive to the robot, so we can actually get there
         //TRIG ;-; (used to turn the speed into a vector)
-        frc::ChassisSpeeds rv = frc::ChassisSpeeds::FromFieldRelativeSpeeds(units::meters_per_second_t{.83 * lookAheadPoint.velocity * angleToNextPoint.Cos() - xSpeed}, units::meters_per_second_t{.83 * lookAheadPoint.velocity * angleToNextPoint.Sin() - ySpeed}, units::radians_per_second_t{0}, currPos.Rotation());
+        frc::ChassisSpeeds rv = frc::ChassisSpeeds::FromFieldRelativeSpeeds(units::meters_per_second_t{/*.83 * lookAheadPoint.velocity * angleToNextPoint.Cos()*/ - xSpeed}, units::meters_per_second_t{/*.83 * lookAheadPoint.velocity * angleToNextPoint.Sin()*/ - ySpeed}, units::radians_per_second_t{0}, currPos.Rotation());
         //std::cout << totalVel << std::endl;
         return {rv, lookAheadPoint, inertialHeading};
     }

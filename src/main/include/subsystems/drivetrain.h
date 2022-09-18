@@ -189,13 +189,18 @@ namespace robot
         sensor_msgs::msg::Joy lastStick1;
 
         rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr DriveModeSub;
+        rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr DriveVelocityTwistSub;
         void setDriveMode(const std_msgs::msg::Int16);
+        void setDriveVelocity(const geometry_msgs::msg::Twist);
+
+        geometry_msgs::msg::Twist manualVelocity;
 
         rclcpp::Subscription<std_msgs::msg::Int16>::SharedPtr HeadingControlSub;
+        rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr HeadingControlSetpointSub;
         rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr limelightRangeSub;
         void setLimelightRange(const std_msgs::msg::Float32);
         void setHeadingControlEnabled(const std_msgs::msg::Int16);
-        void setHeadingControlSetpoint(double);
+        void setHeadingControlSetpoint(const std_msgs::msg::Float32);
         void setAIAngleOffset(const std_msgs::msg::Float32);
         PIDF headingController = PIDF(HEADING_CONTROL_GAINS_TELE, "gyro_pid");
         int headingControl = 0; //(0, disabled), (1, gyroLock), (2, limelightAngle)
