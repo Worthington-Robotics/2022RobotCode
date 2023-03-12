@@ -20,7 +20,9 @@ namespace motors
         virtual void configMotorPIDF(const std::shared_ptr<can_msgs::srv::SetPIDFGains::Request> req,
                          std::shared_ptr<can_msgs::srv::SetPIDFGains::Response> resp){}
 
-        virtual JointState getJointState() {}
+        virtual JointState getJointState() {
+            return JointState();
+        }
 
     };
 

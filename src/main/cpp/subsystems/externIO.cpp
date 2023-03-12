@@ -10,9 +10,9 @@ namespace robot
    {
       //internalTOF = std::make_shared<frc::TimeOfFlight>(INTERNAL_TOF_ID);
       //externalTOF = std::make_shared<frc::TimeOfFlight>(EXTERNAL_TOF_ID);
-      climberSolenoidLR = std::make_shared<frc::DoubleSolenoid>(frc::PneumaticsModuleType::CTREPCM, CLIMBER_SOLENOID_LR_HIGH_ID, CLIMBER_SOLENOID_LR_LOW_ID);
-      climberSolenoidC = std::make_shared<frc::DoubleSolenoid>(frc::PneumaticsModuleType::CTREPCM, CLIMBER_SOLENOID_C_HIGH_ID, CLIMBER_SOLENOID_C_LOW_ID);
-      intakeSolenoid = std::make_shared<frc::DoubleSolenoid>(frc::PneumaticsModuleType::CTREPCM, INTAKE_SOLENOID_HIGH_ID, INTAKE_SOLENOID_LOW_ID);
+      // climberSolenoidLR = std::make_shared<frc::DoubleSolenoid>(frc::PneumaticsModuleType::CTREPCM, CLIMBER_SOLENOID_LR_HIGH_ID, CLIMBER_SOLENOID_LR_LOW_ID);
+      // climberSolenoidC = std::make_shared<frc::DoubleSolenoid>(frc::PneumaticsModuleType::CTREPCM, CLIMBER_SOLENOID_C_HIGH_ID, CLIMBER_SOLENOID_C_LOW_ID);
+      // intakeSolenoid = std::make_shared<frc::DoubleSolenoid>(frc::PneumaticsModuleType::CTREPCM, INTAKE_SOLENOID_HIGH_ID, INTAKE_SOLENOID_LOW_ID);
       reset();
    }
 

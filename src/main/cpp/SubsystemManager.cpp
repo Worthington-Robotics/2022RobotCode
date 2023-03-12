@@ -31,9 +31,13 @@ namespace robot
         // Create the ros bindings for each subsystem and reset its state
         for (std::shared_ptr<Subsystem> subsystem : subsystems)
         {
+             std::cout << "HELLO GUYS 1" << "\n";
             subsystem->createRosBindings(this);
+             std::cout << "HELLO GUYS 2" << "\n";
             subsystem->reset();
+             std::cout << "HELLO GUYS 3" << "\n";
             subsystem->enableDebug(false);
+             std::cout << "HELLO GUYS 4" << "\n";
         }
     }
 

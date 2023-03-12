@@ -19,7 +19,7 @@
 
 #define DRIVE_RL_DRIVE 7
 #define DRIVE_RL_ANGLE 8
-#define DRIVE_RL_ENCOD 4
+#define DRIVE_RL_ENCOD 0
 
 #define LED_BAR 9
 

@@ -15,7 +15,7 @@ void Robot::RobotInit()
     const char* argv[] = {"--ros-args", "--log-level", "DEBUG"};
     rclcpp::init(3, argv);
 
-    frc::ReportError(frc::warn::Warning, "Robot.cpp", 14, "RobotInit()", "ROS Sucessfully Init!");
+    // frc::ReportError(frc::warn::Warning, "Robot.cpp", 14, "RobotInit()", "ROS Sucessfully Init!");
 
     // construct subsystems
     externIO = std::make_shared<robot::ExternIO>();
@@ -29,7 +29,8 @@ void Robot::RobotInit()
     manager->registerSubsystems(std::vector<std::shared_ptr<robot::Subsystem>>{
         drive,
         sticks,
-        externIO});
+        externIO
+        });
 
     // grab the version string
     robot::ShowVersionData();

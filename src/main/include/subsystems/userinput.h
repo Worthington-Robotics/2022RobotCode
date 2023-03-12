@@ -81,6 +81,10 @@ namespace robot
          **/
         static double mapValue(double input, double minOutput, double maxOutput);
 
+        void enableDebug(bool debugEnable) override {
+
+        }
+
     private:
         std::vector<frc::Joystick> sticks = {};
         std::vector<rclcpp::Publisher<sensor_msgs::msg::Joy>::SharedPtr> stickPubs = {};
